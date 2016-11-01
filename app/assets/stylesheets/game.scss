@@ -1,0 +1,48 @@
+.game {
+  margin-top: 50px;
+  margin-left: 50px;
+
+  .board-row {
+    display: flex;
+
+    .vertex {
+      width:  2px;
+      height: 2px;
+      margin: -5px;
+      background-color:  red;
+      z-index: 2;
+      border: 14px solid red;
+      border-radius: 14px;
+    }
+
+    .hline {
+      width: 80px;
+      height: 18px;
+      border-top: 1px solid black;
+      border-bottom: 1px solid black;
+      background-color: black;
+    }
+
+    .vline {
+      width: 18px;
+      height: 80px;
+      border-left: 1px solid black;
+      border-right: 1px solid black;
+      background-color: black;
+    }
+
+    .vline.open, .hline.open {
+      background-color: #cccccc;
+      &:hover {
+        background-color: #999999;
+        cursor: pointer;
+      }
+    }
+
+    .tile {
+      width: 80px;
+      height: 80px;
+      background-color: #e8e8e8
+    }
+  }
+}
