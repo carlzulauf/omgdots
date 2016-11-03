@@ -1,7 +1,5 @@
 class @DotsGame
-  constructor: (@gameData) ->
-    @id = @gameData.id
-    @render()
+  constructor: () ->
     @subscribe()
 
   subscribe: ->
@@ -9,8 +7,10 @@ class @DotsGame
       channel: "DotsGameChannel"
       id: @id
     @channel = App.cable.subscriptions.create options,
-      received: (data) ->
+      received: (data) =>
         console.log ["received", data]
+        @gameData = data
+        @render()
 
       connected: ->
         console.log "Connected to DotsGameChannel"
