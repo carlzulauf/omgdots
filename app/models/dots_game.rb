@@ -8,6 +8,10 @@ class DotsGame
     @board  = DotsGameBoard.new(width, height)
   end
 
+  def move(x:, y:)
+    @board.move(x: x, y: y)
+  end
+
   def to_gid_param
     id
   end

@@ -18,6 +18,14 @@ class DotsGameBoard
     build_board
   end
 
+  def move(x:, y:)
+    pos = @board[y].try(:[], x)
+    case pos
+    when HLINE_OPEN then _set(x, y, HLINE_CLOSE)
+    when VLINE_OPEN then _set(x, y, VLINE_CLOSE)
+    end
+  end
+
   def as_json(*)
     @board
   end

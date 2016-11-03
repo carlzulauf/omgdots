@@ -1,6 +1,7 @@
 class @DotsGame
-  constructor: () ->
+  constructor: (@id) ->
     @subscribe()
+    @listen()
 
   subscribe: ->
     options =
@@ -12,16 +13,19 @@ class @DotsGame
         @gameData = data
         @render()
 
-      connected: ->
+      connected: =>
         console.log "Connected to DotsGameChannel"
+        @channel.perform "start"
 
-      subscribed: ->
-        console.log ["subscribed", arguments]
+  listen: ->
+    $(".game").on "click", ".hline.open, .vline.open", (e) =>
+      $el = $(e.target)
+      @channel.perform "move", x: $el.data("x"), y: $el.data("y")
 
   render: ->
-    rows = @gameData.board.map (row) =>
-      cols = row.map (col) =>
-        @buildTile(col)
+    rows = @gameData.board.map (row, y) =>
+      cols = row.map (col, x) =>
+        @buildTile(col, x, y)
       inner = cols.join("\n")
       """
         <div class="board-row">#{inner}</div>
@@ -32,7 +36,7 @@ class @DotsGame
            """
     $(".game").html html
 
-  buildTile: (value) ->
+  buildTile: (value, x, y) ->
     classNames = switch value
       when 0 then "tile empty"
       when 1 then "tile player1"
@@ -46,5 +50,5 @@ class @DotsGame
       when 9 then "hline out"
 
     """
-      <div class="#{classNames}"></div>
+      <div class="#{classNames}" data-x=#{x} data-y=#{y}></div>
     """
