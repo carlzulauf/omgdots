@@ -12,7 +12,6 @@ class DotsGameChannel < ApplicationCable::Channel
   end
 
   def move(data)
-    Rails.logger.warn data.inspect
     @game.move(x: data["x"], y: data["y"])
     transmit @game
   end

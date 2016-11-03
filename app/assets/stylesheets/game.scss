@@ -46,7 +46,15 @@
     .tile {
       width: 80px;
       height: 80px;
-      background-color: #e8e8e8
+      background-color: #e8e8e8;
+
+      &.player1 {
+        background-color: #22aa22;
+      }
+
+      &.player2 {
+        background-color: #2222aa;
+      }
     }
   }
 }

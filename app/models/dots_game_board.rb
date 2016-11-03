@@ -19,15 +19,34 @@ class DotsGameBoard
   end
 
   def move(x:, y:)
-    pos = @board[y].try(:[], x)
-    case pos
-    when HLINE_OPEN then _set(x, y, HLINE_CLOSE)
-    when VLINE_OPEN then _set(x, y, VLINE_CLOSE)
+    case get(x, y)
+    when HLINE_OPEN then draw_hline(x, y)
+    when VLINE_OPEN then draw_vline(x, y)
     end
   end
 
   def as_json(*)
     @board
+  end
+
+  private
+
+  def draw_vline(x, y)
+    set(x, y, VLINE_CLOSE)
+    check_tiles [x-1, y], [x+1, y]
+  end
+
+  def draw_hline(x, y)
+    set(x, y, HLINE_CLOSE)
+    check_tiles [x, y-1], [x, y+1]
+  end
+
+  def check_tiles(*tiles)
+    tiles.each do |x, y|
+      if get(x, y) == TILE_EMPTY && surrounded?(x, y)
+        set(x, y, [TILE_PLAYER1, TILE_PLAYER2].sample)
+      end
+    end
   end
 
   def build_board
@@ -38,10 +57,17 @@ class DotsGameBoard
   end
 
   def markup_board
-    vertex_positions.each {|x, y| _set(x, y, VERTEX) }
-    hline_positions.each  {|x, y| _set(x, y, HLINE_OPEN) }
-    vline_positions.each  {|x, y| _set(x, y, VLINE_OPEN) }
-    tile_positions.each   {|x, y| _set(x, y, TILE_EMPTY) }
+    vertex_positions.each {|x, y| set(x, y, VERTEX) }
+    hline_positions.each  {|x, y| set(x, y, HLINE_OPEN) }
+    vline_positions.each  {|x, y| set(x, y, VLINE_OPEN) }
+    tile_positions.each   {|x, y| set(x, y, TILE_EMPTY) }
+  end
+
+  def surrounded?(x, y)
+    get(x, y-1) == HLINE_CLOSE && # north
+    get(x, y+1) == HLINE_CLOSE && # south
+    get(x-1, y) == VLINE_CLOSE && # west
+    get(x+1, y) == VLINE_CLOSE    # east
   end
 
   def positions
@@ -66,7 +92,11 @@ class DotsGameBoard
     positions.select {|x, y| y % 2 == 1 && x % 2 == 0 }
   end
 
-  def _set(x, y, value)
+  def set(x, y, value)
     @board[y][x] = value
+  end
+
+  def get(x, y)
+    @board[y][x] if @board[y]
   end
 end
