@@ -40,8 +40,10 @@ class @DotsGame
       when 3 then "vertex"
       when 4 then "vline open"
       when 5 then "vline"
-      when 6 then "hline open"
-      when 7 then "hline"
+      when 6 then "vline out"
+      when 7 then "hline open"
+      when 8 then "hline"
+      when 9 then "hline out"
 
     """
       <div class="#{classNames}"></div>

@@ -5,8 +5,10 @@ class DotsGameBoard
   VERTEX        = 3
   VLINE_OPEN    = 4
   VLINE_CLOSE   = 5
-  HLINE_OPEN    = 6
-  HLINE_CLOSE   = 7
+  VLINE_OUT     = 6
+  HLINE_OPEN    = 7
+  HLINE_CLOSE   = 8
+  HLINE_OUT     = 9
 
   attr_reader :width, :height, :board
 
