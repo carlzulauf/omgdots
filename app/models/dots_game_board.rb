@@ -10,15 +10,16 @@ class DotsGameBoard
   HLINE_CLOSE   = 8
   HLINE_OUT     = 9
 
-  attr_reader :width, :height, :board
+  include ActiveModel::Model
+  attr_accessor :width, :height, :board, :fullw, :fullh
 
-  def initialize(width, height)
-    @width  = width
-    @height = height
-    build_board
+  def initialize(attributes={})
+    super
+    build_board unless @board
   end
 
-  def move(x:, y:)
+  def move(x:, y:, player:)
+    @player = player
     case get(x, y)
     when HLINE_OPEN then draw_hline(x, y)
     when VLINE_OPEN then draw_vline(x, y)
@@ -26,7 +27,20 @@ class DotsGameBoard
   end
 
   def as_json(*)
-    @board
+    {
+      width:  width,
+      height: height,
+      fullw:  fullw,
+      fullh:  fullh,
+      board:  board,
+    }
+  end
+
+  def build_board
+    @fullh = height * 2 + 1
+    @fullw = width * 2 + 1
+    @board = Array.new(@fullh) { Array.new(@fullw) }
+    markup_board
   end
 
   private
@@ -42,18 +56,14 @@ class DotsGameBoard
   end
 
   def check_tiles(*tiles)
+    missed = true
     tiles.each do |x, y|
       if get(x, y) == TILE_EMPTY && surrounded?(x, y)
-        set(x, y, [TILE_PLAYER1, TILE_PLAYER2].sample)
+        set(x, y, @player == 1 ? TILE_PLAYER1 : TILE_PLAYER2)
+        missed = false
       end
     end
-  end
-
-  def build_board
-    @fullh = height * 2 + 1
-    @fullw = width * 2 + 1
-    @board = Array.new(@fullh) { Array.new(@fullw) }
-    markup_board
+    missed
   end
 
   def markup_board

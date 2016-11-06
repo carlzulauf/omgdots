@@ -1,5 +1,5 @@
 class GamesController < ApplicationController
   def show
-    @game = DotsGame.find(params[:id])
+    @game = DotsGame.find_or_create(params[:id])
   end
 end

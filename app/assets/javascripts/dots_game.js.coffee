@@ -21,9 +21,11 @@ class @DotsGame
     $(".game").on "click", ".hline.open, .vline.open", (e) =>
       $el = $(e.target)
       @channel.perform "move", x: $el.data("x"), y: $el.data("y")
+    $(".game-menu .restart").on "click", =>
+      @channel.perform "restart"
 
   render: ->
-    rows = @gameData.board.map (row, y) =>
+    rows = @gameData.board.board.map (row, y) =>
       cols = row.map (col, x) =>
         @buildTile(col, x, y)
       inner = cols.join("\n")
@@ -35,6 +37,9 @@ class @DotsGame
              <div class="board">#{rows.join("\n")}</div>
            """
     $(".game").html html
+    $cp = $(".game-menu .current-player")
+    $cp.toggleClass("current-player1", @gameData.player == 1)
+    $cp.toggleClass("current-player2", @gameData.player == 2)
 
   buildTile: (value, x, y) ->
     classNames = switch value

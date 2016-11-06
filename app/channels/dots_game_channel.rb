@@ -13,6 +13,12 @@ class DotsGameChannel < ApplicationCable::Channel
 
   def move(data)
     @game.move(x: data["x"], y: data["y"])
+    @game.save
+    transmit @game
+  end
+
+  def restart
+    @game.restart
     transmit @game
   end
 end
