@@ -19,6 +19,10 @@ class DotsGame
     "game:#{id}"
   end
 
+  def channel_key
+    "dots_game:#{id}"
+  end
+
   def board=(board_data)
     if board_data.is_a?(DotsGameBoard)
       @board = board_data
