@@ -3,28 +3,32 @@
 
 class DotsGameChannel < ApplicationCable::Channel
   def subscribed
-    @game = DotsGame.find(params[:id])
-    stream_for @game
+    @game_id = params[:id]
+    stream_for DotsGame.new(id: @game_id)
   end
 
   def start
-    transmit @game
+    transmit find_game
   end
 
   def move(data)
-    @game.move(x: data["x"], y: data["y"])
-    @game.save
-    broadcast_game
+    game = find_game
+    game.move(x: data["x"], y: data["y"])
+    game.save
+    broadcast game
   end
 
   def restart
-    @game.restart
-    broadcast_game
+    broadcast find_game.tap(&:restart)
   end
 
   private
 
-  def broadcast_game
-    DotsGameChannel.broadcast_to @game.id, @game
+  def find_game
+    DotsGame.find_or_create(@game_id)
+  end
+
+  def broadcast(game)
+    DotsGameChannel.broadcast_to game.id, game
   end
 end
