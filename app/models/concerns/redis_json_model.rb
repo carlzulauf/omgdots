@@ -8,6 +8,7 @@ module RedisJsonModel
     cattr_accessor(:redis, instance_reader: true) { RedisJsonModel.redis }
     attr_accessor :id
     alias_method :to_gid_param, :id
+    alias_method :to_param, :id
   end
 
   def key
@@ -30,6 +31,10 @@ module RedisJsonModel
 
     def find_or_create(id)
       find(id) || self.new(id: id).tap(&:save)
+    end
+
+    def create(attrs)
+      self.new(attrs).tap(&:save)
     end
   end
 end

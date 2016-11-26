@@ -1,0 +1,4 @@
+= form_for(@game, url: games_path) do |f|
+  = f.label :id, "Unique Game Name"
+  = f.text_field :id
+  = f.submit "Start"
