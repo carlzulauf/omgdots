@@ -8,7 +8,7 @@ Type=simple
 
 User=deploy
 WorkingDirectory=/var/www/omgdots/current
-Environment=RAILS_ENV=staging
+Environment=RAILS_ENV=production
 ExecStart=/usr/local/bin/chruby-exec ruby-2.3.3 -- bundle exec --keep-file-descriptors puma -C config/puma.rb
 
 Restart=always

@@ -26,7 +26,7 @@ Used a really long random password. Won't really be used.
 
 Install some stuff as `carl`:
 
-    $ sudo apt install ruby pry build-essential redis-server git tmux libreadline6-dev libssl-doc libssl1.0.0 libtinfo-dev nginx
+    $ sudo apt install ruby pry build-essential redis-server git tmux libreadline6-dev libssl-doc libssl1.0.0 libtinfo-dev nginx libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev
 
 Somehow `git` and `tmux` were already installed. The latter is very surprising.
 
@@ -85,3 +85,36 @@ Give `deploy` the ability to restart puma.
 Deploy app. Run capistrano from dev environment.
 
     $ cap staging deploy
+
+## Production Host Environment
+
+DigitalOcean 512MB droplet.
+
+IP: 104.236.122.39
+
+## Production Server Environment
+
+Or, really, the differences from staging
+
+`root` is admin user
+
+Install letsencrypt to get ssl certs
+
+    $ apt install letsencrypt
+
+Stop nginx
+
+    $ systemctl stop nginx
+
+Start certbot server to validate domain and get certs
+
+    $ letsencrypt certonly --standalone -d omgdots.win
+
+Validate that renewal works
+
+    $ letsencrypt renew --dry-run --agree-tos
+
+Add twice daily renewal to crontab. Actually renews less frequently. Expires after 90 days.
+
+    # m h  dom mon dow   command
+    51 5,17 * * *  /usr/bin/letsencrypt renew
