@@ -76,6 +76,12 @@ Copy `doc/puma.service` to `/etc/systemd/system` and install service.
     $ sudo systemctl enable puma.service
     $ sudo systemctl start puma.service
 
+Give `deploy` the ability to restart puma.
+
+    $ sudo visudo
+    # add the following line
+    deploy ALL=(ALL) NOPASSWD: /bin/systemctl restart puma.service
+
 Deploy app. Run capistrano from dev environment.
 
     $ cap staging deploy
