@@ -1,14 +1,32 @@
 class DotsGame
   include RedisJsonModel
-  attr_accessor :width, :height, :player
-  attr_reader :board
+  attr_accessor :player
+  attr_reader :width, :height, :board, :must_touch
 
   def initialize(attributes={})
     super
-    self.width  ||= 7
-    self.height ||= 5
-    self.board  ||= DotsGameBoard.new(width: width, height: height)
-    self.player ||= 1
+    @width    ||= 7
+    @height   ||= 5
+    @board    ||= DotsGameBoard.new(width: width, height: height)
+    @player   ||= 1
+    @must_touch = true unless defined?(@must_touch)
+  end
+
+  def width=(value)
+    @width = value.to_i
+  end
+
+  def height=(value)
+    @height = value.to_i
+  end
+
+  def must_touch=(value)
+    @must_touch = case value
+                  when String
+                    !!(value =~ /t(rue)?|y(es)?|on/i)
+                  else
+                    !!value
+                  end
   end
 
   def board=(board_data)

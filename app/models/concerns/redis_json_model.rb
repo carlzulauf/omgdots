@@ -19,6 +19,11 @@ module RedisJsonModel
     redis.set(key, to_json)
   end
 
+  def destroy
+    redis.del key
+    self
+  end
+
   class_methods do
     def key_for(id)
       "#{model_name.singular}:#{id}"

@@ -8,6 +8,20 @@
   margin-left: 50px;
   margin-bottom: 25px;
 
+  .exit {
+    float: left;
+    background-color: #e24444;
+    border-radius: 10px;
+    padding: 5px 20px;
+    margin-bottom: 25px;
+    margin-right: 10px;
+    cursor: pointer;
+
+    a:link, a:visited {
+      text-decoration: none;
+    }
+  }
+
   .restart {
     float: left;
     background-color: #e2dd44;

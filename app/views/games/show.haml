@@ -1,4 +1,5 @@
 .game-menu
+  .exit= link_to "Exit", game_path(@game), method: :delete, data: {confirm: "Are you sure you wish to exit and destroy this game?"}
   .restart Restart
   .players
     .player1 Player 1

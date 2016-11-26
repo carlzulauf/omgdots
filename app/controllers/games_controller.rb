@@ -13,7 +13,12 @@ class GamesController < ApplicationController
     @game = DotsGame.find_or_create(params[:id])
   end
 
+  def destroy
+    DotsGame.find(params[:id])&.destroy
+    redirect_to new_game_url
+  end
+
   def game_params
-    params.require(:dots_game).permit(:id)
+    params.require(:dots_game).permit(:id, :width, :height, :must_touch)
   end
 end

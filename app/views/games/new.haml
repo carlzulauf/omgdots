@@ -1,4 +1,14 @@
 = form_for(@game, url: games_path) do |f|
-  = f.label :id, "Unique Game Name"
-  = f.text_field :id
-  = f.submit "Start"
+  .form-group
+    = f.label :id, "Unique Game Name"
+    = f.text_field :id
+  .form-group
+    = f.label :width
+    = f.text_field :width
+    = f.label :height
+    = f.text_field :height
+  .form-group
+    = f.label :must_touch, "Lines must touch"
+    = f.select :must_touch, %w(True False)
+  .form-group
+    = f.submit "Start"
