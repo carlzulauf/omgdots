@@ -1,0 +1,17 @@
+[Unit]
+Description=Puma HTTP Server
+After=network.target
+
+[Service]
+# Foreground process (do not use --daemon in ExecStart or config.rb)
+Type=simple
+
+User=deploy
+WorkingDirectory=/var/www/omgdots/current
+Environment=RAILS_ENV=staging
+ExecStart=/usr/local/bin/chruby-exec ruby-2.3.3 -- bundle exec --keep-file-descriptors puma -C config/puma.rb
+
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
