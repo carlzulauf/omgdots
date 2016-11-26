@@ -9,7 +9,7 @@ class DotsGameBoard
   HLINE_OPEN    = 7
   HLINE_CLOSE   = 8
   HLINE_OUT     = 9
-  ASCII_CELLS   = [" ", "1", "2", "•", " ", "|", " ", " ", "–", " "]
+  ASCII_CELLS   = ["   ", " 1 ", " 2 ", "•", " ", "|", " ", "   ", "–––", "   "]
 
   include ActiveModel::Model
   attr_accessor :width, :height, :board, :fullw, :fullh
@@ -59,10 +59,11 @@ class DotsGameBoard
       line = row.map do |cell|
         symbols ? ascii_cell(cell) : cell.to_s
       end.join
-      "[  #{line}  ]\n"
     end
-    rows.unshift "[‾‾#{"‾" * fullw}‾‾]\n"
-    rows.push "[__#{"_" * fullw}__]\n"
+    l = rows.first.length
+    rows.map! {|line| "[  #{line}  ]\n" }
+    rows.unshift "[‾‾#{"‾" * l}‾‾]\n"
+    rows.push "[__#{"_" * l}__]\n"
     rows.map{ |line| (" " * indent) + line }.join
   end
 
