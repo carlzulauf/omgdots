@@ -9,3 +9,7 @@ test:
 production:
   ns: omgdots
   url: redis://localhost:6379/0
+
+staging:
+  ns: omgdots
+  url: redis://localhost:6379/0
