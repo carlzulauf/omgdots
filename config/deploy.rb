@@ -4,11 +4,13 @@ lock '3.6.1'
 set :application, 'omgdots'
 set :repo_url, 'git@github.com:carlzulauf/omgdots.git'
 
-set :deploy_to, "/home/deploy/omgdots"
+set :deploy_to, "/var/www/omgdots"
 set :chruby_ruby, 'ruby-2.3.3'
 
 append :linked_dirs, 'log'
 append :linked_files, ".env"
+
+set :assets_roles, [:app]
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
