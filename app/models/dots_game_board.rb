@@ -9,6 +9,7 @@ class DotsGameBoard
   HLINE_OPEN    = 7
   HLINE_CLOSE   = 8
   HLINE_OUT     = 9
+  ASCII_CELLS   = [" ", "1", "2", "•", " ", "|", " ", " ", "–", " "]
 
   include ActiveModel::Model
   attr_accessor :width, :height, :board, :fullw, :fullh
@@ -41,6 +42,32 @@ class DotsGameBoard
     @fullw = width * 2 + 1
     @board = Array.new(@fullh) { Array.new(@fullw) }
     markup_board
+  end
+
+  def inspect(*)
+    <<~INSPECT
+      #<#{self.class}:#{object_id}
+       w/h: #{width} x #{height}
+       with verticies: #{fullw} x #{fullh}
+       @board=
+      #{ascii(indent: 2).chomp}>
+    INSPECT
+  end
+
+  def ascii(indent: 0, symbols: true)
+    rows = board.map do |row|
+      line = row.map do |cell|
+        symbols ? ascii_cell(cell) : cell.to_s
+      end.join
+      "[  #{line}  ]\n"
+    end
+    rows.unshift "[‾‾#{"‾" * fullw}‾‾]\n"
+    rows.push "[__#{"_" * fullw}__]\n"
+    rows.map{ |line| (" " * indent) + line }.join
+  end
+
+  def ascii_cell(cell)
+    ASCII_CELLS[cell]
   end
 
   private
