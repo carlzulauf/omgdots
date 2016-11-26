@@ -4,7 +4,7 @@
 class DotsGameChannel < ApplicationCable::Channel
   def subscribed
     @game_id = params[:id]
-    stream_for DotsGame.new(id: @game_id)
+    stream_for find_game
   end
 
   def start

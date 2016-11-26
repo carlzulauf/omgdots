@@ -6,6 +6,8 @@ module RedisJsonModel
 
   included do
     cattr_accessor(:redis, instance_reader: true) { RedisJsonModel.redis }
+    attr_accessor :id
+    alias_method :to_gid_param, :id
   end
 
   def key

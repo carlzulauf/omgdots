@@ -1,6 +1,6 @@
 class DotsGame
   include RedisJsonModel
-  attr_accessor :id, :width, :height, :player
+  attr_accessor :width, :height, :player
   attr_reader :board
 
   def initialize(attributes={})
