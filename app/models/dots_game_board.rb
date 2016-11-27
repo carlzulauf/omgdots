@@ -19,6 +19,14 @@ class DotsGameBoard
     build_board unless @board
   end
 
+  def eql?(other)
+    width == other.width &&
+      height == other.height &&
+      positions.all? { |x, y| get(x, y) == other.get(x, y) }
+  end
+
+  alias_method :==, :eql?
+
   def move(x:, y:, player:)
     @player = player
     case get(x, y)
@@ -69,6 +77,14 @@ class DotsGameBoard
 
   def ascii_cell(cell)
     ASCII_CELLS[cell]
+  end
+
+  def set(x, y, value)
+    @board[y][x] = value
+  end
+
+  def get(x, y)
+    @board[y][x] if @board[y]
   end
 
   private
@@ -128,13 +144,5 @@ class DotsGameBoard
 
   def vline_positions
     positions.select {|x, y| y % 2 == 1 && x % 2 == 0 }
-  end
-
-  def set(x, y, value)
-    @board[y][x] = value
-  end
-
-  def get(x, y)
-    @board[y][x] if @board[y]
   end
 end

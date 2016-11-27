@@ -12,6 +12,14 @@ class DotsGame
     @must_touch = true unless defined?(@must_touch)
   end
 
+  def eql?(other)
+    %i(width height player must_touch board).all? do |f|
+      public_send(f) == other.public_send(f)
+    end
+  end
+
+  alias_method :==, :eql?
+
   def width=(value)
     @width = value.to_i
   end
