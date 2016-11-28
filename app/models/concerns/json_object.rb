@@ -1,11 +1,11 @@
 module JsonObject
   class Field
-    attr_accessor :name, :type, :options
+    attr_reader :name, :type, :options
 
     def initialize(name, type, **options)
-      self.name     = name
-      self.type     = type
-      self.options  = options
+      @name     = name
+      @type     = type
+      @options  = options
     end
 
     def default?
@@ -21,6 +21,11 @@ module JsonObject
       else
         v
       end
+    end
+
+    def klass
+      return if type.is_a?(Symbol)
+      @klass ||= type.constantize
     end
   end
 
@@ -62,10 +67,24 @@ module JsonObject
       @fields ||= []
     end
 
+    def collections
+      @collections ||= []
+    end
+
     def field(name, type, **options)
       Field.new(name, type, options).tap do |f|
         fields << f
         define_methods_for(f)
+      end
+    end
+
+    def many(name, type, **options)
+      Field.new(name, type, options).tap do |f|
+        f.options[:default] ||= []
+        collections << f
+        fields << f
+        generic_reader(f)
+        collection_writer(f)
       end
     end
 
@@ -79,8 +98,8 @@ module JsonObject
       end
     end
 
-    def generic_reader(field)
-      define_method(field.name) { object[field.name.to_s] }
+    def generic_reader(f)
+      define_method(f.name) { object[f.name.to_s] }
     end
 
     def define_writer(f)
@@ -89,10 +108,20 @@ module JsonObject
       end
     end
 
+    def coerce_array(value)
+      value&.to_a
+    end
+
+    def array_writer(f)
+      define_writer(f) { |v| coerce_array(v) }
+    end
+
+    def coerce_string(value)
+      value ? value.to_s : nil
+    end
+
     def string_writer(f)
-      define_writer(f) do |value|
-        value ? value.to_s : nil
-      end
+      define_writer(f) { |v| coerce_string(v) }
     end
 
     def coerce_numeric(value, from_str = :to_i)
@@ -107,46 +136,68 @@ module JsonObject
       end
     end
 
-    def integer_writer(f)
-      define_writer(f) do |value|
-        coerce_numeric(value, :to_i)&.round
-      end
+    def coerce_integer(value)
+      coerce_numeric(value, :to_i)&.round
     end
 
-    def boolean_writer(f)
-      define_writer(f) do |value|
-        case value
-        when String, Symbol then !!(value =~ /t(rue)?|y(es)?|on/i)
-        else !!value
-        end
-      end
+    def integer_writer(f)
+      define_writer(f) { |value| coerce_integer(value) }
+    end
+
+    def coerce_float(value)
+      coerce_numeric(value, :to_f)&.to_f
     end
 
     def float_writer(f)
-      define_writer(f) do |value|
-        coerce_numeric(value, :to_f)&.to_f
+      define_writer(f) { |value| coerce_float(value) }
+    end
+
+    def coerce_boolean(value)
+      case value
+      when String, Symbol then !!(value =~ /t(rue)?|y(es)?|on/i)
+      else !!value
+      end
+    end
+
+    def boolean_writer(a_field)
+      define_writer(a_field) { |value| coerce_boolean(value) }
+    end
+
+    def coerce_time(value)
+      case value
+      when Time then value
+      when String then Time.parse(value)
       end
     end
 
     def time_writer(f)
-      define_writer(f) do |value|
-        case value
-        when Time then value
-        when String then Time.parse(value)
-        end
+      define_writer(f) { |v| coerce_time(v) }
+    end
+
+    def coerce_for_field(value, field)
+      case field.type
+      when Symbol then send("coerce_#{field.type}", value)
+      else coerce_to_class(value, field.klass)
+      end
+    end
+
+    def coerce_to_class(value, klass)
+      case value
+      when klass then value
+      when nil then nil
+      else klass.new(value)
+      end
+    end
+
+    def collection_writer(f)
+      define_writer(f) do |values|
+        values&.map { |value| coerce_for_field(value, f) }
       end
     end
 
     def object_writer(f)
-      klass = nil
-      define_writer(f) do |value|
-        klass ||= f.type.constantize # doing this here so it's lazily evaluated
-        case value
-        when klass then value
-        when nil then nil
-        else klass.new(value)
-        end
-      end
+      define_writer(f) { |value| coerce_to_class(value, f.klass) }
     end
+
   end
 end
