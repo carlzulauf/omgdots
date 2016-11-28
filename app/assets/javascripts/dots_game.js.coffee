@@ -9,7 +9,6 @@ class @DotsGame
       id: @id
     @channel = App.cable.subscriptions.create options,
       received: (data) =>
-        console.log ["received", data]
         @gameData = data
         @render()
 
