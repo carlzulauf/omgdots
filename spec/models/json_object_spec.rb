@@ -9,6 +9,7 @@ class TestModel
   field :started, :boolean, default: false
   field :created_at, :time, default: -> { Time.now }
   field :board, "TestBoard"
+  field :options, :hash
 
   def two_players
     [
@@ -56,13 +57,20 @@ describe "JsonObject" do
         expect(subject.started).to eq(false)
         expect(subject.created_at).to be_kind_of(Time)
         expect(subject.count).to eq(2)
+        expect(subject.options).to eq(nil)
       end
     end
 
     context "with simple hash object" do
       let(:args) do
         [
-          {name: "Kat", score: "101.25", started: "yes", created_at: "2016-11-01"}
+          {
+            name: "Kat",
+            score: "101.25",
+            started: "yes",
+            created_at: "2016-11-01",
+            options: {foo: "bar"},
+          }
         ]
       end
 
@@ -71,6 +79,7 @@ describe "JsonObject" do
         expect(subject.score).to eq(101.25)
         expect(subject.started).to eq(true)
         expect(subject.created_at).to eq(Time.new(2016,11,1))
+        expect(subject.options).to eq("foo" => "bar")
       end
 
       it "should coerce values that are not the correct type" do
@@ -92,7 +101,7 @@ describe "JsonObject" do
               {name: "George", age: 66},
               {name: "Lisa", age: 37}
             ],
-            board: {width: 4, height: 4}
+            board: {width: 4, height: 4},
           }
         ]
       end
@@ -114,6 +123,43 @@ describe "JsonObject" do
       end
     end
 
+    context "with unexpected hash attributes" do
+      let(:args) do
+        [{foo: "bar"}]
+      end
+
+      it "should silently hold on to the value" do
+        expect(subject.object["foo"]).to eq("bar")
+      end
+    end
+
+  end
+
+  describe "typed field writers" do
+    subject { TestModel.new }
+
+    it "coerces from strings correctly" do
+      subject.name = "foo"
+      expect(subject.name).to eq("foo")
+
+      subject.count = "3"
+      expect(subject.count).to eq(3)
+
+      subject.score = "42.42"
+      expect(subject.score).to eq(42.42)
+      subject.score = "$5,427.06"
+      expect(subject.score).to eq(5427.06)
+
+      subject.started = "yes"
+      expect(subject.started).to eq(true)
+      subject.started = "no"
+      expect(subject.started).to eq(false)
+    end
+
+    it "coerces and rounds floats for integer fields" do
+      subject.count = 3.6
+      expect(subject.count).to eq(4)
+    end
   end
 
 end

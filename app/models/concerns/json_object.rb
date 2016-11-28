@@ -94,7 +94,7 @@ module JsonObject
       when Symbol
         send("#{field.type}_writer", field)
       when String
-        object_writer(field)
+        typed_writer(field)
       end
     end
 
@@ -107,6 +107,15 @@ module JsonObject
         object[f.name.to_s] = yield(value)
       end
     end
+
+    def coerce_hash(value)
+      value&.stringify_keys
+    end
+
+    def hash_writer(a_field)
+      define_writer(a_field) { |v| coerce_hash(v) }
+    end
+    alias_method :object_writer, :hash_writer
 
     def coerce_array(value)
       value&.to_a
@@ -195,7 +204,7 @@ module JsonObject
       end
     end
 
-    def object_writer(f)
+    def typed_writer(f)
       define_writer(f) { |value| coerce_to_class(value, f.klass) }
     end
 
