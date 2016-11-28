@@ -1,25 +1,24 @@
-.game, .game-menu {
+.main {
   font-family: 'Ubuntu', sans-serif;
+  display: flex;
+  flex-flow: column;
 }
 
 .game-menu {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
   text-transform: uppercase;
   margin-top: 10px;
-  margin-left: 50px;
-  margin-bottom: 25px;
 
-  .exit {
+  .exit a:link, .exit a:visited {
     float: left;
     background-color: #e24444;
+    color: #000;
     border-radius: 10px;
     padding: 5px 20px;
-    margin-bottom: 25px;
     margin-right: 10px;
-    cursor: pointer;
-
-    a:link, a:visited {
-      text-decoration: none;
-    }
+    text-decoration: none;
   }
 
   .restart {
@@ -27,7 +26,6 @@
     background-color: #e2dd44;
     border-radius: 10px;
     padding: 5px 20px;
-    margin-bottom: 25px;
     cursor: pointer;
   }
 
@@ -73,12 +71,13 @@
 }
 
 .game {
-  clear: both;
-  margin-top: 25px;
-  margin-left: 50px;
+  display: flex;
+  flex-flow: column;
+  margin: 25px auto;
 
   .board-row {
     display: flex;
+    flex-flow: row nowrap;
 
     .vertex {
       width:  2px;
