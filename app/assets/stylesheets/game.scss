@@ -4,6 +4,23 @@
   flex-flow: column;
 }
 
+.game-overlay {
+  opacity: 0.5;
+  height: 0;
+  width: 0;
+  margin: 0 auto;
+  background-color: rgba(0,0,0,128);
+  color: #fff;
+  z-index: 3;
+  transition: all 0.25s ease-in-out;
+
+  &.in {
+    height: 460px;
+    margin-bottom: -485px;
+    margin-top: 25px;
+  }
+}
+
 .game-menu {
   display: flex;
   flex-flow: row wrap;

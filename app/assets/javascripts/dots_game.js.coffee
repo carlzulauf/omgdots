@@ -22,6 +22,42 @@ class @DotsGame
       @channel.perform "move", x: $el.data("x"), y: $el.data("y")
     $(".game-menu .restart").on "click", =>
       @channel.perform "restart"
+    $(".game-menu .player1").on "click", =>
+      if @overlayShown then @hideOverlay() else @showOverlay()
+
+  showOverlay: ->
+    $board = $(".game .board")
+    $overlay = $(".game-overlay")
+    w = Math.max $board.width() + 30, 300
+    h = Math.max $board.height() + 30, 300
+    $overlay.css
+      height: h
+      width: w
+      marginTop: 10
+      marginBottom: -(h + 10)
+    @overlayShown = true
+
+  hideOverlay: ->
+    h = (@boardHeight / 2) + 25
+    $(".game-overlay").css
+      height: 0
+      width: 0
+      marginTop: h
+      marginBottom: -h
+    @overlayShown = false
+
+  centerOverlay: ->
+    unless @overlayShown
+      h = (@boardHeight / 2) + 25
+      $(".game-overlay").css
+        marginTop: h
+        marginBottom: -h
+
+  measure: ->
+    unless @board_width
+      $board = $(".game .board")
+      @boardWidth  = $board.width()
+      @boardHeight = $board.height()
 
   render: ->
     rows = @gameData.board.board.map (row, y) =>
@@ -39,6 +75,8 @@ class @DotsGame
     $cp = $(".game-menu .current-player")
     $cp.toggleClass("current-player1", @gameData.player == 1)
     $cp.toggleClass("current-player2", @gameData.player == 2)
+    @measure()
+    @centerOverlay()
 
   buildTile: (value, x, y) ->
     classNames = switch value
