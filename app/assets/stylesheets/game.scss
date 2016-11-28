@@ -5,14 +5,13 @@
 }
 
 .game-overlay {
-  opacity: 0.5;
   height: 0;
   width: 0;
   margin: 0 auto;
-  background-color: rgba(0,0,0,128);
+  background-color: rgba(0,0,0,0.8);
   color: #fff;
   z-index: 3;
-  transition: all 0.25s ease-in-out;
+  transition: all 0.25s linear;
 
   &.in {
     height: 460px;
@@ -25,11 +24,11 @@
   display: flex;
   flex-flow: row wrap;
   justify-content: center;
+  align-items: center;
   text-transform: uppercase;
   margin-top: 10px;
 
   .exit a:link, .exit a:visited {
-    float: left;
     background-color: #e24444;
     color: #000;
     border-radius: 10px;
@@ -39,16 +38,19 @@
   }
 
   .restart {
-    float: left;
     background-color: #e2dd44;
     border-radius: 10px;
     padding: 5px 20px;
     cursor: pointer;
   }
 
+  .players {
+    display: flex;
+    flex-flow: row nowrap;
+  }
+
   .player1 {
     color: white;
-    float: left;
     margin-left: 20px;
     padding: 5px 20px;
     border: 2px solid black;
@@ -57,7 +59,6 @@
 
   .player2 {
     color: white;
-    float: left;
     margin-left: 5px;
     padding: 5px 20px;
     border: 2px solid black;
@@ -65,7 +66,6 @@
   }
 
   .status {
-    float: left;
     margin-left: 5px;
     padding: 3px 20px;
     line-height: 20px;
