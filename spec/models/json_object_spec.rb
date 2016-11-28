@@ -8,6 +8,7 @@ class TestModel
   field :score, :float
   field :started, :boolean, default: false
   field :created_at, :time, default: -> { Time.now }
+  field :expires_on, :date
   field :board, "TestBoard"
   field :options, :hash
 
@@ -58,6 +59,7 @@ describe "JsonObject" do
         expect(subject.created_at).to be_kind_of(Time)
         expect(subject.count).to eq(2)
         expect(subject.options).to eq(nil)
+        expect(subject.expires_on).to eq(nil)
       end
     end
 
@@ -154,6 +156,9 @@ describe "JsonObject" do
       expect(subject.started).to eq(true)
       subject.started = "no"
       expect(subject.started).to eq(false)
+
+      subject.expires_on = "2018-01-01"
+      expect(subject.expires_on).to eq(Date.new(2018))
     end
 
     it "coerces and rounds floats for integer fields" do

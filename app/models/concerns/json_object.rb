@@ -147,6 +147,10 @@ module JsonObject
       define_writer(f) { |v| coerce_time(v) }
     end
 
+    def date_writer(f)
+      define_writer(f) { |v| coerce_date(v) }
+    end
+
     def collection_writer(f)
       define_writer(f) do |values|
         values&.map { |value| coerce_for_field(value, f) }
@@ -203,8 +207,15 @@ module JsonObject
 
     def coerce_time(value)
       case value
-      when Time then value
+      when Date, Time then value.to_time
       when String then Time.parse(value)
+      end
+    end
+
+    def coerce_date(value)
+      case value
+      when Date, Time then value.to_date
+      when String then Date.parse(value)
       end
     end
 
