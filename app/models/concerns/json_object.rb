@@ -64,6 +64,10 @@ module JsonObject
     object
   end
 
+  def persisted?
+    false
+  end
+
   class_methods do
     def fields
       @fields ||= []
@@ -90,6 +94,10 @@ module JsonObject
       end
     end
 
+    # =================
+    #  METHOD BUILDERS
+    # =================
+
     def define_methods_for(field)
       generic_reader(field)
       case field.type
@@ -110,8 +118,8 @@ module JsonObject
       end
     end
 
-    def coerce_hash(value)
-      value&.stringify_keys
+    def array_writer(f)
+      define_writer(f) { |v| coerce_array(v) }
     end
 
     def hash_writer(a_field)
@@ -119,20 +127,50 @@ module JsonObject
     end
     alias_method :object_writer, :hash_writer
 
+    def string_writer(f)
+      define_writer(f) { |v| coerce_string(v) }
+    end
+
+    def integer_writer(f)
+      define_writer(f) { |value| coerce_integer(value) }
+    end
+
+    def float_writer(f)
+      define_writer(f) { |value| coerce_float(value) }
+    end
+
+    def boolean_writer(a_field)
+      define_writer(a_field) { |value| coerce_boolean(value) }
+    end
+
+    def time_writer(f)
+      define_writer(f) { |v| coerce_time(v) }
+    end
+
+    def collection_writer(f)
+      define_writer(f) do |values|
+        values&.map { |value| coerce_for_field(value, f) }
+      end
+    end
+
+    def typed_writer(f)
+      define_writer(f) { |value| coerce_to_class(value, f.klass) }
+    end
+
+    # =======================
+    #  TYPE COERSION METHODS
+    # =======================
+
     def coerce_array(value)
       value&.to_a
     end
 
-    def array_writer(f)
-      define_writer(f) { |v| coerce_array(v) }
+    def coerce_hash(value)
+      value&.stringify_keys
     end
 
     def coerce_string(value)
       value ? value.to_s : nil
-    end
-
-    def string_writer(f)
-      define_writer(f) { |v| coerce_string(v) }
     end
 
     def coerce_numeric(value, from_str = :to_i)
@@ -151,27 +189,16 @@ module JsonObject
       coerce_numeric(value, :to_i)&.round
     end
 
-    def integer_writer(f)
-      define_writer(f) { |value| coerce_integer(value) }
-    end
-
     def coerce_float(value)
       coerce_numeric(value, :to_f)&.to_f
     end
 
-    def float_writer(f)
-      define_writer(f) { |value| coerce_float(value) }
-    end
-
     def coerce_boolean(value)
       case value
-      when String, Symbol then !!(value =~ /t(rue)?|y(es)?|on/i)
+      when String, Symbol then !!(value.strip =~ /^t(rue)?|y(es)?|on|1$/i)
+      when Integer then value == 1
       else !!value
       end
-    end
-
-    def boolean_writer(a_field)
-      define_writer(a_field) { |value| coerce_boolean(value) }
     end
 
     def coerce_time(value)
@@ -179,10 +206,6 @@ module JsonObject
       when Time then value
       when String then Time.parse(value)
       end
-    end
-
-    def time_writer(f)
-      define_writer(f) { |v| coerce_time(v) }
     end
 
     def coerce_for_field(value, field)
@@ -198,16 +221,6 @@ module JsonObject
       when nil then nil
       else klass.new(value)
       end
-    end
-
-    def collection_writer(f)
-      define_writer(f) do |values|
-        values&.map { |value| coerce_for_field(value, f) }
-      end
-    end
-
-    def typed_writer(f)
-      define_writer(f) { |value| coerce_to_class(value, f.klass) }
     end
 
   end
