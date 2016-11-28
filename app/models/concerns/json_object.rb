@@ -32,6 +32,8 @@ module JsonObject
   extend ActiveSupport::Concern
 
   included do
+    include ActiveModel::Conversion
+    extend ActiveModel::Naming
     attr_reader :object
   end
 

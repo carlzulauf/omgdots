@@ -11,18 +11,25 @@ class DotsGameBoard
   HLINE_OUT     = 9
   ASCII_CELLS   = ["   ", " 1 ", " 2 ", "•", " ", "|", " ", "   ", "–––", "   "]
 
-  include ActiveModel::Model
-  attr_accessor :width, :height, :board, :fullw, :fullh
+  include JsonObject
 
-  def initialize(attributes={})
-    super
-    build_board unless @board
-  end
+  field :width,   :integer
+  field :height,  :integer
+  field :board,   :array, default: :build_board
 
   def eql?(other)
+    return false unless other
     width == other.width &&
       height == other.height &&
       positions.all? { |x, y| get(x, y) == other.get(x, y) }
+  end
+
+  def fullw
+    width * 2 + 1
+  end
+
+  def fullh
+    height * 2 + 1
   end
 
   alias_method :==, :eql?
@@ -35,21 +42,12 @@ class DotsGameBoard
     end
   end
 
-  def as_json(*)
-    {
-      width:  width,
-      height: height,
-      fullw:  fullw,
-      fullh:  fullh,
-      board:  board,
-    }
+  def reset
+    self.board = build_board
   end
 
   def build_board
-    @fullh = height * 2 + 1
-    @fullw = width * 2 + 1
-    @board = Array.new(@fullh) { Array.new(@fullw) }
-    markup_board
+    markup_board Array.new(fullh) { Array.new(fullw) }
   end
 
   def inspect(*)
@@ -79,12 +77,12 @@ class DotsGameBoard
     ASCII_CELLS[cell]
   end
 
-  def set(x, y, value)
-    @board[y][x] = value
+  def set(x, y, value, b = self.board)
+    b[y][x] = value if x < fullw && y < fullh
   end
 
-  def get(x, y)
-    @board[y][x] if @board[y]
+  def get(x, y, b = self.board)
+    b[y][x] if x < fullw && y < fullh
   end
 
   private
@@ -110,11 +108,12 @@ class DotsGameBoard
     missed
   end
 
-  def markup_board
-    vertex_positions.each {|x, y| set(x, y, VERTEX) }
-    hline_positions.each  {|x, y| set(x, y, HLINE_OPEN) }
-    vline_positions.each  {|x, y| set(x, y, VLINE_OPEN) }
-    tile_positions.each   {|x, y| set(x, y, TILE_EMPTY) }
+  def markup_board(board)
+    vertex_positions.each {|x, y| set(x, y, VERTEX,     board) }
+    hline_positions.each  {|x, y| set(x, y, HLINE_OPEN, board) }
+    vline_positions.each  {|x, y| set(x, y, VLINE_OPEN, board) }
+    tile_positions.each   {|x, y| set(x, y, TILE_EMPTY, board) }
+    board
   end
 
   def surrounded?(x, y)
@@ -126,7 +125,7 @@ class DotsGameBoard
 
   def positions
     Enumerator.new do |e|
-      0.upto(@fullh - 1) { |y| 0.upto(@fullw - 1) { |x| e.yield x, y } }
+      0.upto(fullh - 1) { |y| 0.upto(fullw - 1) { |x| e.yield x, y } }
     end
   end
 

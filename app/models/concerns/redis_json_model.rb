@@ -1,14 +1,22 @@
 module RedisJsonModel
   extend ActiveSupport::Concern
-  include ActiveModel::Model
+  include JsonObject
 
   mattr_accessor(:redis) { $model_redis }
 
   included do
     cattr_accessor(:redis, instance_reader: true) { RedisJsonModel.redis }
-    attr_accessor :id
+
+    field :id, :string
+    field :created_at, :time
+    field :updated_at, :time
+
     alias_method :to_gid_param, :id
     alias_method :to_param, :id
+  end
+
+  def persisted?
+    created_at.present?
   end
 
   def key
@@ -16,6 +24,9 @@ module RedisJsonModel
   end
 
   def save
+    ts = Time.now
+    self.created_at ||= ts
+    self.updated_at   = ts
     redis.set(key, to_json)
   end
 
