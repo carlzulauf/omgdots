@@ -30,6 +30,18 @@ module RedisJsonModel
     redis.set(key, to_json)
   end
 
+  def with_lock
+    redis.watch key
+    reload
+    redis.multi do
+      save if yield
+    end
+  end
+
+  def reload
+    @object = self.class.find(id).object
+  end
+
   def destroy
     redis.del key
     self

@@ -42,5 +42,26 @@ describe DotsGame do
         expect(subject).to eq(saved)
       end
     end
+
+    describe "move!" do
+      it "fails when move is already made in another instance" do
+        other = DotsGame.find(subject.id)
+        expect(other.move!(x: 1, y: 0)).to be_truthy
+        expect(subject.move!(x: 1, y: 0)).to be_falsy
+        expect(subject.board.get(1, 0)).to eq(DotsGameBoard::HLINE_CLOSE)
+      end
+
+      it "sees moves made in other instances" do
+        other = DotsGame.find(subject.id)
+
+        expect(other.move!(x: 1, y: 0)).to be_truthy
+        expect(subject.move!(x: 3, y: 0)).to be_truthy
+
+        expect(subject.board.get(1, 0)).to eq(DotsGameBoard::HLINE_CLOSE)
+        expect(subject.board.get(3, 0)).to eq(DotsGameBoard::HLINE_CLOSE)
+      end
+    end
   end
+
+
 end

@@ -25,6 +25,14 @@ class DotsGame
     end
   end
 
+  def move!(x:, y:)
+    moved = false
+    success = with_lock do
+      moved = move(x: x, y: y)
+    end
+    success && moved
+  end
+
   def restart
     board.reset
     self.player = 1
