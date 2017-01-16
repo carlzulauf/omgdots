@@ -7,7 +7,7 @@ module RedisJsonModel
   included do
     cattr_accessor(:redis, instance_reader: true) { RedisJsonModel.redis }
 
-    field :id, :string
+    field :id,         :string, default: :generate_id
     field :created_at, :time
     field :updated_at, :time
 
@@ -47,9 +47,20 @@ module RedisJsonModel
     self
   end
 
+  def generate_id
+    loop do
+      id = SecureRandom.base58(8)
+      return id unless self.class.exists?(id)
+    end
+  end
+
   class_methods do
     def key_for(id)
       "#{model_name.singular}:#{id}"
+    end
+
+    def exists?(id)
+      redis.exists key_for(id)
     end
 
     def find(id)

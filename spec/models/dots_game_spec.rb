@@ -43,7 +43,7 @@ describe DotsGame do
       end
     end
 
-    describe "move!" do
+    describe "#move!" do
       it "fails when move is already made in another instance" do
         other = DotsGame.find(subject.id)
         expect(other.move!(x: 1, y: 0)).to be_truthy
@@ -61,7 +61,40 @@ describe DotsGame do
         expect(subject.board.get(3, 0)).to eq(DotsGameBoard::HLINE_CLOSE)
       end
     end
+
+    describe "#winner" do
+      it "defaults to nil" do
+        expect(subject.winner).to be(nil)
+      end
+    end
+
+    describe "#won" do
+      it "defaults to false" do
+        expect(subject.won?).to eq(false)
+      end
+    end
+
   end
 
+  context "with late game board" do
+    subject { load_saved_game "late" }
 
+    describe "player2 makes winning move" do
+      let(:make_move) do
+        subject.move(x: 5, y: 2)
+      end
+
+      it "causes player2 to be the winner" do
+        expect{ make_move }.to change{ subject.winner }.from(nil).to(2)
+      end
+
+      it "causes the game to be won" do
+        expect{ make_move }.to change{ subject.won? }.from(false).to(true)
+      end
+
+      it "does not complete the game" do
+        expect{ make_move }.not_to change{ subject.complete? }
+      end
+    end
+  end
 end

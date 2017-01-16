@@ -7,3 +7,9 @@ require 'rspec/rails'
 RSpec.configure do |config|
   config.infer_spec_type_from_file_location!
 end
+
+def load_saved_game(name)
+  path = Rails.root.join("spec", "support", "games", "#{name}.json")
+  json = File.read(path)
+  DotsGame.new JSON.parse(json)
+end

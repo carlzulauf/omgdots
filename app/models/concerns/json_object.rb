@@ -60,8 +60,12 @@ module JsonObject
     end
   end
 
-  def as_json(*)
-    object
+  def as_json(*args)
+    {}.tap do |attrs|
+      object.each do |key, value|
+        attrs[key] = value.as_json(*args)
+      end
+    end
   end
 
   def persisted?

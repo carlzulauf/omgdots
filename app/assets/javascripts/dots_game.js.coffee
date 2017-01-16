@@ -60,7 +60,7 @@ class @DotsGame
       @boardHeight = $board.height()
 
   render: ->
-    rows = @gameData.board.board.map (row, y) =>
+    rows = @gameData.board.map (row, y) =>
       cols = row.map (col, x) =>
         @buildTile(col, x, y)
       inner = cols.join("\n")

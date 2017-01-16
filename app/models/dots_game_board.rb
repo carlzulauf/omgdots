@@ -11,25 +11,28 @@ class DotsGameBoard
   HLINE_OUT     = 9
   ASCII_CELLS   = ["   ", " 1 ", " 2 ", "•", " ", "|", " ", "   ", "–––", "   "]
 
-  include JsonObject
+  def self.build(width, height)
+    new.build(width, height)
+  end
 
-  field :width,   :integer
-  field :height,  :integer
-  field :board,   :array, default: :build_board
+  attr_accessor :data
+  attr_reader :fullw, :fullh
+
+  def initialize(data = nil)
+    self.data = data if data
+  end
+
+  def data=(data)
+    @data  = data
+    @fullw = data[0].length
+    @fullh = data.length
+  end
 
   def eql?(other)
     return false unless other
-    width == other.width &&
-      height == other.height &&
-      positions.all? { |x, y| get(x, y) == other.get(x, y) }
-  end
-
-  def fullw
-    width * 2 + 1
-  end
-
-  def fullh
-    height * 2 + 1
+    fullw == other.fullw &&
+      fullh == other.fullh &&
+      positions.all?{ |x, y| get(x, y) == other.get(x, y) }
   end
 
   alias_method :==, :eql?
@@ -37,31 +40,41 @@ class DotsGameBoard
   def move(x:, y:, player:)
     @player = player
     case get(x, y)
-    when HLINE_OPEN then draw_hline(x, y)
-    when VLINE_OPEN then draw_vline(x, y)
+    when HLINE_OPEN then [true, draw_hline(x, y)]
+    when VLINE_OPEN then [true, draw_vline(x, y)]
+    else [false, 0]
     end
   end
 
-  def reset
-    self.board = build_board
+  def clean
+    markup_board
+    self
   end
 
-  def build_board
-    markup_board Array.new(fullh) { Array.new(fullw) }
+  def build(width, height)
+    self.data = Array.new(height * 2 + 1) { Array.new(width * 2 + 1) }
+    clean
+  end
+
+  def complete?
+    tile_positions.all? { |x, y| get(x, y) == TILE_EMPTY }
+  end
+
+  def score(player)
+    tile = player == 1 ? TILE_PLAYER1 : TILE_PLAYER2
+    tile_positions.count { |x, y| get(x, y) == tile }
   end
 
   def inspect(*)
     <<~INSPECT
       #<#{self.class}:#{object_id}
-       w/h: #{width} x #{height}
-       with verticies: #{fullw} x #{fullh}
-       @board=
+       @data=
       #{ascii(indent: 2).chomp}>
     INSPECT
   end
 
   def ascii(indent: 0, symbols: true)
-    rows = board.map do |row|
+    rows = data.map do |row|
       line = row.map do |cell|
         symbols ? ascii_cell(cell) : cell.to_s
       end.join
@@ -77,12 +90,16 @@ class DotsGameBoard
     ASCII_CELLS[cell]
   end
 
-  def set(x, y, value, b = self.board)
+  def set(x, y, value, b = self.data)
     b[y][x] = value if x < fullw && y < fullh
   end
 
-  def get(x, y, b = self.board)
+  def get(x, y, b = self.data)
     b[y][x] if x < fullw && y < fullh
+  end
+
+  def as_json(*)
+    data
   end
 
   private
@@ -98,22 +115,22 @@ class DotsGameBoard
   end
 
   def check_tiles(*tiles)
-    missed = true
+    scored = 0
     tiles.each do |x, y|
       if get(x, y) == TILE_EMPTY && surrounded?(x, y)
         set(x, y, @player == 1 ? TILE_PLAYER1 : TILE_PLAYER2)
-        missed = false
+        scored += 1
       end
     end
-    missed
+    scored
   end
 
-  def markup_board(board)
-    vertex_positions.each {|x, y| set(x, y, VERTEX,     board) }
-    hline_positions.each  {|x, y| set(x, y, HLINE_OPEN, board) }
-    vline_positions.each  {|x, y| set(x, y, VLINE_OPEN, board) }
-    tile_positions.each   {|x, y| set(x, y, TILE_EMPTY, board) }
-    board
+  def markup_board(b = self.data)
+    vertex_positions.each {|x, y| set(x, y, VERTEX,     b) }
+    hline_positions.each  {|x, y| set(x, y, HLINE_OPEN, b) }
+    vline_positions.each  {|x, y| set(x, y, VLINE_OPEN, b) }
+    tile_positions.each   {|x, y| set(x, y, TILE_EMPTY, b) }
+    b
   end
 
   def surrounded?(x, y)
