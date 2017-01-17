@@ -9,6 +9,7 @@ class DotsGame
   field :winner,       :integer
   field :won_at,       :time
   field :completed_at, :time
+  field :play_to_end,  :boolean,         default: false
 
   def create_board
     DotsGameBoard.build(width, height)
@@ -23,15 +24,11 @@ class DotsGame
   alias_method :==, :eql?
 
   def move(x:, y:)
-    success, scored = board.move(x: x, y: y, player: player)
-    if success
-      if scored > 0
-        check_scores
-
-      else
-        switch_player
-      end
+    moved, scored = board.move(x: x, y: y, player: player)
+    if moved
+      scored > 0 ? check_scores : switch_player
     end
+    moved
   end
 
   def check_scores
@@ -66,7 +63,9 @@ class DotsGame
   def restart
     board.clean
     self.player = 1
-    save
+    self.winner = nil
+    self.won_at = nil
+    self.completed_at = nil
   end
 
   def switch_player

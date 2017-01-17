@@ -57,7 +57,7 @@ class DotsGameBoard
   end
 
   def complete?
-    tile_positions.all? { |x, y| get(x, y) == TILE_EMPTY }
+    tile_positions.none? { |x, y| get(x, y) == TILE_EMPTY }
   end
 
   def score(player)

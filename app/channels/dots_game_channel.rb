@@ -12,17 +12,22 @@ class DotsGameChannel < ApplicationCable::Channel
   end
 
   def move(data)
-    game = find_game
-    game.move(x: data["x"], y: data["y"])
-    game.save
-    broadcast game
+    broadcast update { |g| g.move(x: data["x"], y: data["y"]) }
+  end
+
+  def play_to_end
+    broadcast update { |g| g.play_to_end = true }
   end
 
   def restart
-    broadcast find_game.tap(&:restart)
+    broadcast update(&:restart)
   end
 
   private
+
+  def update(&block)
+    DotsGame.for_update(@game_id, &block)
+  end
 
   def find_game
     DotsGame.find_or_create(@game_id)

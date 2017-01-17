@@ -1,4 +1,6 @@
 module RedisJsonModel
+  class RecordMissing < StandardError; end
+
   extend ActiveSupport::Concern
   include JsonObject
 
@@ -7,7 +9,7 @@ module RedisJsonModel
   included do
     cattr_accessor(:redis, instance_reader: true) { RedisJsonModel.redis }
 
-    field :id,         :string, default: :generate_id
+    field :id,         :string
     field :created_at, :time
     field :updated_at, :time
 
@@ -25,6 +27,7 @@ module RedisJsonModel
 
   def save
     ts = Time.now
+    self.id         ||= generate_id
     self.created_at ||= ts
     self.updated_at   = ts
     redis.set(key, to_json)
@@ -34,12 +37,13 @@ module RedisJsonModel
     redis.watch key
     reload
     redis.multi do
-      save if yield
+      save if yield(self)
     end
   end
 
   def reload
-    @object = self.class.find(id).object
+    @object = self.class.find!(id).object
+    self
   end
 
   def destroy
@@ -63,9 +67,24 @@ module RedisJsonModel
       redis.exists key_for(id)
     end
 
+    def for_update(id)
+      obj = new(id: id)
+      success = obj.with_lock do
+        yield obj
+        true
+      end
+      success ? obj : obj.reload
+    end
+
     def find(id)
       json = redis.get(key_for id)
       self.new(JSON.parse(json)) if json
+    end
+
+    def find!(id)
+      find(id).tap do |game|
+        raise RecordMissing, "Record '#{id}' does not exist" unless game
+      end
     end
 
     def find_or_create(id)

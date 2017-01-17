@@ -9,8 +9,7 @@ class @DotsGame
       id: @id
     @channel = App.cable.subscriptions.create options,
       received: (data) =>
-        @gameData = data
-        @render()
+        @onReceive(data)
 
       connected: =>
         console.log "Connected to DotsGameChannel"
@@ -22,12 +21,35 @@ class @DotsGame
       @channel.perform "move", x: $el.data("x"), y: $el.data("y")
     $(".game-menu .restart").on "click", =>
       @channel.perform "restart"
-    $(".game-menu .player1").on "click", =>
-      if @overlayShown then @hideOverlay() else @showOverlay()
+    $(".game-overlay").on "click", ".play_to_end", =>
+      @channel.perform "play_to_end"
+    $(".game-overlay").on "click", ".restart", =>
+      @channel.perform "restart"
+    $(".game-overlay").on "click", ".exit", =>
+      $(".game-menu .exit a").click()
 
-  showOverlay: ->
+  onReceive: (data) ->
+    @gameData = data
+    @render()
+
+    overlay = false
+    if data.completed_at
+      if data.winner
+        overlay = @buildCompleteOverlay()
+      else
+        overlay = @buildTieOverlay()
+    else if data.winner && !data.play_to_end
+      overlay = @buildWinnerOverlay()
+
+    if overlay
+      @showOverlay(overlay) unless @overlayShown
+    else if @overlayShown
+      @hideOverlay()
+
+  showOverlay: (content) ->
     $board = $(".game .board")
     $overlay = $(".game-overlay")
+    $overlay.html(content) if content
     w = Math.max $board.width() + 30, 300
     h = Math.max $board.height() + 30, 300
     $overlay.css
@@ -35,15 +57,19 @@ class @DotsGame
       width: w
       marginTop: 10
       marginBottom: -(h + 10)
+      opacity: 1
     @overlayShown = true
 
   hideOverlay: ->
+    $overlay = $(".game-overlay")
     h = (@boardHeight / 2) + 25
-    $(".game-overlay").css
+    $overlay.html("")
+    $overlay.css
       height: 0
       width: 0
       marginTop: h
       marginBottom: -h
+      opacity: 0
     @overlayShown = false
 
   centerOverlay: ->
@@ -77,6 +103,28 @@ class @DotsGame
     $cp.toggleClass("current-player2", @gameData.player == 2)
     @measure()
     @centerOverlay()
+
+  buildWinnerOverlay: ->
+    @buildEnderOverlay("Game Won!", "Player #{@gameData.winner} is the winner", true)
+
+  buildTieOverlay: ->
+    @buildEnderOverlay("Draw!", "There are no more tiles and the game is even.")
+
+  buildCompleteOverlay: ->
+    @buildEnderOverlay("Complete!", "All tiles have been taken. Player #{@gameData.winner} has won!")
+
+  buildEnderOverlay: (title, message, play_to_end = false) ->
+    pte = if play_to_end then @overlayButton("play_to_end", "Play to End") else ""
+    """
+      <h1>#{title}</h1>
+      <p>#{message}</p>
+      #{pte}
+      #{@overlayButton("restart", "Restart")}
+      #{@overlayButton("exit", "Exit")}
+    """
+
+  overlayButton: (css_class, content) ->
+    "<button class=\"#{css_class}\">#{content}</button>"
 
   buildTile: (value, x, y) ->
     classNames = switch value
