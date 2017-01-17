@@ -7,6 +7,7 @@ class DotsGame
   field :board,        "DotsGameBoard",  default: :create_board
   field :must_touch,   :boolean,         default: true
   field :winner,       :integer
+  field :started_at,   :time
   field :won_at,       :time
   field :completed_at, :time
   field :play_to_end,  :boolean,         default: false
@@ -26,6 +27,7 @@ class DotsGame
   def move(x:, y:)
     moved, scored = board.move(x: x, y: y, player: player)
     if moved
+      board.paint_open if must_touch
       scored > 0 ? check_scores : switch_player
     end
     moved
@@ -69,6 +71,7 @@ class DotsGame
   end
 
   def switch_player
+    self.started_at ||= Time.now
     self.player = player == 1 ? 2 : 1
   end
 

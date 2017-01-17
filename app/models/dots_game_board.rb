@@ -46,6 +46,35 @@ class DotsGameBoard
     end
   end
 
+  def paint_open
+    h_open, h_out = hline_positions.reject do |x, y|
+      get(x, y) == HLINE_CLOSE
+    end.partition do |x, y|
+      get(x - 2, y) == HLINE_CLOSE      || # left
+      get(x + 2, y) == HLINE_CLOSE      || # right
+      get(x - 1, y - 1) == VLINE_CLOSE  || # top left
+      get(x - 1, y + 1) == VLINE_CLOSE  || # bottom left
+      get(x + 1, y - 1) == VLINE_CLOSE  || # top right
+      get(x + 1, y + 1) == VLINE_CLOSE     # bottom right
+    end
+    h_open.each { |x, y| set(x, y, HLINE_OPEN) }
+    h_out.each  { |x, y| set(x, y, HLINE_OUT ) }
+
+    v_open, v_out = vline_positions.reject do |x, y|
+      get(x, y) == VLINE_CLOSE
+    end.partition do |x, y|
+      get(x, y - 2) == VLINE_CLOSE      || # top
+      get(x, y + 2) == VLINE_CLOSE      || # bottom
+      get(x - 1, y - 1) == HLINE_CLOSE  || # top left
+      get(x + 1, y - 1) == HLINE_CLOSE  || # top right
+      get(x - 1, y + 1) == HLINE_CLOSE  || # bottom left
+      get(x + 1, y + 1) == HLINE_CLOSE     # bottom right
+    end
+    v_open.each { |x, y| set(x, y, VLINE_OPEN) }
+    v_out.each  { |x, y| set(x, y, VLINE_OUT ) }
+    self
+  end
+
   def clean
     markup_board
     self
@@ -95,7 +124,7 @@ class DotsGameBoard
   end
 
   def get(x, y, b = self.data)
-    b[y][x] if x < fullw && y < fullh
+    b[y][x] if x >= 0 && y >= 0 && x < fullw && y < fullh
   end
 
   def as_json(*)
