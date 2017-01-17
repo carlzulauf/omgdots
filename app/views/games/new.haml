@@ -1,7 +1,9 @@
 = form_for(@game, url: games_path) do |f|
+  .title
+    Dots Game!
   .form-group
     = f.label :id, "Unique Game Name"
-    = f.text_field :id
+    = f.text_field :id, placeholder: "Randomly Generated"
   .form-group
     = f.label :width
     = f.text_field :width

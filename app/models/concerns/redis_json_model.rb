@@ -27,7 +27,7 @@ module RedisJsonModel
 
   def save
     ts = Time.now
-    self.id         ||= generate_id
+    self.id = generate_id unless id.present?
     self.created_at ||= ts
     self.updated_at   = ts
     redis.set(key, to_json)
@@ -88,10 +88,11 @@ module RedisJsonModel
     end
 
     def find_or_create(id)
+      return create unless id.present?
       find(id) || self.new(id: id).tap(&:save)
     end
 
-    def create(attrs)
+    def create(attrs = {})
       self.new(attrs).tap(&:save)
     end
   end
