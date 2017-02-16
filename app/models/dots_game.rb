@@ -33,6 +33,14 @@ class DotsGame
     moved
   end
 
+  def width=(value)
+    object["width"] = (2..25).cover?(value.to_i) ? value.to_i : 5
+  end
+  
+  def height=(value)
+    object["height"] = (2..25).cover?(value.to_i) ? value.to_i : 5
+  end
+
   def check_scores
     ts = Time.now
     if !won? && score(player) >= majority
