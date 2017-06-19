@@ -76,6 +76,11 @@ module RedisJsonModel
       success ? obj : obj.reload
     end
 
+    def all
+      block = -> (key) { self.new(JSON.parse(redis.get(key))) }
+      redis.keys("#{model_name.singular}:*").map(&block)
+    end
+
     def find(id)
       json = redis.get(key_for id)
       self.new(JSON.parse(json)) if json
