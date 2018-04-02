@@ -1,0 +1,31 @@
+.play
+  .game-ui
+    .scoreboard
+      .player1
+        .turn-indicator= render "indicator.svg"
+        .logo C
+        .name Carl Zulauf
+        .score 00
+      .player2
+        .turn-indicator= render "indicator.svg"
+        .logo D
+        .name Dawn Claussen
+        .score 00
+      .progress
+        .light-track
+          - 3.times do
+            .scoreboard-light.on= render "light.svg"
+          - 7.times do
+            .scoreboard-light= render "light.svg"
+  .board
+    - ((@game.height * 2) + 1).times do |row|
+      - ((@game.width * 2) + 1).times do |col|
+        - case [row % 2, col % 2]
+        - when [0, 0]
+          .dot
+        - when [0, 1]
+          .hline
+        - when [1, 0]
+          .vline
+        - else
+          .tile
