@@ -34,21 +34,20 @@
     display: grid;
     grid-template-areas: "player1  player2"
                          "progress progress";
-    // grid-template-rows: 80% 20%;
     grid-template-columns: 50% 50%;
 
     .player1 {
       grid-area: player1;
-      grid-template-areas: "unused pname pname"
-                           "turn-indicator logo score";
-      grid-template-columns: 10% 40% 50%;
+      grid-template-areas: "turn-indicator         pname score"
+                           "turn-indicator logo  score";
+      grid-template-columns: 35px 1fr 1fr;
     }
 
     .player2 {
       grid-area: player2;
-      grid-template-areas: "pname pname unused"
-                           "score logo turn-indicator";
-      grid-template-columns: 50% 40% 10%;
+      grid-template-areas: "score pname turn-indicator"
+                           "score logo  turn-indicator";
+      grid-template-columns: 1fr 1fr 35px;
       .turn-indicator { transform: rotate(180deg); }
     }
 
@@ -62,14 +61,17 @@
       justify-content: flex-end;
       align-items: center;
       // margin: 0px 5px;
-      svg { height: 60px; }
+      svg { height: 50px; }
     }
     .logo {
       grid-area: logo;
       // background-color: black;
       color: white;
-      text-shadow: -1px -1px 4px rgba(255,255,255,0.3), 1px  1px 4px rgba(255,255,255,0.3),
-                   -1px  1px 4px rgba(255,255,255,0.3), 1px -1px 4px rgba(255,255,255,0.3);
+      // color: #00713c;
+      // text-shadow: -1px -1px 1px rgba(255,255,255,0.3), 1px  1px 1px rgba(255,255,255,0.3),
+      //              -1px  1px 1px rgba(255,255,255,0.3), 1px -1px 1px rgba(255,255,255,0.3);
+      text-shadow: -2px -2px 1px rgba(0,0,0,0.7), 2px  2px 1px rgba(0,0,0,0.7),
+                   -2px  2px 1px rgba(0,0,0,0.7), 2px -2px 1px rgba(0,0,0,0.7);
       // border-radius: 5px;
       // margin-right: 10px;
       font-size: 350%;
@@ -87,28 +89,34 @@
     }
     .score {
       grid-area: score;
-      // text-align: center;
+      text-align: center;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-family: "seg7";
-      font-size: 400%;
       background-color: black;
       border-radius: 5px;
-      color: white;
-      margin: 0px 10px;
+      margin: 20px 10px 0px;
       padding: 5px 0px;
-      // .score-text {
-      //   background-color: black;
-      //   border-radius: 5px;
-      //   color: white;
-      //   font-family: "seg7";
-      //   padding: 10px 5px;
-      //   font-size: 100px;
-      //   line-height: 120px;
-      // }
+      font-family: "seg7";
+      font-size: 400%;
+      color: white;
     }
-    .name { grid-area: pname; }
+    .score::before {
+      content: '88';
+      margin-right: -2ch;
+      color: #131313;
+    }
+    .name {
+      grid-area: pname;
+      color: white;
+      font-size: 160%;
+      text-align: center;
+      margin: 5px 5px 0px 5px;
+      text-shadow: 0px 0px 2px rgba(0,0,0,0.6);
+      white-space: nowrap;
+      overflow: hidden;
+      // text-overflow: clip;
+    }
 
     .progress {
       grid-area: progress;

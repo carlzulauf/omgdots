@@ -6,12 +6,12 @@
         .logo
           %span.logo-text C
         .name Carl Zulauf
-        .score 0
+        .score= "&numsp;0".html_safe
       .player2
         .turn-indicator= render "indicator.svg"
         .logo D
         .name Dawn Claussen
-        .score 0
+        .score= "&numsp;1".html_safe
       .progress
         .light-track
           - 3.times do
