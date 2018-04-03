@@ -3,14 +3,15 @@
     .scoreboard
       .player1
         .turn-indicator= render "indicator.svg"
-        .logo C
+        .logo
+          %span.logo-text C
         .name Carl Zulauf
-        .score 00
+        .score 0
       .player2
         .turn-indicator= render "indicator.svg"
         .logo D
         .name Dawn Claussen
-        .score 00
+        .score 0
       .progress
         .light-track
           - 3.times do

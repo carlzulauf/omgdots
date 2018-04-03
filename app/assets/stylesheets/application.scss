@@ -1,0 +1,22 @@
+@font-face {
+  font-family: "seg7";
+  src: image-url("7seg.woff2") format("woff2"),
+       image-url("7seg.woff") format("woff");
+}
+
+body {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-family: 'Ubuntu', sans-serif;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  margin: 0;
+}
+
+@import "game";
+@import "new_dots_game";
+@import "play";
