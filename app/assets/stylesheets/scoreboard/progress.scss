@@ -1,0 +1,28 @@
+.scoreboard {
+  .progress {
+    grid-area: progress;
+    position: relative;
+
+    .light-track {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-around;
+      background-color: #000;
+      border-radius: 10px;
+      margin: 10px;
+      padding: 10px 5px;
+
+      .scoreboard-light {
+        height: 40px;
+        svg {
+          height: 100%;
+        }
+        opacity: 0.2;
+        &.on {
+          opacity: 0.95;
+          &.flicker { animation: flickerLight 5s 1; }
+        }
+      }
+    }
+  }
+}

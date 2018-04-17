@@ -1,0 +1,20 @@
+.scoreboard {
+  .player1 {
+    grid-area: player1;
+    grid-template-areas: "turn-indicator pname score"
+                         "turn-indicator logo  score";
+    grid-template-columns: 35px 1fr 1fr;
+  }
+
+  .player2 {
+    grid-area: player2;
+    grid-template-areas: "score pname turn-indicator"
+                         "score logo  turn-indicator";
+    grid-template-columns: 1fr 1fr 35px;
+    .turn-indicator { transform: rotate(180deg); }
+  }
+
+  .player1, .player2 {
+    display: grid;
+  }
+}

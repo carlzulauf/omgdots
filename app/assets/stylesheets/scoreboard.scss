@@ -1,0 +1,36 @@
+@keyframes flickerLight {
+  0%   { opacity: 0.95; }
+  50%  { opacity: 0.95; }
+  51%  { opacity: 0.20; }
+  52%  { opacity: 0.80; }
+  53%  { opacity: 0.40; }
+  54%  { opacity: 1.00; }
+  55%  { opacity: 0.95; }
+  100% { opacity: 0.95; }
+}
+
+@font-face {
+  font-family: "seg7";
+  src: image-url("7seg.woff2") format("woff2"),
+       image-url("7seg.woff") format("woff");
+}
+
+.scoreboard {
+  margin: 10px auto;
+  background-color: #00713c;
+  max-width: 900px;
+  border: 3px solid white;
+  border-radius: 5px;
+  display: grid;
+  grid-template-areas: "player1  player2"
+                       "progress progress";
+  grid-template-columns: 50% 50%;
+}
+
+@import "scoreboard/score";
+@import "scoreboard/players";
+@import "scoreboard/turn_indicator";
+@import "scoreboard/logo";
+@import "scoreboard/name";
+@import "scoreboard/progress";
+@import "scoreboard/menu_overlay";

@@ -1,0 +1,13 @@
+.scoreboard {
+  .turn-indicator {
+    grid-area: turn-indicator;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    svg { height: 50px; }
+    g.lights { opacity: 0; }
+    &.on {
+      g.lights { opacity: 0.95; }
+    }
+  }
+}

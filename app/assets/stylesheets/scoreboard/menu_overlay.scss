@@ -1,0 +1,39 @@
+.scoreboard .progress {
+  .menu-overlay {
+    position: absolute;
+    top: 0;
+    z-index: 2;
+    height: 70px;
+    padding-top: 10px;
+    width: 100%;
+    opacity: 0;
+    transition: opacity .25s ease-in-out;
+     -moz-transition: opacity .25s ease-in-out;
+     -webkit-transition: opacity .25s ease-in-out;
+    &:hover, &.on { opacity: 0.80; }
+    .menu-items {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-around;
+      height: 40px;
+      margin: 0 10px 10px 10px;
+      padding: 10px 5px;
+      background-color: #000;
+      border-radius: 2px;
+      .menu-link, .exit-link {
+        font-size: 20px;
+        color: white;
+        padding: 7px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        vertical-align: middle;
+      }
+      .menu-link {
+        background-color: #007;
+      }
+      .exit-link {
+        background-color: #600;
+      }
+    }
+  }
+}

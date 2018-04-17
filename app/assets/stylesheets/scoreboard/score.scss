@@ -1,0 +1,21 @@
+.scoreboard {
+  .score {
+    grid-area: score;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+    border-radius: 5px;
+    margin: 20px 10px 0px;
+    padding: 5px 0px;
+    font-family: "seg7";
+    font-size: 400%;
+    color: white;
+  }
+  .score::before {
+    content: '88';
+    margin-right: -2ch;
+    color: #131313;
+  }
+}

@@ -1,0 +1,12 @@
+.scoreboard {
+  .logo {
+    grid-area: logo;
+    color: white;
+    text-shadow: -2px -2px 1px rgba(0,0,0,0.7), 2px  2px 1px rgba(0,0,0,0.7),
+                 -2px  2px 1px rgba(0,0,0,0.7), 2px -2px 1px rgba(0,0,0,0.7);
+    font-size: 350%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
