@@ -22,15 +22,6 @@
           .menu-items
             .menu-link menu
             .exit-link exit
-  .board
-    - ((@game.height * 2) + 1).times do |row|
-      - ((@game.width * 2) + 1).times do |col|
-        - case [row % 2, col % 2]
-        - when [0, 0]
-          .dot
-        - when [0, 1]
-          .hline
-        - when [1, 0]
-          .vline
-        - else
-          .tile
+  .board{ data: {width: @game.width, height: @game.height}, style: board_grid_css(@game) }
+    - board_css_table(@game).flatten.map do |css_class|
+      %div{ class: css_class }
