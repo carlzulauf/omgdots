@@ -2,7 +2,7 @@
   .game-ui
     .scoreboard
       .player1
-        .turn-indicator= render "indicator.svg"
+        .turn-indicator.on= render "indicator.svg"
         .logo
           %span.logo-text C
         .name Carl Zulauf
@@ -15,9 +15,13 @@
       .progress
         .light-track
           - 3.times do
-            .scoreboard-light.on= render "light.svg"
+            .scoreboard-light.on.flicker= render "light.svg"
           - 7.times do
             .scoreboard-light= render "light.svg"
+        .menu-overlay
+          .menu-items
+            .menu-link menu
+            .exit-link exit
   .board
     - ((@game.height * 2) + 1).times do |row|
       - ((@game.width * 2) + 1).times do |col|
