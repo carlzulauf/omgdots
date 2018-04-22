@@ -6,12 +6,14 @@
         .logo
           %span.logo-text C
         .name Carl Zulauf
-        .score= "&numsp;0".html_safe
+        .score
+          .digits 0
       .player2
         .turn-indicator= render "indicator.svg"
         .logo D
         .name Dawn Claussen
-        .score= "&numsp;1".html_safe
+        .score
+          .digits 1
       .progress
         .light-track
           - 3.times do
@@ -22,6 +24,15 @@
           .menu-items
             .menu-link menu
             .exit-link exit
-  .board{ data: {width: @game.width, height: @game.height}, style: board_grid_css(@game) }
-    - board_css_table(@game).flatten.map do |css_class|
-      %div{ class: css_class }
+  .board
+    - ((@game.height * 2) + 1).times do |row|
+      - ((@game.width * 2) + 1).times do |col|
+        - case [row % 2, col % 2]
+        - when [0, 0]
+          .dot
+        - when [0, 1]
+          .hline
+        - when [1, 0]
+          .vline
+        - else
+          .tile

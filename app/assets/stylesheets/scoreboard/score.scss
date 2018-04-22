@@ -1,7 +1,12 @@
+@font-face {
+  font-family: "seg7";
+  src: image-url("7seg.woff2") format("woff2"),
+       image-url("7seg.woff") format("woff");
+}
+
 .scoreboard {
   .score {
     grid-area: score;
-    text-align: center;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -10,12 +15,20 @@
     margin: 20px 10px 0px;
     padding: 5px 0px;
     font-family: "seg7";
-    font-size: 400%;
+    font-size: 64px;
     color: white;
-  }
-  .score::before {
-    content: '88';
-    margin-right: -2ch;
-    color: #131313;
+
+    .digits {
+      left: 0;
+      width: 2ch;
+      text-align: right;
+      position: relative;
+    }
+    .digits::before {
+      left: 0;
+      content: '88';
+      position: absolute;
+      color: rgba(255, 255, 255, 0.13);
+    }
   }
 }
