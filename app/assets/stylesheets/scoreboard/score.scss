@@ -5,7 +5,7 @@
 }
 
 .scoreboard {
-  .score {
+  .score-led {
     grid-area: score;
     display: flex;
     justify-content: center;
@@ -18,13 +18,13 @@
     font-size: 64px;
     color: white;
 
-    .digits {
+    .score {
       left: 0;
       width: 2ch;
       text-align: right;
       position: relative;
     }
-    .digits::before {
+    .score::before {
       left: 0;
       content: '88';
       position: absolute;
