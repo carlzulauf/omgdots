@@ -1,5 +1,17 @@
 @import "scoreboard";
 
+$dot-color: #f00;
+$line-color: #333;
+$line-highlight: #555;
+$line-lowlight: #000;
+$line-hover: #222;
+$line-disabled: #333;
+$line-drawn: #fff;
+
+body.play {
+  background-color: #222;
+}
+
 .play {
   position: absolute;
   top: 0;
@@ -8,9 +20,56 @@
   right: 0;
   display: grid;
   grid-template-rows: auto 1fr;
-  background-color: #222;
 
   .board {
     display: grid;
+    margin: 10px auto 0 auto;
+
+    .dot {
+      width: 2px;
+      height: 2px;
+      margin: -5px;
+      z-index: 2;
+      border: 14px solid $dot-color;
+      border-radius: 14px;
+      background-color: $dot-color;
+    }
+
+    .vline, .hline {
+      background-color: #333;
+    }
+
+    .vline {
+      width: 16px;
+      height: 100%;
+      border-left: 2px solid $line-highlight;
+      border-right: 2px solid $line-lowlight;
+
+    }
+
+    .hline {
+      height: 16px;
+      width: 100%;
+      border-top: 2px solid $line-highlight;
+      border-bottom: 2px solid $line-lowlight;
+    }
+
+    .hline:hover, .vline:hover {
+      cursor: pointer;
+      background-color: $line-hover;
+      border-color: $line-highlight;
+    }
+
+    .hline.disabled, .hline.disabled:hover, .vline.disabled, .vline.disabled:hover {
+      background-color: $line-disabled;
+      border-color: $line-disabled;
+      cursor: inherit;
+    }
+
+    .hline.drawn, .hline.drawn:hover, .vline.drawn, .vline.drawn:hover {
+      background-color: $line-drawn;
+      border-color: $line-drawn;
+      cursor: inherit;
+    }
   }
 }

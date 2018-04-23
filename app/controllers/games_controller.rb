@@ -10,8 +10,8 @@ class GamesController < ApplicationController
   end
 
   def show
-    @game = DotsGame.find_or_create(params[:id])
-    render :play
+    @game = present(DotsGame.find_or_create(params[:id]), name: :game)
+    render :play if params[:play]
   end
 
   def destroy
