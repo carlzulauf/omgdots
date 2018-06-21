@@ -1,7 +1,9 @@
 class @PlayGame
   constructor: (@id) ->
-    @subscribe()
-    @listen()
+    @board = document.querySelector("#game-#{@id}")
+    console.log(@board)
+    # @subscribe()
+    # @listen()
 
   subscribe: ->
     options =

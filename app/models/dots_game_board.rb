@@ -15,8 +15,7 @@ class DotsGameBoard
     new.build(width, height)
   end
 
-  attr_accessor :data
-  attr_reader :fullw, :fullh
+  attr_reader :data, :fullw, :fullh, :cells
 
   def initialize(data = nil)
     self.data = data if data
@@ -26,6 +25,7 @@ class DotsGameBoard
     @data  = data
     @fullw = data[0].length
     @fullh = data.length
+    @cells = build_cells
   end
 
   def eql?(other)
@@ -131,7 +131,27 @@ class DotsGameBoard
     data
   end
 
+  def positions
+    Enumerator.new do |e|
+      0.upto(fullh - 1) { |y| 0.upto(fullw - 1) { |x| e.yield x, y } }
+    end
+  end
+
+  def cells
+    cell_map.values
+  end
+
   private
+
+  def build_cell_map(data)
+    Hash[positions.map { |x, y| [ [x,y], DotsGameCell.new(x, y, data[y][x]) ] }]
+  end
+
+  def build_cell_matrix(data)
+    data.map do |row|
+
+    end
+  end
 
   def draw_vline(x, y)
     set(x, y, VLINE_CLOSE)
@@ -167,12 +187,6 @@ class DotsGameBoard
     get(x, y+1) == HLINE_CLOSE && # south
     get(x-1, y) == VLINE_CLOSE && # west
     get(x+1, y) == VLINE_CLOSE    # east
-  end
-
-  def positions
-    Enumerator.new do |e|
-      0.upto(fullh - 1) { |y| 0.upto(fullw - 1) { |x| e.yield x, y } }
-    end
   end
 
   def tile_positions
