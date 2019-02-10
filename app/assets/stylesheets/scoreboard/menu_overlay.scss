@@ -14,25 +14,68 @@
     .menu-items {
       display: flex;
       flex-flow: row nowrap;
-      justify-content: space-around;
+      justify-content: space-evenly;
       height: 40px;
       margin: 0 10px 10px 10px;
       padding: 10px 5px;
       background-color: #000;
-      border-radius: 2px;
-      .menu-link, .exit-link {
+      border-radius: 10px;
+      .exit-link, .player-choice {
         font-size: 20px;
         color: white;
         padding: 7px 20px;
         border-radius: 5px;
-        cursor: pointer;
         vertical-align: middle;
-      }
-      .menu-link {
-        background-color: #007;
+        // margin: 0 10px;
       }
       .exit-link {
+        cursor: pointer;
         background-color: #600;
+      }
+      .name-box {
+        // flex-grow: 1;
+        .name-input {
+          font-size: 30px;
+          width: 100%;
+          border: 2px solid #333;
+          border-radius: 5px;
+          background-color: #222;
+          padding: 1px 5px;
+          color: #DDD;
+        }
+      }
+      .player-choice {
+        display: flex;
+        flex-flow: row nowrap;
+        background-color: #222;
+        .choice-label {
+          padding-right: 10px;
+        }
+        .player-1-link, .player-2-link, .spectate-link {
+          padding: 0 7px 0 7px;
+          background-color: #000;
+          border-top: 2px solid white;
+          border-bottom: 2px solid white;
+          height: 1.2em;
+          cursor: pointer;
+          margin-top: -1px;
+          &:hover {
+            background-color: #00d;
+          }
+        }
+        .player-1-link {
+          border-left: 2px solid white;
+          border-top-left-radius: 5px;
+          border-bottom-left-radius: 5px;
+        }
+        .spectate-link {
+          border-right: 2px solid white;
+          border-top-right-radius: 5px;
+          border-bottom-right-radius: 5px;
+        }
+        .active {
+          background-color: #00a;
+        }
       }
     }
   }

@@ -1,6 +1,6 @@
 - set_body_class "play"
 
-.play
+.game-container
   .game-ui
     .scoreboard
       .player1
@@ -22,13 +22,16 @@
             .scoreboard-light.on.flicker= render "light.svg"
           - 7.times do
             .scoreboard-light= render "light.svg"
-        .menu-overlay
+        .menu-overlay.on
           .menu-items
-            .menu-link menu
+            .name-box
+              %input.name-input{ placeholder: 'Name' }
+            .player-choice
+              .choice-label Player
+              .player-1-link 1
+              .player-2-link 2
+              .spectate-link.active spectate
             .exit-link exit
   = @game.board_div
-  -# .board{ data: {width: @game.width, height: @game.height}, style: board_grid_css(@game) }
-  -#   - board_css_table(@game).flatten.map do |css_class|
-  -#     %div{ class: css_class }
 
 = init_play_js(@game)

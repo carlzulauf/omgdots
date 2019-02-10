@@ -1,42 +1,60 @@
 @import "scoreboard";
 
 $dot-color: #f00;
+$dot-lowlight: #400;
 $line-color: #333;
 $line-highlight: #555;
-$line-lowlight: #000;
+$line-lowlight: #222;
 $line-hover: #222;
 $line-disabled: #333;
 $line-drawn: #fff;
+$board-color: #000;
+$bg-color: #222;
 
 body.play {
-  background-color: #222;
+  background-color: $bg-color
 }
 
-.play {
+.game-container {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  display: grid;
-  grid-template-rows: auto 1fr;
+  // display: grid;
+  // grid-template-rows: auto 1fr;
+  display: flex;
+  flex-direction: column;
+  // height: 100%;
+
+  .board-container {
+    background-color: $board-color;
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto 0 auto;
+    // border-radius: 5px;
+    overflow: auto;
+    flex-grow: 1;
+  }
 
   .board {
     display: grid;
-    margin: 10px auto 0 auto;
+    // width: 100%;
+    margin: 0 auto;
+    padding: 40px 0 40px 0;
 
     .dot {
-      width: 2px;
-      height: 2px;
-      margin: -5px;
+      width: 20px;
+      height: 20px;
+      margin: -4px;
       z-index: 2;
-      border: 14px solid $dot-color;
+      border: 4px solid $dot-color;
       border-radius: 14px;
-      background-color: $dot-color;
+      background-color: $dot-lowlight;
     }
 
     .vline, .hline {
-      background-color: #333;
+      background-color: $line-color;
     }
 
     .vline {

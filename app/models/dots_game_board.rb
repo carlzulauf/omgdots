@@ -3,9 +3,9 @@ class DotsGameBoard
   TILE_PLAYER1  = 1
   TILE_PLAYER2  = 2
   VERTEX        = 3
-  VLINE_OPEN    = 4
-  VLINE_CLOSE   = 5
-  VLINE_OUT     = 6
+  VLINE_OPEN    = 4 # available to be selected
+  VLINE_CLOSE   = 5 # already selected
+  VLINE_OUT     = 6 # disabled
   HLINE_OPEN    = 7
   HLINE_CLOSE   = 8
   HLINE_OUT     = 9
@@ -15,7 +15,7 @@ class DotsGameBoard
     new.build(width, height)
   end
 
-  attr_reader :data, :fullw, :fullh, :cells
+  attr_reader :data, :fullw, :fullh, :cell_map
 
   def initialize(data = nil)
     self.data = data if data
@@ -25,7 +25,7 @@ class DotsGameBoard
     @data  = data
     @fullw = data[0].length
     @fullh = data.length
-    @cells = build_cells
+    @cell_map = build_cell_map
   end
 
   def eql?(other)
@@ -50,12 +50,12 @@ class DotsGameBoard
     h_open, h_out = hline_positions.reject do |x, y|
       get(x, y) == HLINE_CLOSE
     end.partition do |x, y|
-      get(x - 2, y) == HLINE_CLOSE      || # left
-      get(x + 2, y) == HLINE_CLOSE      || # right
-      get(x - 1, y - 1) == VLINE_CLOSE  || # top left
-      get(x - 1, y + 1) == VLINE_CLOSE  || # bottom left
-      get(x + 1, y - 1) == VLINE_CLOSE  || # top right
-      get(x + 1, y + 1) == VLINE_CLOSE     # bottom right
+      get(x - 2, y)       == HLINE_CLOSE || # left
+      get(x + 2, y)       == HLINE_CLOSE || # right
+      get(x - 1, y - 1)   == VLINE_CLOSE || # top left
+      get(x - 1, y + 1)   == VLINE_CLOSE || # bottom left
+      get(-x + 1, y - 1)  == VLINE_CLOSE || # top right
+      get(x + 1, y + 1)   == VLINE_CLOSE    # bottom right
     end
     h_open.each { |x, y| set(x, y, HLINE_OPEN) }
     h_out.each  { |x, y| set(x, y, HLINE_OUT ) }
@@ -63,12 +63,12 @@ class DotsGameBoard
     v_open, v_out = vline_positions.reject do |x, y|
       get(x, y) == VLINE_CLOSE
     end.partition do |x, y|
-      get(x, y - 2) == VLINE_CLOSE      || # top
-      get(x, y + 2) == VLINE_CLOSE      || # bottom
-      get(x - 1, y - 1) == HLINE_CLOSE  || # top left
-      get(x + 1, y - 1) == HLINE_CLOSE  || # top right
-      get(x - 1, y + 1) == HLINE_CLOSE  || # bottom left
-      get(x + 1, y + 1) == HLINE_CLOSE     # bottom right
+      get(x, y - 2)     == VLINE_CLOSE || # top
+      get(x, y + 2)     == VLINE_CLOSE || # bottom
+      get(x - 1, y - 1) == HLINE_CLOSE || # top left
+      get(x + 1, y - 1) == HLINE_CLOSE || # top right
+      get(x - 1, y + 1) == HLINE_CLOSE || # bottom left
+      get(x + 1, y + 1) == HLINE_CLOSE    # bottom right
     end
     v_open.each { |x, y| set(x, y, VLINE_OPEN) }
     v_out.each  { |x, y| set(x, y, VLINE_OUT ) }
@@ -119,12 +119,16 @@ class DotsGameBoard
     ASCII_CELLS[cell]
   end
 
-  def set(x, y, value, b = self.data)
-    b[y][x] = value if x < fullw && y < fullh
+  def valid_position?(x, y)
+    x >= 0 && x < fullw && y >= 0 && y < fullh
   end
 
-  def get(x, y, b = self.data)
-    b[y][x] if x >= 0 && y >= 0 && x < fullw && y < fullh
+  def set(x, y, value)
+    data[y][x] = value if valid_position?(x, y)
+  end
+
+  def get(x, y)
+    data[y][x] if valid_position?(x, y)
   end
 
   def as_json(*)
@@ -143,14 +147,8 @@ class DotsGameBoard
 
   private
 
-  def build_cell_map(data)
-    Hash[positions.map { |x, y| [ [x,y], DotsGameCell.new(x, y, data[y][x]) ] }]
-  end
-
-  def build_cell_matrix(data)
-    data.map do |row|
-
-    end
+  def build_cell_map
+    Hash[positions.map { |x, y| [ [x,y], DotsGameCell.new(data, x, y) ] }]
   end
 
   def draw_vline(x, y)
@@ -167,19 +165,18 @@ class DotsGameBoard
     scored = 0
     tiles.each do |x, y|
       if get(x, y) == TILE_EMPTY && surrounded?(x, y)
-        set(x, y, @player == 1 ? TILE_PLAYER1 : TILE_PLAYER2)
+        set(x, y, player == 1 ? TILE_PLAYER1 : TILE_PLAYER2)
         scored += 1
       end
     end
     scored
   end
 
-  def markup_board(b = self.data)
-    vertex_positions.each {|x, y| set(x, y, VERTEX,     b) }
-    hline_positions.each  {|x, y| set(x, y, HLINE_OPEN, b) }
-    vline_positions.each  {|x, y| set(x, y, VLINE_OPEN, b) }
-    tile_positions.each   {|x, y| set(x, y, TILE_EMPTY, b) }
-    b
+  def markup_board
+    vertex_positions.each {|x, y| set(x, y, VERTEX    ) }
+    hline_positions.each  {|x, y| set(x, y, HLINE_OPEN) }
+    vline_positions.each  {|x, y| set(x, y, VLINE_OPEN) }
+    tile_positions.each   {|x, y| set(x, y, TILE_EMPTY) }
   end
 
   def surrounded?(x, y)

@@ -34,6 +34,6 @@ class DotsGameCell < Struct.new(:board, :x, :y)
   end
 
   def value
-    board.data[y][x]
+    board[y][x]
   end
 end
