@@ -11,7 +11,7 @@ class @PlayGame
       @start()
     @game.querySelector(".game-ui").addEventListener "click", =>
       @menuActivity()
-    @game.querySelector(".name-input").addEventListener "keyup", =>
+    @game.querySelector(".name-input").addEventListener "keydown", =>
       @playerChangeActivity()
       @menuActivity()
     @game.querySelector(".player-1-link").addEventListener "click", =>
@@ -168,7 +168,6 @@ class @PlayGame
   updatePlayer: ->
     name = @game.querySelector('input.name-input').value
     player = @findCurrentPlayer()
-    console.log ["updatePlayer", name, player]
     if player? and name != player.name
       @channel.perform "update_player", { name: name }
 
