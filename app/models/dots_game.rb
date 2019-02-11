@@ -22,6 +22,10 @@ class DotsGame
     DotsGamePlayer.build
   end
 
+  def find_player(owner)
+    [player_1, player_2].detect { |p| p.owner == owner }
+  end
+
   def eql?(other)
     %i(width height player must_touch board).all? do |f|
       public_send(f) == other.public_send(f)

@@ -11,7 +11,7 @@ class @PlayGame
       @start()
     @game.querySelector(".game-ui").addEventListener "click", =>
       @menuActivity()
-    @game.querySelector(".name-input").addEventListener "keypress", =>
+    @game.querySelector(".name-input").addEventListener "keyup", =>
       @playerChangeActivity()
       @menuActivity()
     @game.querySelector(".player-1-link").addEventListener "click", =>
@@ -138,19 +138,6 @@ class @PlayGame
           tile = $board.children[i]
           changes.push([tile, @tileCss(value)])
         i++
-    if @findCurrentPlayerNumber(previous) != playerNum
-      changes.push [
-        @game.querySelector('.player-1-link'),
-        if playerNum == 1 then 'player-1-link active' else 'player-1-link'
-      ]
-      changes.push [
-        @game.querySelector('.player-2-link'),
-        if playerNum == 2 then 'player-2-link active' else 'player-2-link'
-      ]
-      changes.push [
-        @game.querySelector('.spectate-link'),
-        if playerNum == 0 then 'spectate-link active' else 'spectate-link'
-      ]
     changes
 
   findTextChanges: (previous, current) ->
@@ -179,9 +166,10 @@ class @PlayGame
       @updatePlayer()
 
   updatePlayer: ->
-    name = @game.querySelector('input.name-input')
+    name = @game.querySelector('input.name-input').value
     player = @findCurrentPlayer()
-    if player && name != player.name
+    console.log ["updatePlayer", name, player]
+    if player? and name != player.name
       @channel.perform "update_player", { name: name }
 
   selectPlayer: (number) ->

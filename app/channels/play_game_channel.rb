@@ -13,20 +13,20 @@ class PlayGameChannel < ApplicationCable::Channel
     transmit find_game
   end
 
-  def update_player(player_details)
-    Rails.logger.info [:update_player, player_details].inspect
+  def update_player(data)
+    Rails.logger.info [:update_player, data].inspect
     update do |game|
-      player = game.find_player
-      player.assign_attributes(player_details) if player
+      player = game.find_player(@owner)
+      player.assign_attributes(data) if player
     end
   end
 
-  def select_player(message)
+  def select_player(data)
     update do |game|
       p1, p2 = game.player_1, game.player_2
       p1.owner = nil if p1.owner == @owner
       p2.owner = nil if p2.owner == @owner
-      case message["number"]
+      case data["number"]
       when 1
         p1.owner = @owner
         p1.last_seen_at = Time.now
