@@ -4,7 +4,7 @@ module ApplicationHelper
   end
 
   def init_play_js(game)
-    javascript_tag("window.currentPlay = new PlayGame(#{game.id.to_json})")
+    javascript_tag("window.currentPlay = new PlayGame(#{game.id.to_json}, #{session[:uid].to_json})")
   end
 
   def set_body_class(class_name)

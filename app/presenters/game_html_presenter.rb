@@ -1,7 +1,7 @@
 class GameHtmlPresenter < HtmlPresenter
   def board_div
     h.content_tag(:div, class: 'board-container') do
-      h.content_tag(:div, id: "game-#{id}", class: 'board', style: board_div_style, data: { width: width, height: height }) do
+      h.content_tag(:div, class: 'board', style: board_div_style, data: { width: width, height: height }) do
         board_cell_divs
       end
     end

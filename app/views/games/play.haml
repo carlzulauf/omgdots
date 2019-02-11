@@ -1,19 +1,18 @@
 - set_body_class "play"
 
-.game-container
+.game-container{ id: "game-#{@game.id}"}
   .game-ui
     .scoreboard
       .player1
         .turn-indicator.on= render "indicator.svg"
-        .logo
-          %span.logo-text C
-        .name Carl Zulauf
+        .logo 1
+        .name= @game.player_1.name
         .score-led
           .score 0
       .player2
         .turn-indicator= render "indicator.svg"
-        .logo D
-        .name Dawn Claussen
+        .logo 2
+        .name= @game.player_2.name
         .score-led
           .score 1
       .progress
@@ -22,10 +21,10 @@
             .scoreboard-light.on.flicker= render "light.svg"
           - 7.times do
             .scoreboard-light= render "light.svg"
-        .menu-overlay.on
+        .menu-overlay
           .menu-items
             .name-box
-              %input.name-input{ placeholder: 'Name' }
+              %input.name-input{ placeholder: 'Player Name' }
             .player-choice
               .choice-label Player
               .player-1-link 1

@@ -1,146 +1,236 @@
 class @PlayGame
-  constructor: (@id) ->
-    @board = document.querySelector("#game-#{@id}")
-    console.log(@board)
-    # @subscribe()
-    # @listen()
+  constructor: (@id, @user) ->
+    @game = document.querySelector("#game-#{@id}")
+    @menu = @game.querySelector(".menu-overlay")
+    @renderQueue = []
+
+    @lastTs = 0
+    @showMenuTs = 0
+
+    window.addEventListener "load", (e) =>
+      @start()
+    @game.querySelector(".game-ui").addEventListener "click", =>
+      @menuActivity()
+    @game.querySelector(".name-input").addEventListener "keypress", =>
+      @playerChangeActivity()
+      @menuActivity()
+    @game.querySelector(".player-1-link").addEventListener "click", =>
+      @selectPlayer(1)
+    @game.querySelector(".player-2-link").addEventListener "click", =>
+      @selectPlayer(2)
+    @game.querySelector(".spectate-link").addEventListener "click", =>
+      @selectPlayer(0)
+
+    @subscribe()
+
+  repaint: ->
+    @paintPlayer(1)
+    @paintPlayer(2)
+    @repaintMenu()
+    @repaintBoard()
+
+  q: (fn) ->
+    @renderQueue.push fn
+
+  paintPlayer: (number) ->
+    player = @getPlayer(number)
+    score = @getScore(number)
+    el = @game.querySelector(".scoreboard .player#{number}")
+    $name = el.querySelector(".name")
+    $score = el.querySelector(".score")
+    @q =>
+      $name.innerText = player.name
+      $score.innerText = score
+
+  repaintBoard: ->
+    c = 0
+    divs = @game.querySelectorAll(".board div")
+    @q =>
+      for row in @state.board
+        for value in row
+          divs[c].className = @tileCss(value)
+          c++
+
+  repaintMenu: (state) ->
+    state = @state unless state?
+    playerNum = @findCurrentPlayerNumber(state)
+    $player1 = @game.querySelector('.player-1-link')
+    $player2 = @game.querySelector('.player-2-link')
+    $spectate = @game.querySelector('.spectate-link')
+    $name = @game.querySelector('.name-input')
+    @q ->
+      switch playerNum
+        when 0
+          $player1.classList.remove('active')
+          $player2.classList.remove('active')
+          $spectate.classList.add('active')
+          $name.value = "--spectating--"
+          $name.disabled = true
+        when 1
+          $player1.classList.add('active')
+          $player2.classList.remove('active')
+          $spectate.classList.remove('active')
+          $name.disabled = false
+          $name.value = state.player_1.name
+        when 2
+          $player1.classList.remove('active')
+          $player2.classList.add('active')
+          $spectate.classList.remove('active')
+          $name.disabled = false
+          $name.value = state.player_2.name
+
+
+  tileCss: (value) ->
+    switch value
+      when 0 then "tile"
+      when 1 then "tile player1"
+      when 2 then "tile player2"
+      when 3 then "dot"
+      when 4 then "vline"
+      when 5 then "vline drawn"
+      when 6 then "vline disabled"
+      when 7 then "hline"
+      when 8 then "hline drawn"
+      when 9 then "hline disabled"
 
   subscribe: ->
     options =
-      channel: "DotsGameChannel"
+      channel: "PlayGameChannel"
       id: @id
+      user: @user
     @channel = App.cable.subscriptions.create options,
       received: (data) =>
         @onReceive(data)
 
       connected: =>
-        console.log "Connected to DotsGameChannel"
+        console.log "Connected to PlayGameChannel. Calling #start."
         @channel.perform "start"
 
-  listen: ->
-    $(".game").on "click", ".hline.open, .vline.open", (e) =>
-      $el = $(e.target)
-      @channel.perform "move", x: $el.data("x"), y: $el.data("y")
-    $(".game-menu .restart").on "click", =>
-      @channel.perform "restart"
-    $(".game-overlay").on "click", ".play_to_end", =>
-      @channel.perform "play_to_end"
-    $(".game-overlay").on "click", ".restart", =>
-      @channel.perform "restart"
-    $(".game-overlay").on "click", ".exit", =>
-      $(".game-menu .exit a").click()
+  onReceive: (state) ->
+    console.log ["onReceive", state]
+    was = @state
+    @state = state
+    if was?
+      classChanges = @findClassChanges(was, @state)
+      textChanges = @findTextChanges(was, @state)
+      @repaintMenuOnChange(was, @state)
+      @q ->
+        for [tile, className] in classChanges
+          tile.className = className
+        for [tile, text] in textChanges
+          tile.innerText = text
+    else
+      @repaint()
 
-  onReceive: (data) ->
-    @gameData = data
-    @render()
+  repaintMenuOnChange: (previous, current) ->
+    if @findCurrentPlayerNumber(previous) != @findCurrentPlayerNumber(current)
+      @repaintMenu(current)
 
-    overlay = false
-    if data.completed_at
-      if data.winner
-        overlay = @buildCompleteOverlay()
-      else
-        overlay = @buildTieOverlay()
-    else if data.winner && !data.play_to_end
-      overlay = @buildWinnerOverlay()
+  findClassChanges: (previous, current) ->
+    changes = []
+    i = 0
+    board_was = previous.board
+    $board = @game.querySelector('.board')
+    playerNum = @findCurrentPlayerNumber(current)
+    for row, y in current.board
+      for value, x in row
+        if board_was[y][x] != value
+          tile = $board.children[i]
+          changes.push([tile, @tileCss(value)])
+        i++
+    if @findCurrentPlayerNumber(previous) != playerNum
+      changes.push [
+        @game.querySelector('.player-1-link'),
+        if playerNum == 1 then 'player-1-link active' else 'player-1-link'
+      ]
+      changes.push [
+        @game.querySelector('.player-2-link'),
+        if playerNum == 2 then 'player-2-link active' else 'player-2-link'
+      ]
+      changes.push [
+        @game.querySelector('.spectate-link'),
+        if playerNum == 0 then 'spectate-link active' else 'spectate-link'
+      ]
+    changes
 
-    if overlay
-      @showOverlay(overlay) unless @overlayShown
-    else if @overlayShown
-      @hideOverlay()
+  findTextChanges: (previous, current) ->
+    changes = []
+    score1 = @getScore(1, current.board)
+    score2 = @getScore(2, current.board)
+    if previous.player_1.name != current.player_1.name
+      changes.push([@game.querySelector('.player1 .name'), current.player_1.name])
+    if previous.player_2.name != current.player_2.name
+      changes.push([@game.querySelector('.player2 .name'), current.player_2.name])
+    if @getScore(1, previous.board) != score1
+      changes.push([@game.querySelector('.player1 .score'), score1])
+    if @getScore(2, previous.board) != score2
+      changes.push([@game.querySelector('.player2 .score'), score2])
+    changes
 
-  showOverlay: (content) ->
-    $board = $(".game .board")
-    $overlay = $(".game-overlay")
-    $overlay.html(content) if content
-    w = Math.max $board.width() + 30, 300
-    h = Math.max $board.height() + 30, 300
-    $overlay.css
-      height: h
-      width: w
-      marginTop: 10
-      marginBottom: -(h + 10)
-      opacity: 1
-    @overlayShown = true
+  menuActivity: ->
+    @showMenuTs = @lastTs + 5000
 
-  hideOverlay: ->
-    $overlay = $(".game-overlay")
-    h = (@boardHeight / 2) + 25
-    $overlay.html("")
-    $overlay.css
-      height: 0
-      width: 0
-      marginTop: h
-      marginBottom: -h
-      opacity: 0
-    @overlayShown = false
+  playerChangeActivity: ->
+    @updatePlayerTs = @lastTs + 1500
 
-  centerOverlay: ->
-    unless @overlayShown
-      h = (@boardHeight / 2) + 25
-      $(".game-overlay").css
-        marginTop: h
-        marginBottom: -h
+  checkPlayer: (ts) ->
+    if @updatePlayerTs > 0 && @updatePlayerTs < ts
+      @updatePlayerTs = 0
+      @updatePlayer()
 
-  measure: ->
-    unless @board_width
-      $board = $(".game .board")
-      @boardWidth  = $board.width()
-      @boardHeight = $board.height()
+  updatePlayer: ->
+    name = @game.querySelector('input.name-input')
+    player = @findCurrentPlayer()
+    if player && name != player.name
+      @channel.perform "update_player", { name: name }
 
-  render: ->
-    rows = @gameData.board.map (row, y) =>
-      cols = row.map (col, x) =>
-        @buildTile(col, x, y)
-      inner = cols.join("\n")
-      """
-        <div class="board-row">#{inner}</div>
-      """
+  selectPlayer: (number) ->
+    @channel.perform "select_player", { number: number }
 
-    html = """
-             <div class="board">#{rows.join("\n")}</div>
-           """
-    $(".game").html html
-    $cp = $(".game-menu .current-player")
-    $cp.toggleClass("current-player1", @gameData.player == 1)
-    $cp.toggleClass("current-player2", @gameData.player == 2)
-    @measure()
-    @centerOverlay()
+  getScore: (number, board) ->
+    score = 0
+    board = @state.board unless board?
+    for row in board
+      for tile in row
+        score++ if tile == number
+    score
 
-  buildWinnerOverlay: ->
-    @buildEnderOverlay("Game Won!", "Player #{@gameData.winner} is the winner", true)
+  getPlayer: (number) ->
+    switch number
+      when 1 then @state.player_1
+      when 2 then @state.player_2
+      else null
 
-  buildTieOverlay: ->
-    @buildEnderOverlay("Draw!", "There are no more tiles and the game is even.")
+  findCurrentPlayer: (state) ->
+    @getPlayer @findCurrentPlayerNumber(state)
 
-  buildCompleteOverlay: ->
-    @buildEnderOverlay("Complete!", "All tiles have been taken. Player #{@gameData.winner} has won!")
+  findCurrentPlayerNumber: (state) ->
+    state = @state unless state?
+    return 1 if state.player_1.owner == @user
+    return 2 if state.player_2.owner == @user
+    0
 
-  buildEnderOverlay: (title, message, play_to_end = false) ->
-    pte = if play_to_end then @overlayButton("play_to_end", "Play to End") else ""
-    """
-      <h1>#{title}</h1>
-      <p>#{message}</p>
-      #{pte}
-      #{@overlayButton("restart", "Restart")}
-      #{@overlayButton("exit", "Exit")}
-    """
+  renderMenu: ->
+    if @showingMenu
+      @hideMenu() if @showMenuTs < @lastTs
+    else
+      @showMenu() if @showMenuTs > @lastTs
 
-  overlayButton: (css_class, content) ->
-    "<button class=\"#{css_class}\">#{content}</button>"
+  hideMenu: ->
+    @menu.classList.remove("on")
+    @showingMenu = false
 
-  buildTile: (value, x, y) ->
-    classNames = switch value
-      when 0 then "tile empty"
-      when 1 then "tile player1"
-      when 2 then "tile player2"
-      when 3 then "vertex"
-      when 4 then "vline open"
-      when 5 then "vline"
-      when 6 then "vline out"
-      when 7 then "hline open"
-      when 8 then "hline"
-      when 9 then "hline out"
+  showMenu: ->
+    @menu.classList.add("on")
+    @showingMenu = true
 
-    """
-      <div class="#{classNames}" data-x=#{x} data-y=#{y}></div>
-    """
+  start: ->
+    @renderLoop = (ts) =>
+      @lastTs = ts
+      @renderMenu(ts)
+      @checkPlayer(ts)
+      queue = @renderQueue
+      @renderQueue = []
+      queue.forEach (renderer) -> renderer(ts)
+      window.requestAnimationFrame(@renderLoop)
+    window.requestAnimationFrame(@renderLoop)

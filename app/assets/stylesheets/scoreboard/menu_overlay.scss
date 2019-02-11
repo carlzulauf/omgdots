@@ -17,7 +17,7 @@
       justify-content: space-evenly;
       height: 40px;
       margin: 0 10px 10px 10px;
-      padding: 10px 5px;
+      padding: 10px 10px;
       background-color: #000;
       border-radius: 10px;
       .exit-link, .player-choice {
@@ -33,21 +33,23 @@
         background-color: #600;
       }
       .name-box {
-        // flex-grow: 1;
+        flex-grow: 1;
         .name-input {
           font-size: 30px;
-          width: 100%;
-          border: 2px solid #333;
+          width: 95%;
+          border: 0;
           border-radius: 5px;
           background-color: #222;
-          padding: 1px 5px;
-          color: #DDD;
+          padding: 3px 2.5%;
+          color: #DDF;
         }
+        margin-right: 10px;
       }
       .player-choice {
         display: flex;
         flex-flow: row nowrap;
         background-color: #222;
+        margin-right: 10px;
         .choice-label {
           padding-right: 10px;
         }

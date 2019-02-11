@@ -5,6 +5,8 @@ class DotsGame
   field :width,        :integer,         default: 7
   field :height,       :integer,         default: 5
   field :board,        "DotsGameBoard",  default: :create_board
+  field :player_1,     "DotsGamePlayer", default: :create_player
+  field :player_2,     "DotsGamePlayer", default: :create_player
   field :must_touch,   :boolean,         default: true
   field :winner,       :integer
   field :started_at,   :time
@@ -14,6 +16,10 @@ class DotsGame
 
   def create_board
     DotsGameBoard.build(width, height)
+  end
+
+  def create_player
+    DotsGamePlayer.build
   end
 
   def eql?(other)
@@ -36,7 +42,7 @@ class DotsGame
   def width=(value)
     object["width"] = (2..25).cover?(value.to_i) ? value.to_i : 5
   end
-  
+
   def height=(value)
     object["height"] = (2..25).cover?(value.to_i) ? value.to_i : 5
   end
