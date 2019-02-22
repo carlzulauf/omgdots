@@ -26,6 +26,13 @@ class DotsGame
     [player_1, player_2].detect { |p| p.owner == owner }
   end
 
+  def current_player
+    case player
+    when 1 then player_1
+    when 2 then player_2
+    end
+  end
+
   def eql?(other)
     %i(width height player must_touch board).all? do |f|
       public_send(f) == other.public_send(f)
@@ -33,6 +40,17 @@ class DotsGame
   end
 
   alias_method :==, :eql?
+
+  def owner_move(owner, **move_options)
+    player = find_player(owner)
+    return false if player.nil?
+    player_move player, move_options
+  end
+
+  def player_move(player, **move_options)
+    return false unless player == current_player
+    move move_options
+  end
 
   def move(x:, y:)
     moved, scored = board.move(x: x, y: y, player: player)

@@ -20,8 +20,16 @@ class @PlayGame
       @selectPlayer(2)
     @game.querySelector(".spectate-link").addEventListener "click", =>
       @selectPlayer(0)
-
+    @game.querySelector(".board").addEventListener "click", (e) =>
+      cL = e.target.classList
+      if cL.contains("hline") || cL.contains("vline")
+        @clickLine e.target
     @subscribe()
+
+  clickLine: (div) ->
+    cL = div.classList
+    if !cL.contains("drawn") && !cL.contains("disabled")
+      @channel.perform "move", x: +div.dataset.x, y: +div.dataset.y
 
   repaint: ->
     @paintPlayer(1)

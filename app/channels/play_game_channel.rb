@@ -38,7 +38,9 @@ class PlayGameChannel < ApplicationCable::Channel
   end
 
   def move(data)
-    broadcast update { |g| g.move(x: data["x"], y: data["y"]) }
+    update do |game|
+      game.owner_move @owner, x: data["x"], y: data["y"]
+    end
   end
 
   private
