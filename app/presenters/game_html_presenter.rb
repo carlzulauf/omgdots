@@ -26,4 +26,18 @@ class GameHtmlPresenter < HtmlPresenter
   def board_cell_div(cell)
     h.content_tag(:div, nil, class: cell.css_classes, data: { x: cell.x, y: cell.y })
   end
+
+  def players
+    object.players.map do |player|
+      PlayerHtmlPresenter.new(player, view_context: h)
+    end
+  end
+
+  def light_track_on
+    (percent_complete * 10).round
+  end
+
+  def light_track_off
+    10 - (percent_complete * 10).round
+  end
 end

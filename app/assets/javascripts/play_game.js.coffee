@@ -32,31 +32,43 @@ class @PlayGame
       @channel.perform "move", x: +div.dataset.x, y: +div.dataset.y
 
   repaint: ->
-    @paintPlayer(1)
-    @paintPlayer(2)
+    @repaintScoreboard()
     @repaintMenu()
     @repaintBoard()
 
   q: (fn) ->
     @renderQueue.push fn
 
-  paintPlayer: (number) ->
-    player = @getPlayer(number)
-    score = @getScore(number)
+  repaintScoreboard: (state) ->
+    @paintPlayer(1, state)
+    @paintPlayer(2, state)
+
+  paintPlayer: (number, state) ->
+    state = @state unless state?
+    player = @getPlayer(number, state)
+    score = @getScore(number, state.board)
+    isTurn = state.player == number
     el = @game.querySelector(".scoreboard .player#{number}")
     $name = el.querySelector(".name")
     $score = el.querySelector(".score")
+    $indicator = el.querySelector('.turn-indicator')
     @q =>
       $name.innerText = player.name
       $score.innerText = score
+      if isTurn
+        $indicator.classList.add("on")
+      else
+        $indicator.classList.remove("on")
 
   repaintBoard: ->
     c = 0
     divs = @game.querySelectorAll(".board div")
+    isTurn = @findCurrentPlayerNumber() == @state.player
+    console.log ["isTurn", isTurn]
     @q =>
       for row in @state.board
         for value in row
-          divs[c].className = @tileCss(value)
+          divs[c].className = @tileCss(value, isTurn)
           c++
 
   repaintMenu: (state) ->
@@ -87,17 +99,16 @@ class @PlayGame
           $name.disabled = false
           $name.value = state.player_2.name
 
-
-  tileCss: (value) ->
+  tileCss: (value, isTurn) ->
     switch value
       when 0 then "tile"
       when 1 then "tile player1"
       when 2 then "tile player2"
       when 3 then "dot"
-      when 4 then "vline"
+      when 4 then (if isTurn then "vline" else "vline disabled")
       when 5 then "vline drawn"
       when 6 then "vline disabled"
-      when 7 then "hline"
+      when 7 then (if isTurn then "hline" else "hline disabled")
       when 8 then "hline drawn"
       when 9 then "hline disabled"
 
@@ -122,6 +133,7 @@ class @PlayGame
       classChanges = @findClassChanges(was, @state)
       textChanges = @findTextChanges(was, @state)
       @repaintMenuOnChange(was, @state)
+      @repaintScoreboardOnChange(was, @state)
       @q ->
         for [tile, className] in classChanges
           tile.className = className
@@ -134,18 +146,28 @@ class @PlayGame
     if @findCurrentPlayerNumber(previous) != @findCurrentPlayerNumber(current)
       @repaintMenu(current)
 
+  repaintScoreboardOnChange: (previous, current) ->
+    @repaintScoreboard(current)
+
   findClassChanges: (previous, current) ->
     changes = []
     i = 0
-    board_was = previous.board
+    boardWas = previous.board
     $board = @game.querySelector('.board')
-    playerNum = @findCurrentPlayerNumber(current)
+    isTurn = current.player == @findCurrentPlayerNumber(current)
+    wasTurn = previous.player == @findCurrentPlayerNumber(previous)
+    console.log isTurn: isTurn, wasTurn: wasTurn
+    # aaa = []
     for row, y in current.board
       for value, x in row
-        if board_was[y][x] != value
+        currentClasses = @tileCss(value, isTurn)
+        previousClasses = @tileCss(boardWas[y][x], wasTurn)
+        # aaa.push [currentClasses, previousClasses]
+        if currentClasses != previousClasses
           tile = $board.children[i]
-          changes.push([tile, @tileCss(value)])
+          changes.push([tile, currentClasses])
         i++
+    # console.log aaa
     changes
 
   findTextChanges: (previous, current) ->
@@ -190,10 +212,11 @@ class @PlayGame
         score++ if tile == number
     score
 
-  getPlayer: (number) ->
+  getPlayer: (number, state) ->
+    state = @state unless state?
     switch number
-      when 1 then @state.player_1
-      when 2 then @state.player_2
+      when 1 then state.player_1
+      when 2 then state.player_2
       else null
 
   findCurrentPlayer: (state) ->

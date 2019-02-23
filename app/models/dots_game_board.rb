@@ -15,7 +15,7 @@ class DotsGameBoard
     new.build(width, height)
   end
 
-  attr_reader :data, :fullw, :fullh, :cell_map
+  attr_reader :data, :fullw, :fullh, :cell_map, :player
 
   def initialize(data = nil)
     self.data = data if data
@@ -38,10 +38,9 @@ class DotsGameBoard
   alias_method :==, :eql?
 
   def move(x:, y:, player:)
-    @player = player
     case get(x, y)
-    when HLINE_OPEN then [true, draw_hline(x, y)]
-    when VLINE_OPEN then [true, draw_vline(x, y)]
+    when HLINE_OPEN then [true, draw_hline(x, y, player)]
+    when VLINE_OPEN then [true, draw_vline(x, y, player)]
     else [false, 0]
     end
   end
@@ -92,6 +91,20 @@ class DotsGameBoard
   def score(player)
     tile = player == 1 ? TILE_PLAYER1 : TILE_PLAYER2
     tile_positions.count { |x, y| get(x, y) == tile }
+  end
+
+  def percent_complete
+    total = 0
+    complete = 0
+    vline_positions.each do |x, y|
+      total += 1
+      complete += 1 if get(x, y) == VLINE_CLOSE
+    end
+    hline_positions.each do |x, y|
+      total += 1
+      complete += 1 if get(x, y) == HLINE_CLOSE
+    end
+    complete.to_f / total
   end
 
   def inspect(*)
@@ -151,17 +164,17 @@ class DotsGameBoard
     Hash[positions.map { |x, y| [ [x,y], DotsGameCell.new(data, x, y) ] }]
   end
 
-  def draw_vline(x, y)
+  def draw_vline(x, y, player)
     set(x, y, VLINE_CLOSE)
-    check_tiles [x-1, y], [x+1, y]
+    check_tiles [x-1, y], [x+1, y], player
   end
 
-  def draw_hline(x, y)
+  def draw_hline(x, y, player)
     set(x, y, HLINE_CLOSE)
-    check_tiles [x, y-1], [x, y+1]
+    check_tiles [x, y-1], [x, y+1], player
   end
 
-  def check_tiles(*tiles)
+  def check_tiles(*tiles, player)
     scored = 0
     tiles.each do |x, y|
       if get(x, y) == TILE_EMPTY && surrounded?(x, y)

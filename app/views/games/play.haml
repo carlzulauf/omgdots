@@ -3,23 +3,18 @@
 .game-container{ id: "game-#{@game.id}"}
   .game-ui
     .scoreboard
-      .player1
-        .turn-indicator.on= render "indicator.svg"
-        .logo 1
-        .name= @game.player_1.name
-        .score-led
-          .score 0
-      .player2
-        .turn-indicator= render "indicator.svg"
-        .logo 2
-        .name= @game.player_2.name
-        .score-led
-          .score 1
+      - @game.players.each do |player|
+        %div{class: player.div_class}
+          .turn-indicator{class: player.indicator_class(@game)}= render "indicator.svg"
+          .logo= player.number
+          .name= player.name
+          .score-led
+            .score= @game.score(player.number)
       .progress
         .light-track
-          - 3.times do
+          - @game.light_track_on.times do
             .scoreboard-light.on.flicker= render "light.svg"
-          - 7.times do
+          - @game.light_track_off.times do
             .scoreboard-light= render "light.svg"
         .menu-overlay
           .menu-items

@@ -5,8 +5,8 @@ class DotsGame
   field :width,        :integer,         default: 7
   field :height,       :integer,         default: 5
   field :board,        "DotsGameBoard",  default: :create_board
-  field :player_1,     "DotsGamePlayer", default: :create_player
-  field :player_2,     "DotsGamePlayer", default: :create_player
+  field :player_1,     "DotsGamePlayer", default: -> { create_player(1) }
+  field :player_2,     "DotsGamePlayer", default: -> { create_player(2) }
   field :must_touch,   :boolean,         default: true
   field :winner,       :integer
   field :started_at,   :time
@@ -14,12 +14,14 @@ class DotsGame
   field :completed_at, :time
   field :play_to_end,  :boolean,         default: false
 
+  delegate :percent_complete, to: :board
+
   def create_board
     DotsGameBoard.build(width, height)
   end
 
-  def create_player
-    DotsGamePlayer.build
+  def create_player(num)
+    DotsGamePlayer.build(num)
   end
 
   def find_player(owner)
@@ -31,6 +33,10 @@ class DotsGame
     when 1 then player_1
     when 2 then player_2
     end
+  end
+
+  def players
+    [player_1, player_2]
   end
 
   def eql?(other)
