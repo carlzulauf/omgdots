@@ -56,5 +56,5 @@ class @Play.Board
     cells = []
     for $div in @$.children
       value = state.board[+$div.dataset.y][+$div.dataset.x]
-      cells.push new Cell($div, value, isTurn)
+      cells.push(new Cell($div, value, isTurn))
     cells: cells

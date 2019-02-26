@@ -28,13 +28,11 @@ class PlayGameChannel < ApplicationCable::Channel
       p2.owner = nil if p2.owner == @owner
       case data["number"]
       when 1
-        return if p1.owner.present? && p1.owner != @owner
-        p1.owner = @owner
-        p1.last_seen_at = Time.now
+        return unless p1.can_by_owned_by?(@owner)
+        p1.own @owner
       when 2
-        return if p2.owner.present? && p2.owner != @owner
-        p2.owner = @owner
-        p2.last_seen_at = Time.now
+        return unless p2.can_by_owned_by?(@owner)
+        p2.own @owner
       end
     end
   end

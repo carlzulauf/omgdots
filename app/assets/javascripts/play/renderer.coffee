@@ -4,6 +4,7 @@ class @Play.Renderer
 
   constructor: ->
     @frames = []
+    @games = []
     @rafLoop = @buildRafLoop()
     window.requestAnimationFrame(@rafLoop)
 
@@ -13,20 +14,8 @@ class @Play.Renderer
       @render(ts)
       window.requestAnimationFrame(@rafLoop)
 
-  pushFrame: (frame) ->
-    @frames.push frame
+  pushGame: (game) ->
+    @games.push game
 
   render: (ts) ->
-    frames = @frames
-    @frames = []
-    frame.render(ts) for frame in frames
-
-class @Play.Frame
-  constructor: ->
-    @queue = []
-
-  render: (ts) ->
-    callback(ts) for callback in @queue
-
-  q: (callback) ->
-    @queue.push callback
+    game.render(ts) for game in @games

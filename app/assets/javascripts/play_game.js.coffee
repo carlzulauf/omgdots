@@ -1,7 +1,6 @@
 class @PlayGame
   constructor: (@id, @user) ->
     @$game = document.querySelector("#game-#{@id}")
-    @frame = @buildFrame()
     window.addEventListener "load", (e) =>
       @start()
       @subscribe()
@@ -14,17 +13,7 @@ class @PlayGame
       new Play.Scoreboard(@),
       new Play.Board(@)
     ]
-    @renderFrame()
-
-  buildFrame: ->
-    frame = new Play.Frame()
-    frame.q (ts) => @render(ts)
-    frame
-
-  renderFrame: ->
-    frame = @frame
-    @frame = @buildFrame()
-    @renderer.pushFrame @frame
+    @renderer.pushGame @
 
   render: (ts) ->
     for component in @components
@@ -55,7 +44,6 @@ class @PlayGame
     @state = state
     for component in @components
       if was? then component.update(was, state) else component.reset(state)
-    @renderFrame()
 
   selectPlayer: (number) ->
     @channel.perform "select_player", { number: number }
@@ -67,6 +55,18 @@ class @PlayGame
       for tile in row
         score++ if tile == number
     score
+
+  percentComplete: (state) ->
+    state = @state unless state?
+    total = 0
+    count = 0
+    lines = [4, 5, 6, 7, 8, 9]
+    drawn = [5, 8]
+    for row in state.board
+      for col in row
+        total++ if lines.includes(col)
+        count++ if drawn.includes(col)
+    count / total
 
   getPlayer: (number, state) ->
     state = @state unless state?
@@ -86,9 +86,6 @@ class @PlayGame
 
   d: (key, delay, callback) ->
     @deferrer.push key, delay, callback
-
-  q: (callback) ->
-    @frame.q callback
 
   ts: ->
     @renderer.ts
