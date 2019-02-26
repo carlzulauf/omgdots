@@ -16,13 +16,10 @@ class @Play.Menu
       @changed()
       @activity()
     @$player1Link.addEventListener "click", =>
-      console.log "player1 click"
       @game.selectPlayer(1)
     @$player2Link.addEventListener "click", =>
-      console.log "player2 click"
       @game.selectPlayer(2)
     @$spectateLink.addEventListener "click", =>
-      console.log "spectate click"
       @game.selectPlayer(0)
 
   activity: ->
