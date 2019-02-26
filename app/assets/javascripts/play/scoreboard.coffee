@@ -8,7 +8,7 @@ class @Play.Scoreboard
       @current = {}
 
     render: (ts) ->
-      if @previous
+      if @previous?
         if @current.isTurn != @previous.isTurn
           @renderIndicator @current.isTurn
         if @current.score != @previous.score
@@ -19,7 +19,7 @@ class @Play.Scoreboard
 
     buildCache: (state) ->
       isTurn: state.player == @number
-      score: @game.getScore(@number, state.board)
+      score: @game.getScore(@number, state)
       name: @game.getPlayer(@number, state).name
 
     reset: (state) ->
@@ -68,9 +68,7 @@ class @Play.Scoreboard
     lights: @lightsCount(state)
 
   lightsCount: (state) ->
-    x = Math.round @game.percentComplete(state) * 10
-    console.log ["lightsCount", x]
-    x
+    Math.round @game.percentComplete(state) * 10
 
   # called whenever frames are rendered
   render: (ts) ->
@@ -78,6 +76,8 @@ class @Play.Scoreboard
       if @previous.lights != @current.lights
         @renderLightTrack @current.lights
       @previous = null
+    @player1.render(ts)
+    @player2.render(ts)
 
   renderLightTrack: (lights) ->
     for i in [1..10]

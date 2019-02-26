@@ -48,10 +48,9 @@ class @PlayGame
   selectPlayer: (number) ->
     @channel.perform "select_player", { number: number }
 
-  getScore: (number, board) ->
+  getScore: (number, state) ->
     score = 0
-    board = @state.board unless board?
-    for row in board
+    for row in state.board
       for tile in row
         score++ if tile == number
     score
