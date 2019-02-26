@@ -12,7 +12,7 @@ class GamesController < ApplicationController
   def show
     session[:uid] ||= SecureRandom.base58(8)
     @game = present(DotsGame.find_or_create(params[:id]), name: :game)
-    render :play if params[:play]
+    render :play
   end
 
   def destroy
