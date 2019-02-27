@@ -1,11 +1,12 @@
 class @Play.Deferrer
   @main: ->
-    @instance = new Play.Deferrer() unless @instance?
+    @instance ||= new Play.Deferrer()
+    @instance
 
   constructor: ->
     @jobs = {}
     @ts = @now()
-    @interval = window.setInterval @runCallback, 120
+    @interval = window.setInterval @runCallback(), 120
 
   now: ->
     +(new Date())
@@ -14,9 +15,9 @@ class @Play.Deferrer
     =>
       @ts = @now()
       for key, job of @jobs
-        if @ts > job.ts
+        if job? && @ts > job.ts
           @jobs[key] = null
-          job.callback(ts)
+          job.callback(@ts)
 
   push: (key, delay, callback) ->
     job = @jobs[key]
@@ -24,4 +25,4 @@ class @Play.Deferrer
       job.ts = @now() + delay
       job.callback = callback
     else
-      @job[key] = ts: @now() + delay, callback: callback
+      @jobs[key] = ts: @now() + delay, callback: callback

@@ -1,6 +1,7 @@
 class @Play.Renderer
   @main: ->
-    @instance = new Play.Renderer() unless @instance?
+    @instance ||= new Play.Renderer()
+    @instance
 
   constructor: ->
     @notifications = []

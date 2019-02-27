@@ -52,6 +52,9 @@ class @PlayGame
   selectPlayer: (number) ->
     @channel.perform "select_player", { number: number }
 
+  updatePlayer: (data) ->
+    @channel.perform "update_player", data
+
   notify: (notice) ->
     @renderer.pushNotification new Play.Notification(@, notice)
 
