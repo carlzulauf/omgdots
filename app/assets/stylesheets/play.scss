@@ -109,4 +109,20 @@ body.play {
       &.player2::after { content: '2'; }
     }
   }
+
+  .notifications {
+    height: 0;
+    z-index: 4;
+    max-width: 900px;
+    margin: 4px auto -4px auto;
+    .notification {
+      color: #f00;
+      text-align: center;
+      line-height: 1.5em;
+      background: rgba(0,0,0,0.85);
+      padding: 2px 10px;
+      opacity: 0;
+      &.in { opacity: 1; }
+    }
+  }
 }

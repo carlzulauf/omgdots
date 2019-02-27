@@ -48,6 +48,9 @@ class @PlayGame
   selectPlayer: (number) ->
     @channel.perform "select_player", { number: number }
 
+  notify: (html) ->
+    @renderer.pushNotification new Play.Notification(@, html)
+
   getScore: (number, state) ->
     score = 0
     for row in state.board
@@ -86,5 +89,7 @@ class @PlayGame
   d: (key, delay, callback) ->
     @deferrer.push key, delay, callback
 
-  ts: ->
-    @renderer.ts
+  ts: (callback) ->
+    ts = @renderer.ts
+    callback(ts) if callback?
+    ts

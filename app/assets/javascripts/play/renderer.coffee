@@ -3,7 +3,7 @@ class @Play.Renderer
     @instance = new Play.Renderer() unless @instance?
 
   constructor: ->
-    @frames = []
+    @notifications = []
     @games = []
     @rafLoop = @buildRafLoop()
     window.requestAnimationFrame(@rafLoop)
@@ -17,5 +17,14 @@ class @Play.Renderer
   pushGame: (game) ->
     @games.push game
 
+  pushNotification: (notification) ->
+    @notifications.push notification
+
   render: (ts) ->
     game.render(ts) for game in @games
+    if @notifications.length > 0
+      survivors = []
+      for notification in @notifications
+        notification.render(ts)
+        survivors.push(notification) unless notification.isExpired()
+      @notifications = survivors
