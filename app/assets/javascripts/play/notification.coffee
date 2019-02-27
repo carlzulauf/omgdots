@@ -1,5 +1,5 @@
 class @Play.Notification
-  constructor: (game, @content) ->
+  constructor: (game, @data) ->
     @$notifications = game.$game.querySelector(".notifications")
     @$ = @buildDiv()
     @$notifications.appendChild @$
@@ -7,8 +7,8 @@ class @Play.Notification
   
   buildDiv: ->
     div = document.createElement("div")
-    div.className = "notification error"
-    div.innerHTML = @content
+    div.className = "notification #{@data.level}"
+    div.innerHTML = @data.message
     div
 
   isExpired: ->

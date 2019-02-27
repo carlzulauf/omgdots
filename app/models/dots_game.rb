@@ -16,6 +16,17 @@ class DotsGame
 
   delegate :percent_complete, to: :board
 
+  def channel_key
+    "game:#{id}"
+  end
+
+  def as_typed_json
+    {
+      type: 'game',
+      data: as_json
+    }
+  end
+
   def create_board
     DotsGameBoard.build(width, height)
   end
@@ -29,7 +40,11 @@ class DotsGame
   end
 
   def current_player
-    case player
+    get_player player
+  end
+
+  def get_player(number)
+    case number
     when 1 then player_1
     when 2 then player_2
     end

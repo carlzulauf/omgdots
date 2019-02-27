@@ -1,45 +1,45 @@
-# broadcast:
-# DotsGameChannel.broadcast_to game, message_hash
-
 class PlayGameChannel < ApplicationCable::Channel
   def subscribed
     @game_id = params[:id]
     @owner = params[:user]
     Rails.logger.info [:subscribed, params].inspect
-    stream_for find_game.id
+    stream_for find_game.channel_key
+    stream_for build_notification.channel_key
   end
 
   def start
-    transmit find_game
+    transmit find_game.as_typed_json
   end
 
   def update_player(data)
-    Rails.logger.info [:update_player, data].inspect
     update do |game|
       player = game.find_player(@owner)
       player.assign_attributes(data) if player
     end
+    notify! "Player details updated"
   end
 
   def select_player(data)
     update do |game|
-      p1, p2 = game.player_1, game.player_2
-      p1.owner = nil if p1.owner == @owner
-      p2.owner = nil if p2.owner == @owner
-      case data["number"]
-      when 1
-        return unless p1.can_by_owned_by?(@owner)
-        p1.own @owner
-      when 2
-        return unless p2.can_by_owned_by?(@owner)
-        p2.own @owner
+      game.players.each { |player| player.owner = nil if player.owner == @owner }
+      if (player = game.get_player(data["number"]))
+        if player.can_be_owned_by?(@owner)
+          player.own @owner
+          notify_after_update! "Successfully became Player #{data['number']}"
+        else
+          notify_after_update! "Player #{data['number']} is already owned by someone else"
+        end
+      else
+        notify_after_update! "Successfully became a spectator"
       end
     end
   end
 
   def move(data)
     update do |game|
-      game.owner_move @owner, x: data["x"], y: data["y"]
+      unless game.owner_move @owner, x: data["x"], y: data["y"]
+        notify_after_update! "Not your turn"
+      end
     end
   end
 
@@ -47,13 +47,29 @@ class PlayGameChannel < ApplicationCable::Channel
 
   def update(&block)
     broadcast DotsGame.for_update(@game_id, &block)
+    if @after_update.present?
+      broadcast @after_update
+      @after_update = nil
+    end
   end
 
   def find_game
     DotsGame.find_or_create(@game_id)
   end
 
-  def broadcast(game)
-    self.class.broadcast_to game.id, game
+  def build_notification(message = nil)
+    Notification.new(game_id: @game_id, owner: @owner, message: message)
+  end
+
+  def notify_after_update!(message)
+    @after_update = build_notification(message)
+  end
+
+  def notify!(message)
+    broadcast build_notification(message)
+  end
+
+  def broadcast(obj)
+    self.class.broadcast_to obj.channel_key, obj.as_typed_json
   end
 end

@@ -39,17 +39,21 @@ class @PlayGame
         console.log "Connected to PlayGameChannel. Calling #start."
         @channel.perform "start"
 
-  onReceive: (state) ->
-    was = @state
-    @state = state
-    for component in @components
-      if was? then component.update(was, state) else component.reset(state)
+  onReceive: (message) ->
+    console.log ["onReceive", message]
+    if message.type == "game"
+      was = @state
+      @state = message.data
+      for component in @components
+        if was? then component.update(was, @state) else component.reset(@state)
+    else if message.type == "notification"
+      @notify message.data
 
   selectPlayer: (number) ->
     @channel.perform "select_player", { number: number }
 
-  notify: (html) ->
-    @renderer.pushNotification new Play.Notification(@, html)
+  notify: (notice) ->
+    @renderer.pushNotification new Play.Notification(@, notice)
 
   getScore: (number, state) ->
     score = 0

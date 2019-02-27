@@ -17,7 +17,7 @@ class DotsGamePlayer
     self.last_seen_at = Time.now
   end
 
-  def can_by_owned_by?(other)
+  def can_be_owned_by?(other)
     return true unless owner.present?
     owner == other || last_seen_at < TIMEOUT.ago
   end
