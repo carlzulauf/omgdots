@@ -2,14 +2,17 @@
 
 $dot-color: #f00;
 $dot-lowlight: #400;
-$line-color: #333;
-$line-highlight: #555;
-$line-lowlight: #222;
+$line-color: #505050;
+$line-highlight: #666666;
+$line-lowlight: #383838;
 $line-hover: #222;
-$line-disabled: #333;
+$line-disabled: #222;
 $line-drawn: #fff;
 $board-color: #000;
 $bg-color: #222;
+$tile-color: #000;
+$player1-tile-color: #336666;
+$player2-tile-color: #663333;
 
 body.play {
   background-color: $bg-color
@@ -88,6 +91,22 @@ body.play {
       background-color: $line-drawn;
       border-color: $line-drawn;
       cursor: inherit;
+    }
+
+    .tile {
+      background: $tile-color;
+      &.player1, &.player2 {
+        color: white;
+        text-shadow: -2px -2px 1px rgba(0,0,0,0.7), 2px  2px 1px rgba(0,0,0,0.7),
+        -2px  2px 1px rgba(0,0,0,0.7), 2px -2px 1px rgba(0,0,0,0.7);
+        font-size: 335%;
+        display: flex;
+        justify-content: center;
+      }
+      &.player1 { background: $player1-tile-color; }
+      &.player1::after { content: '1'; }
+      &.player2 { background: $player2-tile-color; }
+      &.player2::after { content: '2'; }
     }
   }
 }
