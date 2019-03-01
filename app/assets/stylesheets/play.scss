@@ -6,7 +6,8 @@ $line-color: #505050;
 $line-highlight: #666666;
 $line-lowlight: #383838;
 $line-hover: #222;
-$line-disabled: #222;
+$line-disabled-border: #262626;
+$line-disabled-bg: #060606;
 $line-drawn: #fff;
 $board-color: #000;
 $bg-color: #222;
@@ -82,8 +83,8 @@ body.play {
     }
 
     .hline.disabled, .hline.disabled:hover, .vline.disabled, .vline.disabled:hover {
-      background-color: $line-disabled;
-      border-color: $line-disabled;
+      background-color: $line-disabled-bg;
+      border-color: $line-disabled-border;
       cursor: inherit;
     }
 
@@ -98,7 +99,7 @@ body.play {
       &.player1, &.player2 {
         color: white;
         text-shadow: -2px -2px 1px rgba(0,0,0,0.7), 2px  2px 1px rgba(0,0,0,0.7),
-        -2px  2px 1px rgba(0,0,0,0.7), 2px -2px 1px rgba(0,0,0,0.7);
+                     -2px  2px 1px rgba(0,0,0,0.7), 2px -2px 1px rgba(0,0,0,0.7);
         font-size: 335%;
         display: flex;
         justify-content: center;
