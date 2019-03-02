@@ -25,7 +25,7 @@
               .player-1-link 1
               .player-2-link 2
               .spectate-link.active spectate
-            .exit-link exit
+            = link_to "exit", root_path, class: "exit-link"
   .notifications
   = @game.board_div
 
