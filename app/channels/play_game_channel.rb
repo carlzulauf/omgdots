@@ -43,6 +43,10 @@ class PlayGameChannel < ApplicationCable::Channel
     end
   end
 
+  def restart
+    update(&:restart)
+  end
+
   private
 
   def update(&block)

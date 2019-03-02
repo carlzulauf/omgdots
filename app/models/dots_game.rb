@@ -77,7 +77,7 @@ class DotsGame
     moved, scored = board.move(x: x, y: y, player: player)
     if moved
       board.paint_open if must_touch
-      scored > 0 ? check_scores : switch_player
+      scored > 0 ? check_scores(player) : switch_player
     end
     moved
   end
@@ -90,21 +90,10 @@ class DotsGame
     object["height"] = (2..25).cover?(value.to_i) ? value.to_i : 5
   end
 
-  def check_scores
+  def check_scores(player)
     ts = Time.now
-    if !won? && score(player) >= majority
-      self.won_at = ts
-      self.winner = player
-    end
+    mark_winner(player, ts) if winning_score?(player)
     self.completed_at = ts if board.complete?
-  end
-
-  def move!(x:, y:)
-    moved = false
-    success = with_lock do
-      moved = move(x: x, y: y)
-    end
-    success && moved
   end
 
   def won?
@@ -121,7 +110,7 @@ class DotsGame
 
   def restart
     board.clean
-    self.player = 1
+    self.player = [1, 2].sample
     self.winner = nil
     self.won_at = nil
     self.completed_at = nil
@@ -134,6 +123,16 @@ class DotsGame
 
   def tiles_count
     width * height
+  end
+
+  def winning_score?(player)
+    return false if won?
+    score(player) >= majority
+  end
+
+  def mark_winner(player, ts)
+    self.winner = player
+    self.won_at = ts
   end
 
   def majority

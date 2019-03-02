@@ -11,7 +11,8 @@ class @PlayGame
     @components = [
       new Play.Menu(@),
       new Play.Scoreboard(@),
-      new Play.Board(@)
+      new Play.Board(@),
+      new Play.PageOverlay(@)
     ]
     @renderer.pushGame @
 
@@ -21,6 +22,9 @@ class @PlayGame
 
   move: (data) ->
     @channel.perform "move", data
+
+  restart: ->
+    @channel.perform "restart"
 
   reset: ->
     for component in @components

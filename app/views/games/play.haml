@@ -29,4 +29,11 @@
   .notifications
   = @game.board_div
 
+.page-overlay
+  .overlay-modal
+    .title Dynamic
+    .actions
+      = link_to "Exit", root_path, class: "exit-link"
+      = link_to "Restart", restart_game_path(@game), class: "restart-link"
+
 = init_play_js(@game)
