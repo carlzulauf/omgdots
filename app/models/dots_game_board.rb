@@ -53,7 +53,7 @@ class DotsGameBoard
       get(x + 2, y)       == HLINE_CLOSE || # right
       get(x - 1, y - 1)   == VLINE_CLOSE || # top left
       get(x - 1, y + 1)   == VLINE_CLOSE || # bottom left
-      get(-x + 1, y - 1)  == VLINE_CLOSE || # top right
+      get(x + 1, y - 1)   == VLINE_CLOSE || # top right
       get(x + 1, y + 1)   == VLINE_CLOSE    # bottom right
     end
     h_open.each { |x, y| set(x, y, HLINE_OPEN) }
