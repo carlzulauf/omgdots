@@ -1,0 +1,8 @@
+---
+- hosts: app
+  remote_user: root
+  become: yes
+  tasks:
+    - name: Update all apt packages to latest
+      apt:
+        upgrade: dist

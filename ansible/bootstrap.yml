@@ -1,0 +1,8 @@
+---
+- hosts: app
+  tasks:
+    - name: Copy public key to authorized_keys
+      authorized_key:
+        state: present
+        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+        user: "{{ ansible_user }}"
