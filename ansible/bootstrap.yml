@@ -1,8 +1,14 @@
 ---
-- hosts: app
+- hosts: setup
   tasks:
     - name: Copy public key to authorized_keys
       authorized_key:
         state: present
         key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
         user: "{{ ansible_user }}"
+    - name: Install sudo_group_nopasswd
+      become: yes
+      copy:
+        content: "%sudo ALL=(ALL:ALL) NOPASSWD: ALL"
+        dest: /etc/sudoers.d/sudo_group_nopasswd
+        mode: 0440

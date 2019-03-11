@@ -1,0 +1,12 @@
+staging:
+  hosts:
+    vm-host:
+      ansible_host: carl.linkleaf.com
+    setup:
+    app:
+      ansible_user: deploy
+  vars:
+    ansible_user: carl
+    ansible_host: 192.168.1.104
+    ansible_python_interpreter: /usr/bin/python3
+    server_name: omgdots.vm

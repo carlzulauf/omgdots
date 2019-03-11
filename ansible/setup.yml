@@ -1,8 +1,96 @@
 ---
-- hosts: app
-  remote_user: root
+- hosts: setup
   become: yes
   tasks:
     - name: Update all apt packages to latest
       apt:
         upgrade: dist
+    - name: Install apt packages
+      apt:
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - nano
+        - tmux
+        - nodejs
+        - redis-server
+        - nginx
+        - letsencrypt
+        - build-essential
+        - bison
+        - zlib1g-dev
+        - libyaml-dev
+        - libssl-dev
+        - libgdbm-dev
+        - libreadline-dev
+        - libncurses5-dev
+        - libffi-dev
+    - name: Add deploy user
+      user:
+        name: deploy
+        shell: /bin/bash
+    - name: Copy public key to deploy authorized_keys
+      authorized_key:
+        state: present
+        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+        user: "deploy"
+    - name: Download ruby-install
+      get_url:
+        url: https://github.com/postmodern/ruby-install/archive/v0.7.0.tar.gz
+        dest: "/home/{{ ansible_user }}/ruby-install-0.7.0.tar.gz"
+    - name: Extract ruby-install
+      unarchive:
+        src: "/home/{{ ansible_user }}/ruby-install-0.7.0.tar.gz"
+        remote_src: yes
+        dest: "/home/{{ ansible_user }}"
+        creates: "/home/{{ ansible_user }}/ruby-install-0.7.0"
+      notify:
+        - install ruby-install
+    - name: Download chruby
+      get_url:
+        url: https://github.com/postmodern/chruby/archive/v0.3.9.tar.gz
+        dest: "/home/{{ ansible_user }}/chruby-0.3.9.tar.gz"
+    - name: Extract chruby
+      unarchive:
+        src: "/home/{{ ansible_user }}/chruby-0.3.9.tar.gz"
+        remote_src: yes
+        dest: "/home/{{ ansible_user }}"
+        creates: "/home/{{ ansible_user }}/chruby-0.3.9"
+      notify:
+        - install chruby
+    - name: Setup www dir
+      copy:
+        src: files/www/omgdots
+        dest: /var/www/
+        owner: deploy
+    # - name: Copy secrets
+    #   copy:
+    #     src: ../.env
+    #     dest: /var/www/omgdots/shared/.env
+    #     owner: deploy
+    #     mode: 0440
+  handlers:
+    - name: install ruby-install
+      make:
+        chdir: "/home/{{ ansible_user }}/ruby-install-0.7.0"
+        target: install
+    - name: install chruby
+      make:
+        chdir: "/home/{{ ansible_user }}/chruby-0.3.9"
+        target: install
+- hosts: app
+  tasks:
+    - name: Install ruby 2.6.1
+      command: /usr/local/bin/ruby-install --no-install-deps ruby 2.6.1
+      args:
+        creates: /home/deploy/.rubies/ruby-2.6.1
+    - name: Add chruby to .bashrc
+      lineinfile:
+        path: /home/deploy/.bashrc
+        regexp: 'chruby\/auto\.sh$'
+        line: 'source /usr/local/share/chruby/chruby.sh; source /usr/local/share/chruby/auto.sh'
+        insertbefore: BOF
+    - name: Set default ruby
+      copy:
+        content: '2.6.1'
+        dest: /home/deploy/.ruby-version
