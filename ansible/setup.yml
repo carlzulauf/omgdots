@@ -63,12 +63,39 @@
         src: files/www/omgdots
         dest: /var/www/
         owner: deploy
-    # - name: Copy secrets
-    #   copy:
-    #     src: ../.env
-    #     dest: /var/www/omgdots/shared/.env
-    #     owner: deploy
-    #     mode: 0440
+    - name: Copy SSL certificate
+      copy:
+        src: "{{ custom_cert }}.pem"
+        dest: /var/www/omgdots/shared/cert.pem
+      when: custom_cert is defined
+      notify:
+        - restart nginx
+    - name: Copy SSL certificate key
+      copy:
+        src: "{{ custom_cert }}.key"
+        dest: /var/www/omgdots/shared/cert.key
+      when: custom_cert is defined
+      notify:
+        - restart nginx
+    - name: remove default nginx config
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify:
+        - restart nginx
+    - name: install nginx config
+      template:
+        src: templates/nginx.conf
+        dest: /etc/nginx/sites-available/omgdots
+      notify:
+        - restart nginx
+    - name: enable nginx config
+      file:
+        state: link
+        src: /etc/nginx/sites-available/omgdots
+        path: /etc/nginx/sites-enabled/omgdots
+      notify:
+        - restart nginx
   handlers:
     - name: install ruby-install
       make:
@@ -78,6 +105,8 @@
       make:
         chdir: "/home/{{ ansible_user }}/chruby-0.3.9"
         target: install
+    - name: restart nginx
+      shell: systemctl restart nginx
 - hosts: app
   tasks:
     - name: Install ruby 2.6.1
