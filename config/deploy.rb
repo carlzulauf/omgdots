@@ -5,7 +5,7 @@ set :application, 'omgdots'
 set :repo_url, 'git@github.com:carlzulauf/omgdots.git'
 
 set :deploy_to, "/var/www/omgdots"
-set :chruby_ruby, 'ruby-2.3.3'
+set :chruby_ruby, 'ruby-2.6.2'
 
 append :linked_dirs, "log", "tmp"
 append :linked_files, ".env"

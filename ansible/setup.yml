@@ -1,5 +1,6 @@
 ---
-- hosts: setup
+- name: install and setup system
+  hosts: setup
   become: yes
   tasks:
     - name: Update all apt packages to latest
@@ -85,7 +86,7 @@
         - restart nginx
     - name: install nginx config
       template:
-        src: templates/nginx.conf
+        src: templates/nginx.conf.j2
         dest: /etc/nginx/sites-available/omgdots
       notify:
         - restart nginx
@@ -96,6 +97,18 @@
         path: /etc/nginx/sites-enabled/omgdots
       notify:
         - restart nginx
+    - name: install puma service
+      template:
+        src: templates/puma.service.j2
+        dest: /etc/systemd/system/omgdots_puma.service
+    - name: enable puma service
+      shell: systemctl enable omgdots_puma.service
+      args:
+        creates: /etc/systemd/system/multi-user.target.wants/omgdots_puma.service
+    - name: copy deploy_restart_sudeoer
+      copy:
+        src: files/deploy_restart_sudoer
+        dest: /etc/sudoers.d/deploy_restart_sudoer
   handlers:
     - name: install ruby-install
       make:
@@ -107,12 +120,13 @@
         target: install
     - name: restart nginx
       shell: systemctl restart nginx
-- hosts: app
+- name: setup ruby and deploy user
+  hosts: app
   tasks:
-    - name: Install ruby 2.6.1
-      command: /usr/local/bin/ruby-install --no-install-deps ruby 2.6.1
+    - name: Install ruby
+      command: /usr/local/bin/ruby-install --no-install-deps ruby {{ ruby_version }}
       args:
-        creates: /home/deploy/.rubies/ruby-2.6.1
+        creates: /home/deploy/.rubies/ruby-{{ ruby_version }}
     - name: Add chruby to .bashrc
       lineinfile:
         path: /home/deploy/.bashrc
@@ -121,5 +135,9 @@
         insertbefore: BOF
     - name: Set default ruby
       copy:
-        content: '2.6.1'
+        content: '{{ ruby_version }}'
         dest: /home/deploy/.ruby-version
+    - name: copy app env
+      copy:
+        src: "../.env.{{ env_name }}"
+        dest: /var/www/omgdots/shared/.env
