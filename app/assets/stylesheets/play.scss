@@ -138,16 +138,19 @@ body.play {
   z-index: 2;
   display: none;
   &.in { display: flex; }
+
   .overlay-modal {
     margin: 15vh auto auto auto;
     padding: 30px;
     background: #000;
     border-radius: 10px;
     color: #FFF;
+
     .title {
       font-size: 150%;
       margin-bottom: 30px;
     }
+
     .actions {
       display: flex;
       flex-direction: row;
@@ -166,6 +169,7 @@ body.play {
       .exit-link {
         background-color: #336;
       }
+
       .restart-link {
         margin-left: 10px;
         background-color: #633;

@@ -1,8 +1,4 @@
 module ApplicationHelper
-  def init_game_js(game)
-    javascript_tag("window.currentGame = new DotsGame(#{game.id.to_json});")
-  end
-
   def init_play_js(game)
     javascript_tag("window.currentPlay = new PlayGame(#{game.id.to_json}, #{session[:uid].to_json})")
   end
