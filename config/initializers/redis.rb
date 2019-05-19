@@ -1,6 +1,6 @@
-config = YAML.load_file("config/redis.yml")[Rails.env]
+redis = Redis.new(url: ENV["REDIS_URL"])
 
-redis = Redis.new(url: config["url"])
-redis = Redis::Namespace.new(config["ns"], redis: redis) if config["ns"]
+ns = ENV["REDIS_NAMESPACE"]
+redis = Redis::Namespace.new(ns, redis: redis) if ns.present?
 
 $model_redis = redis

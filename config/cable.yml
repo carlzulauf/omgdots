@@ -1,14 +1,14 @@
 development:
   adapter: redis
-  url: redis://localhost:6379/0
+  url: <%= ENV["REDIS_URL"] %>
 
 test:
   adapter: async
 
 production:
   adapter: redis
-  url: redis://localhost:6379/0
+  url: <%= ENV["REDIS_URL"] %>
 
 staging:
   adapter: redis
-  url: redis://localhost:6379/0
+  url: <%= ENV["REDIS_URL"] %>
