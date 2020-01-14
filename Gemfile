@@ -1,7 +1,5 @@
 source 'https://rubygems.org'
 
-ruby(File.exist?(".ruby-version") ? File.read(".ruby-version").strip : '2.5.7')
-
 gem "rails"
 gem "puma"
 gem "sass-rails"
