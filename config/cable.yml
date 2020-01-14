@@ -12,3 +12,7 @@ production:
 staging:
   adapter: redis
   url: <%= ENV["REDIS_URL"] %>
+
+home:
+  adapter: redis
+  url: <%= ENV["REDIS_URL"] %>
