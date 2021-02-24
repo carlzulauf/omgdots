@@ -3,7 +3,7 @@ class DotsGame
 
   field :player,       :integer,         default: 1
   field :width,        :integer,         default: 7
-  field :height,       :integer,         default: 5
+  field :height,       :integer,         default: 6
   field :board,        "DotsGameBoard",  default: :create_board
   field :player_1,     "DotsGamePlayer", default: -> { create_player(1) }
   field :player_2,     "DotsGamePlayer", default: -> { create_player(2) }
