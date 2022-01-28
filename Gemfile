@@ -1,11 +1,11 @@
 source 'https://rubygems.org'
 
-gem "rails"
+gem "rails", "~> 5.2.6"
 gem "puma"
-gem "sass-rails"
+gem "sass-rails", "~> 5.0.7"
 gem "haml"
 gem "uglifier"
-gem "coffee-rails"
+gem "coffee-rails", "~> 4.2.2"
 gem "redis"
 gem "redis-namespace"
 
