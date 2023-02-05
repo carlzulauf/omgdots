@@ -6,10 +6,15 @@
 
 # Ignore bundler config.
 /.bundle
+# and don't let vendored gems leak into git
+vendor/bundle/
 
 # Ignore the default SQLite database.
 /db/*.sqlite3
 /db/*.sqlite3-journal
+
+# Ignore compiled assets
+public/assets/
 
 # Ignore all logfiles and tempfiles.
 /log/*
