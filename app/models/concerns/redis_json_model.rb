@@ -25,19 +25,19 @@ module RedisJsonModel
     self.class.key_for(id)
   end
 
-  def save
+  def save(_redis = redis)
     ts = Time.now
     self.id = generate_id unless id.present?
     self.created_at ||= ts
     self.updated_at   = ts
-    redis.set(key, to_json)
+    _redis.set(key, to_json)
   end
 
   def with_lock
     redis.watch key
     reload
-    redis.multi do
-      save if yield(self)
+    redis.multi do |pipeline|
+      save(pipeline) if yield(self)
     end
   end
 
@@ -64,7 +64,11 @@ module RedisJsonModel
     end
 
     def exists?(id)
+<<<<<<< HEAD
       redis.exists? key_for(id)
+=======
+      redis.exists(key_for(id)) == 1
+>>>>>>> a6ebd07 (Fix endless loop in RedisJsonModel and other redis fixes)
     end
 
     def for_update(id)

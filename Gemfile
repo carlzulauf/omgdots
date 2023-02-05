@@ -1,18 +1,12 @@
 source 'https://rubygems.org'
 
-<<<<<<< HEAD
-ruby "2.7.5"
-
-gem "rails", "~> 5.2.6"
-=======
 gem "rails", "~> 5.2.8"
->>>>>>> 6f2faa9 (Small version bumps and stop capistrano)
 gem "puma"
-gem "sass-rails", "~> 5.0.7"
+gem "sass-rails"
 gem "haml"
 gem "uglifier"
-gem "coffee-rails", "~> 4.2.2"
-gem "redis"
+gem "coffee-rails"
+gem "redis", "< 5.0"
 gem "redis-namespace"
 
 # Use ActiveModel has_secure_password
@@ -30,6 +24,3 @@ group :development do
   gem 'web-console'
   gem 'listen', '~> 3.0.5'
 end
-
-# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
