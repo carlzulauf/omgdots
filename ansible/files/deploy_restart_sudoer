@@ -1,3 +1,0 @@
-deploy ALL=(ALL) NOPASSWD: /bin/systemctl start omgdots_puma.service
-deploy ALL=(ALL) NOPASSWD: /bin/systemctl stop omgdots_puma.service
-deploy ALL=(ALL) NOPASSWD: /bin/systemctl restart omgdots_puma.service

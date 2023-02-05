@@ -1,3 +1,0 @@
-#!/bin/bash
-
-ansible-playbook -vvvv -i ansible/inventory.yml ansible/reset-vm.yml

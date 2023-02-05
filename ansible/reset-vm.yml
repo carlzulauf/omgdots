@@ -1,9 +1,0 @@
----
-- hosts: vm-host
-  tasks:
-  - name: Stop omg-staging VM
-    shell: VBoxManage controlvm omg-staging poweroff & /bin/true
-  - name: Restore to original snapshot
-    shell: VBoxManage snapshot omg-staging restore post-apt
-  - name: Start omg-staging VM
-    shell: VBoxManage startvm --type headless omg-staging
