@@ -1,8 +1,12 @@
 source 'https://rubygems.org'
 
+<<<<<<< HEAD
 ruby "2.7.5"
 
 gem "rails", "~> 5.2.6"
+=======
+gem "rails", "~> 5.2.8"
+>>>>>>> 6f2faa9 (Small version bumps and stop capistrano)
 gem "puma"
 gem "sass-rails", "~> 5.0.7"
 gem "haml"
@@ -15,7 +19,6 @@ gem "redis-namespace"
 # gem 'bcrypt', '~> 3.1.7'
 
 gem "pry-rails"
-gem "dotenv-rails"
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -26,9 +29,6 @@ end
 group :development do
   gem 'web-console'
   gem 'listen', '~> 3.0.5'
-  gem "capistrano", "3.6.1"
-  gem "capistrano-rails"
-  gem "capistrano-chruby"
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
