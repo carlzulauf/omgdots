@@ -64,11 +64,7 @@ module RedisJsonModel
     end
 
     def exists?(id)
-<<<<<<< HEAD
-      redis.exists? key_for(id)
-=======
       redis.exists(key_for(id)) == 1
->>>>>>> a6ebd07 (Fix endless loop in RedisJsonModel and other redis fixes)
     end
 
     def for_update(id)
