@@ -64,7 +64,7 @@ module RedisJsonModel
     end
 
     def exists?(id)
-      redis.exists(key_for(id)) == 1
+      redis.exists? key_for(id)
     end
 
     def for_update(id)
