@@ -229,7 +229,7 @@ DEPENDENCIES
   web-console
 
 RUBY VERSION
-   ruby 2.7.5p203
+   ruby 2.7.8p225
 
 BUNDLED WITH
    2.3.3
