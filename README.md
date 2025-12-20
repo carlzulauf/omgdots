@@ -27,3 +27,10 @@ This is currently deployed as a docker container via dokku on a personal server.
 As docker containers go, this one is very simple It defaults to listening on port 3000, but this can be changed via the `PORT` environment variable.
 
 A redis instance is required for the application to function, and can be provided via the `REDIS_URL` environment variable.
+
+For dokku, this involved creating a redis service and linking it to the app
+
+```
+dokku redis:create omgdots-redis --image-version 6.0.16
+dokku redis:link omgdots-redis omgdots
+```
