@@ -2,6 +2,8 @@
 
 The childhood paper classic, now online and multiplayer.
 
+You can run this wherever you like, or [go here](https://omgdots.mrks.io) to play now.
+
 ## Run Locally
 
 Getting this running via distrobox is fairly easy.
