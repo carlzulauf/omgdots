@@ -1,8 +1,8 @@
 {
-  description = "OMGDOTS - A multiplayer browser game built with Ruby on Rails";
+  description = "omgdots - Multiplayer browser game built with Ruby on Rails";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/release-24.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -11,40 +11,49 @@
       let
         pkgs = import nixpkgs {
           inherit system;
+          overlays = [
+            (final: prev: {
+              bundler = prev.buildRubyGem rec {
+                inherit (prev) ruby;
+                name = "${gemName}-${version}";
+                gemName = "bundler";
+                version = "4.0.15";
+                source.sha256 = "sha256-pM64gv6UoOCsY80IE5Mrv9YxoU5awLeXUYmxmk0o2ec=";
+                dontPatchShebangs = true;
+                postFixup = ''
+                  substituteInPlace $out/bin/bundle --replace-fail "activate_bin_path" "bin_path"
+                '';
+              };
+            })
+          ];
         };
 
-        rubyPackage = pkgs.rb.buildBundlerEnvironment {
+        rubyPackage = pkgs.ruby_3_4.buildBundlerEnvironment {
           name = "omgdots-bundle";
           gemdir = self;
-          # Add bundler explicitly to ensure proper version is used
           buildInputs = with pkgs; [ bundler ];
         };
+
+        bundlerVersion = pkgs.bundler.version;
+        rubyVersion = pkgs.ruby_3_4.version;
       in {
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
-            ruby
+            ruby_3_4
             bundler
             redis
             nodejs
           ];
 
-          buildInputs = with pkgs; [
-            postgresql
-            sqlite
-          ];
+          RUBY_VERSION = rubyVersion;
+          BUNDLER_VERSION = bundlerVersion;
 
-          RUBY_VERSION = "3.4.9";
-          BUNDLER_VERSION = "2.5.10";
-          
           shellHook = ''
-            echo "Welcome to OMGDOTS dev shell!"
-            echo "Redis is available at localhost:6379"
+            echo "### omgdots dev shell ###"
+            echo "Ruby ${rubyVersion} | Bundler ${bundlerVersion}"
             echo ""
-            echo "To start the Rails server:"
-            echo "  rails server -b 0.0.0.0"
-            echo ""
-            echo "To run tests:"
-            echo "  rspec"
+            export BUNDLE_GEMFILE="$PWD/Gemfile"
+            bundle check 2>/dev/null || bundle install
           '';
         };
 
