@@ -1,3 +1,0 @@
-#!/bin/bash
-
-ansible-playbook --ask-pass --ask-become-pass -i ansible/inventory.yml ansible/bootstrap.yml
