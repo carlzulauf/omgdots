@@ -15,8 +15,8 @@
             (final: prev: {
               bundler = prev.buildRubyGem rec {
                 inherit (prev) ruby;
-                name = "${gemName}-${version}";
                 gemName = "bundler";
+                name = "${gemName}-${version}";
                 version = "4.0.15";
                 source.sha256 = "sha256-pM64gv6UoOCsY80IE5Mrv9YxoU5awLeXUYmxmk0o2ec=";
                 dontPatchShebangs = true;
@@ -43,17 +43,15 @@
             bundler
             redis
             nodejs
+            fish
           ];
 
           RUBY_VERSION = rubyVersion;
           BUNDLER_VERSION = bundlerVersion;
-
           shellHook = ''
             echo "### omgdots dev shell ###"
             echo "Ruby ${rubyVersion} | Bundler ${bundlerVersion}"
             echo ""
-            export BUNDLE_GEMFILE="$PWD/Gemfile"
-            bundle check 2>/dev/null || bundle install
           '';
         };
 
