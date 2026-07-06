@@ -117,7 +117,7 @@ class DotsGameBoard
 
   def ascii(indent: 0, symbols: true)
     rows = data.map do |row|
-      line = row.map do |cell|
+      row.map do |cell|
         symbols ? ascii_cell(cell) : cell.to_s
       end.join
     end

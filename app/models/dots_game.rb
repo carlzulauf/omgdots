@@ -70,7 +70,7 @@ class DotsGame
 
   def player_move(player, **move_options)
     return false unless player == current_player
-    move **move_options
+    move(**move_options)
   end
 
   def move(x:, y:)
