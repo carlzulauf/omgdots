@@ -5,7 +5,7 @@
     .scoreboard
       - @game.players.each do |player|
         %div{class: player.div_class}
-          .turn-indicator{class: player.indicator_class(@game)}= render "indicator.svg"
+          .turn-indicator{class: player.indicator_class(@game)}= render "indicator"
           .logo= player.number
           .name= player.name
           .score-led
@@ -13,9 +13,9 @@
       .progress
         .light-track
           - @game.light_track_on.times do
-            .scoreboard-light.on.flicker= render "light.svg"
+            .scoreboard-light.on.flicker= render "light"
           - @game.light_track_off.times do
-            .scoreboard-light= render "light.svg"
+            .scoreboard-light= render "light"
         .menu-overlay
           .menu-items
             .name-box

@@ -65,12 +65,12 @@ class DotsGame
   def owner_move(owner, **move_options)
     player = find_player(owner)
     return false if player.nil?
-    player_move player, move_options
+    player_move player, **move_options
   end
 
   def player_move(player, **move_options)
     return false unless player == current_player
-    move move_options
+    move **move_options
   end
 
   def move(x:, y:)
