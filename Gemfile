@@ -1,8 +1,9 @@
 source 'https://rubygems.org'
 
-ruby "2.7.8"
+# Ruby 3.4 required - matches nixpkgs ruby_3_4
+ruby "~> 3.4"
 
-gem "rails", "~> 5.2.6"
+gem "rails", "7.2.0"
 gem "puma"
 gem "sass-rails", "~> 5.0.7"
 gem "haml"
@@ -25,7 +26,7 @@ end
 
 group :development do
   gem 'web-console'
-  gem 'listen', '~> 3.0.5'
+  gem 'listen', '~> 3.5'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem

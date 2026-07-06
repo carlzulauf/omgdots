@@ -82,14 +82,14 @@ module JsonObject
     end
 
     def field(name, type, **options)
-      Field.new(name, type, options).tap do |f|
+      Field.new(name, type, **options).tap do |f|
         fields << f
         define_methods_for(f)
       end
     end
 
     def many(name, type, **options)
-      Field.new(name, type, options).tap do |f|
+      Field.new(name, type, **options).tap do |f|
         f.options[:default] ||= []
         collections << f
         fields << f
