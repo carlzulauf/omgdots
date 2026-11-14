@@ -15,7 +15,7 @@ entries:
       - Routes are only drawn in development, and the controller returns 404 outside development as a backstop
       - `bin/claude-shot` drives headless Chromium for screenshots, two-browser (two-player) flows and webm/gif recordings
       - `doc/changelog/README.md` documents the dev env, the tool and the YAML schema
-    commits: []
+    commits: [b035caa]
     media:
       - file: "001-changelog-desktop.png"
         caption: "The changelog page (1280px)"
