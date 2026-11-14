@@ -47,11 +47,7 @@ RSpec.describe PlayGameChannel, type: :channel do
   end
 
   # A second app server: its own Redis connection.
-  def other_connection
-    client = Redis.new(url: ENV["REDIS_URL"])
-    ns = ENV["REDIS_NAMESPACE"]
-    ns.present? ? Redis::Namespace.new(ns, redis: client) : client
-  end
+  def other_connection = new_model_redis_connection
 
   it "streams the game and the owner's notifications" do
     expect(subscription).to be_confirmed
