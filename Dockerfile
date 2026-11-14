@@ -6,6 +6,9 @@ FROM ruby:4.0
 
 WORKDIR /app
 
+# Without this the image boots in development, bound to localhost only.
+ENV RAILS_ENV=production
+
 # install gems on their own, to speedup rebuilds
 COPY Gemfile* /app/
 RUN gem install bundler:4.0.24 \

@@ -60,6 +60,6 @@ Rails.application.configure do
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 
   config.action_cable.allowed_request_origins = [
-    ENV.fetch("BASE_URL", "https://omgdots.vm")
+    ENV.fetch("BASE_URL", "https://omgdots.mrks.io")
   ]
 end
