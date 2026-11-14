@@ -16,7 +16,7 @@ class PlayGameChannel < ApplicationCable::Channel
       player = game.find_player(@owner)
       player.assign_attributes(data) if player
     end
-    notify! "Player details updated"
+    notify! "Player details updated", level: "success"
   end
 
   def select_player(data)
@@ -25,12 +25,12 @@ class PlayGameChannel < ApplicationCable::Channel
       if (player = game.get_player(data["number"]))
         if player.can_be_owned_by?(@owner)
           player.own @owner
-          notify_after_update! "Successfully became Player #{data['number']}"
+          notify_after_update! "Successfully became Player #{data['number']}", level: "success"
         else
-          notify_after_update! "Player #{data['number']} is already owned by someone else"
+          notify_after_update! "Player #{data['number']} is already owned by someone else", level: "error"
         end
       else
-        notify_after_update! "Successfully became a spectator"
+        notify_after_update! "You are now spectating", level: "info"
       end
     end
   end
@@ -38,7 +38,7 @@ class PlayGameChannel < ApplicationCable::Channel
   def move(data)
     update do |game|
       unless game.owner_move @owner, x: data["x"], y: data["y"]
-        notify_after_update! "Not your turn"
+        notify_after_update! "Not your turn", level: "warning"
       end
     end
   end
@@ -61,16 +61,16 @@ class PlayGameChannel < ApplicationCable::Channel
     DotsGame.find_or_create(@game_id)
   end
 
-  def build_notification(message = nil)
-    Notification.new(game_id: @game_id, owner: @owner, message: message)
+  def build_notification(message = nil, level: Notification::DEFAULT_LEVEL)
+    Notification.new(game_id: @game_id, owner: @owner, message: message, level: level)
   end
 
-  def notify_after_update!(message)
-    @after_update = build_notification(message)
+  def notify_after_update!(message, level:)
+    @after_update = build_notification(message, level: level)
   end
 
-  def notify!(message)
-    broadcast build_notification(message)
+  def notify!(message, level:)
+    broadcast build_notification(message, level: level)
   end
 
   def broadcast(obj)

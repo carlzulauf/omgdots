@@ -4,7 +4,7 @@ describe Notification do
       notification = Notification.new
       
       expect(notification).to be_a(Notification)
-      expect(notification.level).to eq("error") # default from model
+      expect(notification.level).to eq("info") # default from model
     end
 
     it "initializes with attributes" do
@@ -27,12 +27,33 @@ describe Notification do
   context "with defaults" do
     subject { Notification.new }
 
-    it "has error level by default" do
-      expect(subject.level).to eq("error")
+    it "has info level by default" do
+      expect(subject.level).to eq("info")
     end
 
     it "generates created_at timestamp" do
       expect(subject.created_at).to be_a(Time)
+    end
+  end
+
+  describe "LEVELS" do
+    it "lists the levels the client knows how to style" do
+      expect(Notification::LEVELS).to eq(%w[success info warning error])
+    end
+
+    it "includes the default level" do
+      expect(Notification::LEVELS).to include(Notification::DEFAULT_LEVEL)
+    end
+  end
+
+  describe "level predicates" do
+    it "is true only for the notification's own level" do
+      notification = Notification.new(level: "success")
+
+      expect(notification).to be_success
+      expect(notification).not_to be_info
+      expect(notification).not_to be_warning
+      expect(notification).not_to be_error
     end
   end
 
