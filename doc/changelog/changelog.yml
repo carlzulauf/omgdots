@@ -89,7 +89,7 @@ entries:
 
   - id: 5
     title: "Board edge padding on small/scrolling viewports"
-    status: queued
+    status: in_progress
     priority: 2
     requested: "2026-11-13"
     completed: null
@@ -127,7 +127,7 @@ entries:
 
   - id: 8
     title: "Large boards use the full viewport width on big screens"
-    status: queued
+    status: in_progress
     priority: 2
     requested: "2026-11-14"
     completed: null
@@ -139,7 +139,7 @@ entries:
 
   - id: 9
     title: "Single-device (hot seat) game mode"
-    status: queued
+    status: in_progress
     priority: 2
     requested: "2026-11-14"
     completed: null
