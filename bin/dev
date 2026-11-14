@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+
+if ! gem list foreman -i --silent; then
+  echo "Installing foreman..."
+  gem install foreman
+fi
+
+# Default to omgdots' development port if not specified
+export PORT="${PORT:-3017}"
+
+# Pull out `-b`/`--binding` (as with `rails s`) for the web process,
+# passing every other argument through to foreman
+for arg in "$@"; do
+  shift
+  if [ -n "$take_binding" ]; then
+    export BINDING="$arg"
+    take_binding=""
+    continue
+  fi
+  case "$arg" in
+    -b|--binding) take_binding=1 ;;
+    -b=*|--binding=*) export BINDING="${arg#*=}" ;;
+    *) set -- "$@" "$arg" ;;
+  esac
+done
+
+exec foreman start -f Procfile.dev "$@"

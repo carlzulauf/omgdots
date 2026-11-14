@@ -1,0 +1,2 @@
+web: bin/rails server -p ${PORT:-3017} ${BINDING:+-b "$BINDING"}
+redis: cd db && redis-server

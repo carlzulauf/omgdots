@@ -4,66 +4,32 @@ The childhood paper classic, now online and multiplayer.
 
 You can run this wherever you like, or [go here](https://omgdots.mrks.io) to play now.
 
-## Run Locally via Nix
+## Run Locally
 
-This project uses [Nix](https://nixos.org/nix/) for reproducible development environments. If you have Nix installed (version 2.4+), getting started is easy:
-
-### Using `nix develop` (recommended)
+The dev environment comes from `flake.nix` (Ruby, Bundler, Redis, Node.js and
+the libraries native gems build against). Gems install into
+`~/.local/share/gems/omgdots/`, not the system Ruby.
 
 ```bash
-# Enter the development shell
-nix develop
-
-# Start Redis in the background (if not already running)
-redis-server --daemonize yes
-
-# Install gems (first time only, or after Gemfile changes)
+direnv allow      # or: nix develop
 bundle install
-
-# Run the Rails server
-rails server -b 0.0.0.0
-
-# Or run tests
-rspec
+bin/dev           # runs Procfile.dev (rails + redis) with foreman
 ```
 
-### Using `nix-shell` (alternative)
+Then open http://localhost:3017.
+
+`bin/dev` installs foreman the first time it runs. Use `PORT=...` to pick another
+port, or `bin/dev -b 0.0.0.0` to listen on all interfaces. To run the processes
+yourself instead, start each in its own terminal:
 
 ```bash
-nix-shell --run "redis-server --daemonize yes"
-nix-shell --run "bundle install"
-nix-shell --run "rails server -b 0.0.0.0"
-nix-shell --run "rspec"
+cd db && redis-server            # saves to db/dump.rdb
+bin/rails server -p 3017
 ```
 
-### Using the flake directly
+Redis defaults to `localhost:6379`. Set `REDIS_URL` to use a different one.
 
-```bash
-# Enter development shell
-nix develop
-
-# Or run commands directly
-nix run .#devShells.$(system).default
-```
-
-## Run Locally (Distrobox/Ruby)
-
-If you prefer to use distrobox or your system Ruby:
-
-```
-distrobox create --image docker.io/library/ruby:3.4.1 --name omgdots --pull
-distrobox enter omgdots
-# Install dependencies via your system package manager
-# For Debian/Ubuntu: sudo apt-get update && sudo apt-get install -y redis-server nodejs libsqlite3-dev yarn
-bundle install
-```
-
-Then start the services:
-
-* `redis-server` (or use an existing Redis instance)
-* `rails server -b 0.0.0.0`
-
-Navigate to `http://localhost:3000` in your browser.
+`bundle exec rspec` runs the tests.
 
 ## Deployment
 
