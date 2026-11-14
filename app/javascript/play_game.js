@@ -43,7 +43,9 @@ export default class PlayGame {
   }
 
   subscribe() {
-    const options = { channel: "PlayGameChannel", id: this.id, user: this.user }
+    // The server knows who we are from the session cookie; `user` is only
+    // used here to tell which seats in the game state are ours.
+    const options = { channel: "PlayGameChannel", id: this.id }
     this.channel = cable.subscriptions.create(options, {
       received: (data) => this.onReceive(data),
       connected: () => {

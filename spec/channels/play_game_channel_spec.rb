@@ -4,7 +4,14 @@ RSpec.describe PlayGameChannel, type: :channel do
   let(:game_id) { "channel-spec-#{SecureRandom.hex(4)}" }
   let(:notification_key) { "game:#{game_id}:alice" }
 
-  before { subscribe(id: game_id, user: "alice") }
+  before { subscribe_as("alice") }
+
+  # A connection identified by `uid`, as ApplicationCable::Connection does
+  # from the session cookie.
+  def subscribe_as(uid, **params)
+    stub_connection(uid: uid)
+    subscribe(id: game_id, **params)
+  end
   after { DotsGame.find(game_id)&.destroy }
 
   def notifications_to(key)
@@ -50,6 +57,37 @@ RSpec.describe PlayGameChannel, type: :channel do
     expect(subscription).to be_confirmed
     expect(subscription).to have_stream_from(PlayGameChannel.broadcasting_for("game:#{game_id}"))
     expect(subscription).to have_stream_from(PlayGameChannel.broadcasting_for(notification_key))
+  end
+
+  describe "identity" do
+    it "ignores a spoofed user param and acts as the connection's uid" do
+      give_seat(1, "bob")
+      DotsGame.for_update(game_id) { |g| g.player = 1 }
+      subscribe_as("mallory", user: "bob")
+
+      perform :move, x: 1, y: 0
+      perform :update_player, name: "pwned", number: 1
+      perform :select_player, number: 0
+      perform :restart
+
+      expect(game.board.get(1, 0)).to eq(DotsGameBoard::HLINE_OPEN)
+      expect(game.player_1.name).not_to eq("pwned")
+      expect(game.player_1.owner).to eq("bob")
+      expect(subscription).to have_stream_from(PlayGameChannel.broadcasting_for("game:#{game_id}:mallory"))
+      expect(subscription).not_to have_stream_from(PlayGameChannel.broadcasting_for("game:#{game_id}:bob"))
+    end
+
+    it "can't act as the device in a single-device game by naming its uid" do
+      DotsGame.for_update(game_id) do |g|
+        g.mode = "single_device"
+        g.claim_device("alice")
+      end
+      subscribe_as("mallory", user: "alice")
+
+      perform :move, x: 1, y: 0
+
+      expect(game.board.get(1, 0)).to eq(DotsGameBoard::HLINE_OPEN)
+    end
   end
 
   describe "#select_player" do
@@ -148,7 +186,7 @@ RSpec.describe PlayGameChannel, type: :channel do
         g.get_player(1).last_seen_at = long_ago
       end
 
-      subscribe(id: game_id, user: "alice")
+      subscribe_as("alice")
 
       expect(game.player_1.last_seen_at).to be_within(2.seconds).of(Time.now)
       expect(game.player_1.away).to be false
@@ -175,10 +213,10 @@ RSpec.describe PlayGameChannel, type: :channel do
 
     it "keeps a seat claimed long ago while its owner stays connected" do
       give_seat(2, "bob", last_seen_at: long_ago)
-      subscribe(id: game_id, user: "bob")
+      subscribe_as("bob")
       perform :heartbeat
 
-      subscribe(id: game_id, user: "alice")
+      subscribe_as("alice")
       perform :select_player, number: 2
 
       expect(game.player_2.owner).to eq("bob")
@@ -192,7 +230,7 @@ RSpec.describe PlayGameChannel, type: :channel do
       expect(game.player_1.owner).to eq("alice")
       expect(game.player_1.away).to be true
 
-      subscribe(id: game_id, user: "bob")
+      subscribe_as("bob")
       perform :select_player, number: 1
       expect(game.player_1.owner).to eq("alice")
     end
@@ -317,7 +355,7 @@ RSpec.describe PlayGameChannel, type: :channel do
 
       before do
         unsubscribe
-        subscribe(id: game_id, user: "bob")
+        subscribe_as("bob")
       end
 
       it "can't move" do

@@ -8,9 +8,11 @@ class PlayGameChannel < ApplicationCable::Channel
     broadcast notice("The game was too busy to save that. Please try again.", level: "error")
   end
 
+  # The owner is the connection's session uid (see ApplicationCable::Connection).
+  # Any `user` param a client sends is ignored.
   def subscribed
     @game_id = params[:id]
-    @owner = params[:user]
+    @owner = connection.uid
     Rails.logger.info [:subscribed, params].inspect
     stream_for find_game.channel_key
     stream_for build_notification.channel_key
