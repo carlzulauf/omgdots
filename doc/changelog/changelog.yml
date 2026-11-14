@@ -265,19 +265,19 @@ entries:
 
   - id: 17
     title: "Pre-deploy review fixes"
-    status: in_progress
+    status: done
     priority: 1
     requested: "2026-11-14"
-    completed: null
+    completed: "2026-11-14"
     blocked_by: []
     request: "Once all of the work is complete, review the work and address any issues you find."
-    summary: "Fixes from the final review (#6): channel identity from the session cookie (any subscriber could act as any player), server-side name limits, game ids with `.` breaking the page, restart and delete authorization, Redis key TTL, Dockerfile `RAILS_ENV`, `BASE_URL` default, dead routes, `.dockerignore`, stale docs."
-    commits: []
+    summary: "- Cable connections are identified by the uid in the encrypted session cookie; the client-sent `user` param is ignored, so nobody can act as another player (it was possible on `main` too).\n- Player names are stripped and capped at 24 characters on the server; blank names are refused.\n- Game ids with dots work (`getElementById`, and the route no longer treats `.2` as a format).\n- Only seated players can restart; unused `DELETE /games/:id`, `post :restart` and the `tests` debug page are gone.\n- Game records expire 30 days after their last save; specs use their own Redis namespace.\n- Dockerfile defaults to `RAILS_ENV=production`, `.dockerignore` added, `BASE_URL` defaults to https://omgdots.mrks.io."
+    commits: [94d85dd, 35908d8, d26779c, 9253bdd, f5ff884, fe3e432, ca38bfd, b740a69, 04f4c9c]
     media: []
 
   - id: 18
     title: "Move the button row above the scoreboard and add a way back"
-    status: queued
+    status: in_progress
     priority: 1
     requested: "2026-11-14"
     completed: null
