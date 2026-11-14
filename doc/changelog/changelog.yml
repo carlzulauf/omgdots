@@ -214,3 +214,15 @@ entries:
     summary: "Seats can be taken over once the owner's `last_seen_at` is over a minute old, but that timestamp is only set when the seat is claimed, never refreshed while the player is active."
     commits: []
     media: []
+
+  - id: 15
+    title: "Replace the seat bar with four subtle buttons above the board"
+    status: queued
+    priority: 2
+    requested: "2026-11-14"
+    completed: null
+    blocked_by: [9, 5]
+    request: "The top game menu design is clunky and draws away from the scoreboard, the focus. It should be 4 simple and subtle equal-width buttons arranged horizontally above the board: Share, Player 1, Player 2, Spectator (with an similar indicator/selected for the last 3). Clicking Share triggers a popover dialog with the copy button and URL."
+    summary: "Redesign of #4's bar. Waits for single-device mode (#9) and the layout pass (#5, #8), which touch the same area."
+    commits: []
+    media: []
