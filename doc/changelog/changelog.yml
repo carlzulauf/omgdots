@@ -193,7 +193,7 @@ entries:
 
   - id: 12
     title: "Cleanup leftovers"
-    status: queued
+    status: in_progress
     priority: 4
     requested: "2026-11-14"
     completed: null
@@ -233,15 +233,25 @@ entries:
 
   - id: 15
     title: "Replace the seat bar with four subtle buttons above the board"
-    status: in_progress
+    status: done
     priority: 2
     requested: "2026-11-14"
-    completed: null
+    completed: "2026-11-14"
     blocked_by: [9, 5]
     request: "The top game menu design is clunky and draws away from the scoreboard, the focus. It should be 4 simple and subtle equal-width buttons arranged horizontally above the board: Share, Player 1, Player 2, Spectator (with an similar indicator/selected for the last 3). Clicking Share triggers a popover dialog with the copy button and URL."
-    summary: "Redesign of #4's bar. Waits for single-device mode (#9) and the layout pass (#5, #8), which touch the same area."
-    commits: []
-    media: []
+    summary: "- The seat bar is replaced by four quiet, equal-width buttons between the scoreboard and the board: Share, Player 1, Player 2, Spectator. Seat buttons light a small lamp in the seat's colour when selected and use the existing `select_player` action.\n- Share opens a native popover with the URL, a Copy button (\"Copied!\" feedback) and a close button; Escape and outside clicks close it without drawing a line on the board.\n- Rename by clicking your own name on the scoreboard (dotted underline, pencil on hover); it saves after a pause, on Enter or on blur, and Escape cancels. In single-device games both names are editable.\n- Single-device games: the Player 1/2 lamp follows the turn and seat buttons are disabled; other devices see disabled seat buttons with an explanation.\n- Phones: labels shorten to P1 / P2 / Watch on one row, and player names no longer truncate. The Exit button (a plain link home) was removed; the game-over Exit link remains."
+    commits: [96e492e, ecf57b1]
+    media:
+      - file: "015-before.png"
+        caption: "Before: the seat bar above the scoreboard"
+      - file: "015-after.png"
+        caption: "After: four quiet buttons under the scoreboard, Player 1 selected"
+      - file: "015-share-popover.png"
+        caption: "Share popover after clicking Copy"
+      - file: "015-mobile.png"
+        caption: "375×667: short labels on one row, full player names"
+      - file: "015-rename.png"
+        caption: "Renaming Player 1 in place on the scoreboard"
 
   - id: 16
     title: "Toasts can be lost when one connection sends several actions at once"
