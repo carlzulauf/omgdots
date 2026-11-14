@@ -89,15 +89,21 @@ entries:
 
   - id: 5
     title: "Board edge padding on small/scrolling viewports"
-    status: in_progress
+    status: done
     priority: 2
     requested: "2026-11-13"
-    completed: null
+    completed: "2026-11-14"
     blocked_by: [3]
     request: "At smaller screen sizes where scrolling is necessary, ensure there is sufficient padding around the game board so none of the play area is too close to the edge of the viewport when panning/scrolling to an edge."
-    summary: "Will be done together with #8 (one responsive board-layout pass), after #4."
-    commits: []
-    media: []
+    summary: "- About 30px of padding between the outermost dots and every screen edge, including the bottom, when scrolled all the way.\n- Lines have an invisible 7px extra hit area on each side, so scaled-down lines are still easy to tap.\n- Added a viewport meta tag (with `minimum-scale=1`, which avoids a Chrome mobile layout bug with wide pages; pinch zoom-in still works). Boards scale to fit phone width down to half size, then scroll.\n- The new-game form and long player names fit on phones."
+    commits: [1ea0eb1]
+    media:
+      - file: "005-before-phone-corner.png"
+        caption: "Before: a 20×20 board at 375×667 with no viewport tag; the phone zooms out and the board box runs to the edges"
+      - file: "005-after-phone-corners.png"
+        caption: "After: the four corners of a 20×20 board at 375×667, each with about 30px of padding"
+      - file: "005-after-pan.webm"
+        caption: "Scrolling around a 20×20 board on a phone-sized screen"
 
   - id: 6
     title: "Final review, fixes, merge to main, push to GitHub + production"
@@ -127,15 +133,19 @@ entries:
 
   - id: 8
     title: "Large boards use the full viewport width on big screens"
-    status: in_progress
+    status: done
     priority: 2
     requested: "2026-11-14"
-    completed: null
+    completed: "2026-11-14"
     blocked_by: [3, 4]
     request: "bigger boards on bigger screens should use the full viewport width to draw the board"
-    summary: "Today the scoreboard and board sit in a fixed-width centered column, and the board scrolls inside its own box while the browser has empty space on both sides. Will be done together with #5."
-    commits: []
-    media: []
+    summary: "- The nested scroll box and fixed ~900px column are gone; the page itself scrolls. The board panel is at least as wide as the scoreboard and grows to the board's width.\n- Boards too wide for the window shrink to fit (never grow past full size): 20×20 shows at full size at 1920px, 25×25 shrinks slightly.\n- The seat bar and scoreboard stay at their 906px width, centered, and stay in view when scrolling sideways. Toasts stick to the top of the screen."
+    commits: [1ea0eb1]
+    media:
+      - file: "008-before-wide.png"
+        caption: "Before: a 20×20 board at 1920×1080, stuck in a 900px scroll box with dots clipped at the left edge"
+      - file: "008-after-wide.png"
+        caption: "After: the same board at 1920×1080, using the width, with the scoreboard centered above"
 
   - id: 9
     title: "Single-device (hot seat) game mode"
@@ -223,7 +233,7 @@ entries:
 
   - id: 15
     title: "Replace the seat bar with four subtle buttons above the board"
-    status: queued
+    status: in_progress
     priority: 2
     requested: "2026-11-14"
     completed: null
