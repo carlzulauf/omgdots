@@ -54,6 +54,7 @@
     .title Dynamic
     .actions
       = link_to "Exit", root_path, class: "exit-link"
-      = link_to "Restart", restart_game_path(@game), class: "restart-link"
+      -# Handled by PageOverlay, which restarts through the game channel.
+      = link_to "Restart", "#", class: "restart-link", role: "button"
 
 = init_play_js(@game)

@@ -57,6 +57,19 @@ RSpec.describe "Games", type: :request do
     expect(popover.at_css(".share-url")["value"]).to eq("http://www.example.com/games/#{id}")
   end
 
+  it "routes only the actions the app has" do
+    expect(Rails.application.routes.recognize_path("/games/x", method: :get)).to include(action: "show")
+    expect { Rails.application.routes.recognize_path("/games/x", method: :delete) }
+      .to raise_error(ActionController::RoutingError)
+    expect { Rails.application.routes.recognize_path("/games/x/restart", method: :post) }
+      .to raise_error(ActionController::RoutingError)
+  end
+
+  it "points the game-over Restart link nowhere, leaving it to the channel" do
+    get "/games/#{id}"
+    expect(page.at_css(".page-overlay .restart-link")["href"]).to eq("#")
+  end
+
   def page
     Nokogiri::HTML(response.body)
   end

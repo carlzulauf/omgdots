@@ -1,11 +1,6 @@
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
-  resources :games do
-    member do
-      post :restart
-    end
-  end
-  resources :tests
+  resources :games, only: %i[new create show]
   root to: "games#new"
 
   # Health check: 200 if the app boots without exceptions, 500 otherwise.
