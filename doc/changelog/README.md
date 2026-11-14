@@ -58,7 +58,7 @@ bin/claude-shot /changelog tmp/dark.png --color-scheme dark
 
 # Steps run in order after the page loads, then OUT is saved
 bin/claude-shot /games/demo tmp/p1.png \
-  --wait-for '.board' --click '.player-1-link' --wait 500 \
+  --wait-for '.board' --click '.seat-button-1' --wait 500 \
   --click-at 340,250 --eval 'document.title' --scroll 0,400
 
 # Several shots in one run
@@ -92,9 +92,9 @@ by an earlier `{"eval": ..., "as": "name"}`.
     {"ctx": "player1", "goto": "/games/${game}"},
     {"ctx": "player2", "goto": "/games/${game}"},
     {"record": "${out}/flow.webm", "ctx": ["player1", "player2"]},
-    {"ctx": "player1", "click": ".player-1-link"},
+    {"ctx": "player1", "click": ".seat-button-1"},
     {"wait": 600},
-    {"ctx": "player2", "click": ".player-2-link"},
+    {"ctx": "player2", "click": ".seat-button-2"},
     {"wait": 600},
     {"ctx": "player1", "click": ".board .hline:not(.drawn)"},
     {"wait": 800},
