@@ -1,0 +1,16 @@
+// Colors shared between the board, scoreboard and seat bar.
+$scoreboard-green: #00713c;
+
+$player1-tile-color: #336666;
+$player2-tile-color: #663333;
+
+// Brighter versions of the tile colors, for text and lamps on black.
+$player1-accent: #5cbcbc;
+$player2-accent: #e07a7a;
+$spectator-accent: #a8a8b8;
+
+// Notification levels.
+$success-color: #2fd47a;
+$info-color: #5aa9ff;
+$warning-color: #f2b23a;
+$error-color: #ff4d4d;

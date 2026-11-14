@@ -1,0 +1,21 @@
+// Shrink the scoreboard so it fits a phone-width screen without overflowing.
+@media (max-width: 560px) {
+  .scoreboard {
+    .player1 { grid-template-columns: 22px 1fr 1fr; }
+    .player2 { grid-template-columns: 1fr 1fr 22px; }
+    .turn-indicator svg { height: 34px; }
+    .logo { font-size: 240%; }
+    .name { font-size: 110%; }
+
+    .score-led {
+      margin: 12px 4px 0;
+      font-size: 40px;
+    }
+
+    .progress .light-track {
+      margin: 8px;
+      padding: 6px 4px;
+      .scoreboard-light { height: 22px; }
+    }
+  }
+}

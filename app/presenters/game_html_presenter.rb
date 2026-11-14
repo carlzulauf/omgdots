@@ -33,6 +33,13 @@ class GameHtmlPresenter < HtmlPresenter
     end
   end
 
+  # 1 or 2 when `owner` holds a seat, 0 when spectating.
+  def seat_number_for(owner)
+    return 0 if owner.blank?
+
+    find_player(owner)&.number || 0
+  end
+
   def light_track_on
     (percent_complete * 10).round
   end

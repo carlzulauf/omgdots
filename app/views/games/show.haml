@@ -1,7 +1,30 @@
 - set_body_class "play"
+- seat = @game.seat_number_for(session[:uid])
+- seat_player = @game.get_player(seat)
 
 .game-container{ id: "game-#{@game.id}"}
   .game-ui
+    .seat-bar{ class: "seat-#{seat}" }
+      .seat-status
+        .seat-led{ "aria-hidden": "true" }
+          .seat-digit= seat.zero? ? "--" : seat
+        .seat-text
+          %span.seat-label= seat.zero? ? "Spectating" : "You are Player #{seat}"
+          %span.seat-sep{ "aria-hidden": "true" } ·
+          %input.name-input{ type: "text", maxlength: 24, placeholder: "Your name",
+            "aria-label": "Your player name", value: seat_player&.name, hidden: seat.zero? }
+          %span.seat-hint pick a seat to play
+      .seat-controls
+        .seat-switch{ role: "group", "aria-label": "Choose your seat" }
+          - [[1, "Player 1"], [2, "Player 2"], [0, "Spectate"]].each do |number, label|
+            %button.seat-option{ type: "button", class: "seat-option-#{number}",
+              data: { number: number }, "aria-pressed": (number == seat).to_s }= label
+        = link_to "Exit", root_path, class: "exit-link"
+      .share
+        %label.share-label{ for: "share-url-#{@game.id}" } Share
+        %input.share-url{ id: "share-url-#{@game.id}", type: "text", readonly: true,
+          value: request.original_url, "aria-label": "Link to this game" }
+        %button.share-copy{ type: "button" } Copy
     .scoreboard
       - @game.players.each do |player|
         %div{class: player.div_class}
@@ -16,18 +39,9 @@
             .scoreboard-light.on.flicker= render "light"
           - @game.light_track_off.times do
             .scoreboard-light= render "light"
-        .menu-overlay
-          .menu-items
-            .name-box
-              %input.name-input{ placeholder: 'Player Name' }
-            .player-choice
-              .choice-label Player
-              .player-1-link 1
-              .player-2-link 2
-              .spectate-link.active spectate
-            = link_to "exit", root_path, class: "exit-link"
-  .notifications
-  = @game.board_div
+  .board-area
+    .notifications{ "aria-live": "polite" }
+    = @game.board_div
 
 .page-overlay
   .overlay-modal

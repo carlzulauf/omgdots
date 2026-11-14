@@ -22,6 +22,12 @@ export default class Renderer {
 
   pushNotification(notification) {
     this.notifications.push(notification)
+    // Keep the toast stack short: dismiss the oldest beyond the limit.
+    const showing = this.notifications.filter((n) => !n.isDismissing())
+    const limit = notification.constructor.MAX_VISIBLE
+    for (const old of showing.slice(0, Math.max(0, showing.length - limit))) {
+      old.dismiss(this.ts ?? 0)
+    }
   }
 
   render(ts) {

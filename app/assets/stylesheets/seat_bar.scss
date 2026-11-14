@@ -1,0 +1,239 @@
+@use "palette" as *;
+
+// The bar above the scoreboard: seat status, seat switch, exit and share link.
+.seat-bar {
+  --seat-accent: #{$spectator-accent};
+  --seat-fill: #333;
+
+  box-sizing: border-box;
+  max-width: 906px; // the scoreboard's outer width
+  margin: 8px auto 0 auto;
+  padding: 6px 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  background-color: #000;
+  border: 3px solid white;
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+
+  &.seat-1 { --seat-accent: #{$player1-accent}; --seat-fill: #{$player1-tile-color}; }
+  &.seat-2 { --seat-accent: #{$player2-accent}; --seat-fill: #{$player2-tile-color}; }
+
+  button, input { font-family: inherit; }
+
+  .seat-status {
+    flex: 1 1 300px;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .seat-led {
+    flex: none;
+    position: relative;
+    padding: 2px 6px;
+    background-color: #000;
+    border: 2px solid var(--seat-fill);
+    border-radius: 5px;
+    font-family: "seg7";
+    font-size: 30px;
+    line-height: 1;
+    color: var(--seat-accent);
+    text-shadow: 0 0 6px var(--seat-accent);
+
+    .seat-digit {
+      position: relative;
+      width: 2ch;
+      text-align: right;
+    }
+    .seat-digit::before {
+      content: '88';
+      position: absolute;
+      left: 0;
+      color: rgba(255, 255, 255, 0.1);
+      text-shadow: none;
+    }
+  }
+
+  .seat-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+  }
+
+  .seat-label {
+    color: var(--seat-accent);
+    font-size: 19px;
+    white-space: nowrap;
+  }
+
+  .seat-sep { color: #777; }
+
+  .name-input {
+    flex: 1 1 8em;
+    min-width: 0;
+    max-width: 16em;
+    padding: 3px 8px;
+    font-size: 17px;
+    color: #eef;
+    background-color: #161616;
+    border: 1px solid #333;
+    border-bottom: 2px solid var(--seat-accent);
+    border-radius: 4px;
+    &:hover { background-color: #1e1e1e; }
+    &:focus { outline: 2px solid var(--seat-accent); outline-offset: 1px; }
+  }
+
+  .seat-hint {
+    color: #888;
+    font-size: 14px;
+    font-style: italic;
+  }
+
+  &.seat-0 .seat-sep { display: none; }
+  &.seat-1, &.seat-2 { .seat-hint { display: none; } }
+
+  .seat-controls {
+    flex: 0 1 auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .seat-switch {
+    display: flex;
+    border: 2px solid white;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .seat-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 4px 11px;
+    font-size: 15px;
+    white-space: nowrap;
+    color: #bbb;
+    background-color: #000;
+    border: 0;
+    cursor: pointer;
+    &:not(:first-child) { border-left: 2px solid white; }
+    &:hover { background-color: #1d1d1d; color: white; }
+    &:focus-visible { outline: 2px solid white; outline-offset: -4px; }
+
+    // An indicator lamp, lit for the selected seat.
+    &::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #333;
+    }
+
+    &[aria-pressed="true"] {
+      color: white;
+      cursor: default;
+      &::before { box-shadow: 0 0 6px 1px currentColor; }
+    }
+    &.seat-option-1[aria-pressed="true"] {
+      background-color: $player1-tile-color;
+      &::before { background-color: $player1-accent; color: $player1-accent; }
+    }
+    &.seat-option-2[aria-pressed="true"] {
+      background-color: $player2-tile-color;
+      &::before { background-color: $player2-accent; color: $player2-accent; }
+    }
+    &.seat-option-0[aria-pressed="true"] {
+      background-color: #3a3a46;
+      &::before { background-color: $spectator-accent; color: $spectator-accent; }
+    }
+  }
+
+  .exit-link {
+    padding: 6px 12px;
+    font-size: 15px;
+    color: white;
+    text-decoration: none;
+    background-color: #600;
+    border-radius: 5px;
+    &:hover { background-color: #800; }
+  }
+
+  .share {
+    flex: 1 1 100%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .share-label {
+    flex: none;
+    color: #999;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .share-url {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 5px 8px;
+    font-family: "Ubuntu Mono", ui-monospace, monospace;
+    font-size: 14px;
+    color: #9fd8b4;
+    background-color: #111;
+    border: 1px solid #333;
+    border-radius: 4px;
+    &:focus { outline: 2px solid $scoreboard-green; outline-offset: 1px; }
+  }
+
+  .share-copy {
+    flex: none;
+    min-width: 5.5em;
+    padding: 5px 12px;
+    font-size: 15px;
+    color: white;
+    background-color: $scoreboard-green;
+    border: 2px solid white;
+    border-radius: 5px;
+    cursor: pointer;
+    &:hover { background-color: #008a49; }
+    &.copied { background-color: #0a9a55; }
+  }
+}
+
+@media (max-width: 560px) {
+  .seat-bar {
+    padding: 8px;
+    gap: 8px;
+
+    .seat-status { flex-basis: 100%; gap: 8px; }
+    .seat-led { font-size: 26px; }
+    .seat-text { flex-wrap: nowrap; gap: 6px; }
+    .seat-label { font-size: 16px; }
+    .name-input { flex: 1 1 4em; font-size: 16px; padding: 3px 6px; }
+
+    .seat-controls {
+      flex: 1 1 100%;
+      min-width: 0;
+    }
+    .seat-switch { flex: 1 1 auto; min-width: 0; }
+    .seat-option {
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 6px 4px;
+      gap: 5px;
+      font-size: 14px;
+    }
+  }
+}

@@ -1,11 +1,11 @@
 import cable from "cable"
 import Board from "play/board"
 import Deferrer from "play/deferrer"
-import Menu from "play/menu"
 import Notification from "play/notification"
 import PageOverlay from "play/page_overlay"
 import Renderer from "play/renderer"
 import Scoreboard from "play/scoreboard"
+import SeatBar from "play/seat_bar"
 
 export default class PlayGame {
   constructor(id, user) {
@@ -22,7 +22,7 @@ export default class PlayGame {
     this.renderer = Renderer.main()
     this.deferrer = Deferrer.main()
     this.components = [
-      new Menu(this),
+      new SeatBar(this),
       new Scoreboard(this),
       new Board(this),
       new PageOverlay(this)
