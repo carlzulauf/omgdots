@@ -35,9 +35,20 @@ class GameHtmlPresenter < HtmlPresenter
 
   # 1 or 2 when `owner` holds a seat, 0 when spectating.
   def seat_number_for(owner)
-    return 0 if owner.blank?
+    seat_for(owner)&.number || 0
+  end
 
-    find_player(owner)&.number || 0
+  def seat_label_for(owner)
+    seat = seat_number_for(owner)
+    if single_device?
+      seat.zero? ? "Spectating · Player #{player}'s turn" : "Single device · Player #{player}'s turn"
+    else
+      seat.zero? ? "Spectating" : "You are Player #{seat}"
+    end
+  end
+
+  def seat_hint
+    single_device? ? "played on one device" : "pick a seat to play"
   end
 
   def light_track_on

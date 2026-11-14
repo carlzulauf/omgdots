@@ -100,6 +100,9 @@
   &.seat-0 .seat-sep { display: none; }
   &.seat-1, &.seat-2 { .seat-hint { display: none; } }
 
+  // Single-device games keep both seats on the device that created them.
+  &.single-device .seat-switch { display: none; }
+
   .seat-controls {
     flex: 0 1 auto;
     display: flex;

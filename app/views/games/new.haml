@@ -10,6 +10,9 @@
     = f.label :height
     = f.text_field :height
   .form-group
+    = f.label :mode, "Mode"
+    = f.select :mode, [["Network game", "network"], ["Single device", "single_device"]]
+  .form-group
     = f.label :must_touch, "Lines must touch"
     = f.select :must_touch, %w(True False)
   .form-group

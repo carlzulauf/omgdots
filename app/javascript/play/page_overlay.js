@@ -47,6 +47,10 @@ export default class PageOverlay {
     }
 
     this.doShow = true
+    if (this.game.isSingleDevice(current)) {
+      this.title = this.singleDeviceTitle(current)
+      return
+    }
     const won = current.winner === this.game.findCurrentPlayerNumber(current)
     if (current.completed_at != null) {
       if (current.won_at != null) {
@@ -58,4 +62,18 @@ export default class PageOverlay {
       this.title = won ? "You won the game!" : "You lost the game!"
     }
   }
+
+  // Both players share the screen, so name the winner instead of "you".
+  singleDeviceTitle(state) {
+    const winner = this.game.getPlayer(state.winner, state)
+    if (winner == null) return "The game has ended in a draw."
+    const name = escapeHtml(winner.name)
+    return state.completed_at != null ? `${name} won the complete game!` : `${name} won the game!`
+  }
+}
+
+function escapeHtml(text) {
+  const div = document.createElement("div")
+  div.textContent = text
+  return div.innerHTML
 }

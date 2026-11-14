@@ -126,11 +126,20 @@ export default class PlayGame {
     return this.getPlayer(this.findCurrentPlayerNumber(state))
   }
 
+  // The seat this device plays from: 1, 2, or 0 when spectating. A device
+  // holding both seats (a single-device game) plays whoever's turn it is.
   findCurrentPlayerNumber(state) {
     if (state == null) state = this.state
+    const turn = this.getPlayer(state.player, state)
+    if (turn != null && turn.owner === this.user) return state.player
     if (state.player_1.owner === this.user) return 1
     if (state.player_2.owner === this.user) return 2
     return 0
+  }
+
+  isSingleDevice(state) {
+    if (state == null) state = this.state
+    return state.mode === "single_device"
   }
 
   d(key, delay, callback) {

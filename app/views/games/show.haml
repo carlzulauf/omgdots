@@ -4,16 +4,16 @@
 
 .game-container{ id: "game-#{@game.id}"}
   .game-ui
-    .seat-bar{ class: "seat-#{seat}" }
+    .seat-bar{ class: ["seat-#{seat}", ("single-device" if @game.single_device?)] }
       .seat-status
         .seat-led{ "aria-hidden": "true" }
           .seat-digit= seat.zero? ? "--" : seat
         .seat-text
-          %span.seat-label= seat.zero? ? "Spectating" : "You are Player #{seat}"
+          %span.seat-label= @game.seat_label_for(session[:uid])
           %span.seat-sep{ "aria-hidden": "true" } ·
           %input.name-input{ type: "text", maxlength: 24, placeholder: "Your name",
             "aria-label": "Your player name", value: seat_player&.name, hidden: seat.zero? }
-          %span.seat-hint pick a seat to play
+          %span.seat-hint= @game.seat_hint
       .seat-controls
         .seat-switch{ role: "group", "aria-label": "Choose your seat" }
           - [[1, "Player 1"], [2, "Player 2"], [0, "Spectate"]].each do |number, label|

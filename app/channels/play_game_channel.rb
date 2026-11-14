@@ -11,16 +11,23 @@ class PlayGameChannel < ApplicationCable::Channel
     transmit find_game.as_typed_json
   end
 
+  # `number` picks which of the owner's seats to rename. A single-device game
+  # holds both, so it names either player; otherwise it is the owner's seat.
   def update_player(data)
     update do |game|
-      player = game.find_player(@owner)
-      player.assign_attributes(data) if player
+      player = owned_player(game, data["number"])
+      player.assign_attributes(data.slice("name")) if player
     end
     notify! "Player details updated", level: "success"
   end
 
   def select_player(data)
     update do |game|
+      if game.single_device?
+        notify_after_update! "This game is played on a single device, so its seats can't be taken. You can watch.",
+          level: "info"
+        next
+      end
       game.players.each { |player| player.owner = nil if player.owner == @owner }
       if (player = game.get_player(data["number"]))
         if player.can_be_owned_by?(@owner)
@@ -43,8 +50,11 @@ class PlayGameChannel < ApplicationCable::Channel
     end
   end
 
+  # Only the device playing a single-device game can restart it.
   def restart
-    update(&:restart)
+    update do |game|
+      game.restart unless game.single_device? && game.seat_for(@owner).nil?
+    end
   end
 
   private
@@ -55,6 +65,12 @@ class PlayGameChannel < ApplicationCable::Channel
       broadcast @after_update
       @after_update = nil
     end
+  end
+
+  def owned_player(game, number)
+    return game.find_player(@owner) if number.blank?
+    player = game.get_player(number.to_i)
+    player if player && @owner.present? && player.owner == @owner
   end
 
   def find_game

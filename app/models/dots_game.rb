@@ -1,6 +1,12 @@
 class DotsGame
   include RedisJsonModel
 
+  # "network": each player sits at their own device and picks a seat.
+  # "single_device": one device holds both seats and always plays whoever's
+  # turn it is, so two people can pass it back and forth.
+  MODES = %w[network single_device].freeze
+  DEFAULT_MODE = "network".freeze
+
   field :player,       :integer,         default: 1
   field :width,        :integer,         default: 7
   field :height,       :integer,         default: 6
@@ -13,6 +19,7 @@ class DotsGame
   field :won_at,       :time
   field :completed_at, :time
   field :play_to_end,  :boolean,         default: false
+  field :mode,         :string,          default: DEFAULT_MODE
 
   delegate :percent_complete, to: :board
 
@@ -39,6 +46,27 @@ class DotsGame
     [player_1, player_2].detect { |p| p.owner == owner }
   end
 
+  # The seat `owner` plays from right now. A device holding both seats (a
+  # single-device game) plays whoever's turn it is.
+  def seat_for(owner)
+    return nil if owner.blank?
+    return current_player if current_player&.owner == owner
+    find_player(owner)
+  end
+
+  def mode=(value)
+    object["mode"] = MODES.include?(value.to_s) ? value.to_s : DEFAULT_MODE
+  end
+
+  def single_device?
+    mode == "single_device"
+  end
+
+  # Gives both seats to one device (a session uid).
+  def claim_device(owner)
+    players.each { |player| player.own(owner) }
+  end
+
   def current_player
     get_player player
   end
@@ -63,7 +91,7 @@ class DotsGame
   alias_method :==, :eql?
 
   def owner_move(owner, **move_options)
-    player = find_player(owner)
+    player = seat_for(owner)
     return false if player.nil?
     player_move player, **move_options
   end

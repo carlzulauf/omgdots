@@ -6,6 +6,7 @@ export default class SeatBar {
     this.$ = this.game.$game.querySelector(".seat-bar")
     this.$digit = this.$.querySelector(".seat-digit")
     this.$label = this.$.querySelector(".seat-label")
+    this.$hint = this.$.querySelector(".seat-hint")
     this.$nameInput = this.$.querySelector(".name-input")
     this.$options = [...this.$.querySelectorAll(".seat-option")]
     this.$shareUrl = this.$.querySelector(".share-url")
@@ -38,14 +39,20 @@ export default class SeatBar {
     this.game.selectPlayer(number)
   }
 
+  // Remember whose name is being typed: in a single-device game the seat
+  // (and so the name shown) changes with the turn.
   nameChanged() {
+    if (this.editing == null) this.editing = { number: this.current.number, name: this.current.name }
     this.game.d("seat-bar.name", 1500, () => this.saveName())
   }
 
   saveName() {
+    const editing = this.editing
+    this.editing = null
+    if (editing == null || editing.name == null) return
     const name = this.$nameInput.value.trim()
-    if (this.current.name != null && name !== "" && name !== this.current.name) {
-      this.game.updatePlayer({ name })
+    if (name !== "" && name !== editing.name) {
+      this.game.updatePlayer({ name, number: editing.number })
     }
   }
 
@@ -91,12 +98,17 @@ export default class SeatBar {
   buildCache(state) {
     const number = this.game.findCurrentPlayerNumber(state)
     const player = this.game.getPlayer(number, state)
-    return { number, name: player != null ? player.name : null }
+    return {
+      number,
+      name: player != null ? player.name : null,
+      single: this.game.isSingleDevice(state),
+      turn: state.player
+    }
   }
 
   reset(state) {
     this.current = this.buildCache(state)
-    this.renderSeat(this.current.number)
+    this.renderSeat(this.current)
     this.renderName(this.current.name)
   }
 
@@ -107,20 +119,33 @@ export default class SeatBar {
 
   render(ts) {
     if (this.previous) {
-      if (this.previous.number !== this.current.number) this.renderSeat(this.current.number)
+      const { number, single, turn } = this.previous
+      if (number !== this.current.number || single !== this.current.single || turn !== this.current.turn) {
+        this.renderSeat(this.current)
+      }
       if (this.previous.name !== this.current.name) this.renderName(this.current.name)
       this.previous = null
     }
   }
 
-  renderSeat(number) {
+  renderSeat({ number, single, turn }) {
     this.$.classList.remove("seat-0", "seat-1", "seat-2")
     this.$.classList.add(`seat-${number}`)
+    this.$.classList.toggle("single-device", single)
     this.$digit.textContent = number === 0 ? "--" : number
-    this.$label.textContent = number === 0 ? "Spectating" : `You are Player ${number}`
+    this.$label.textContent = this.label(number, single, turn)
+    this.$hint.textContent = single ? "played on one device" : "pick a seat to play"
+    this.$nameInput.setAttribute("aria-label", single && number !== 0 ? "Player " + number + "'s name" : "Your player name")
     for (const option of this.$options) {
       option.setAttribute("aria-pressed", String(+option.dataset.number === number))
     }
+  }
+
+  label(number, single, turn) {
+    if (single) {
+      return number === 0 ? `Spectating · Player ${turn}'s turn` : `Single device · Player ${turn}'s turn`
+    }
+    return number === 0 ? "Spectating" : `You are Player ${number}`
   }
 
   renderName(name) {
