@@ -262,3 +262,15 @@ entries:
     summary: "- The pending toast is now returned per action instead of stored on the channel instance, so simultaneous actions on one connection each get their own toast (spec fails on the old code)."
     commits: [cf531bc]
     media: []
+
+  - id: 17
+    title: "Pre-deploy review fixes"
+    status: in_progress
+    priority: 1
+    requested: "2026-11-14"
+    completed: null
+    blocked_by: []
+    request: "Once all of the work is complete, review the work and address any issues you find."
+    summary: "Fixes from the final review (#6): channel identity from the session cookie (any subscriber could act as any player), server-side name limits, game ids with `.` breaking the page, restart and delete authorization, Redis key TTL, Dockerfile `RAILS_ENV`, `BASE_URL` default, dead routes, `.dockerignore`, stale docs."
+    commits: []
+    media: []
