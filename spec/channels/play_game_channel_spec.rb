@@ -298,6 +298,28 @@ RSpec.describe PlayGameChannel, type: :channel do
     end
   end
 
+  describe "#restart" do
+    before do
+      give_seat(1, "bob")
+      give_seat(2, "carol")
+      DotsGame.for_update(game_id) { |g| g.move(x: 1, y: 0) }
+    end
+
+    it "is refused for a spectator of a network game" do
+      perform :restart
+
+      expect(game.board.get(1, 0)).to eq(DotsGameBoard::HLINE_CLOSE)
+      expect(last_notification).to include("level" => "warning", "message" => /seated player/)
+    end
+
+    it "is allowed for a seated player" do
+      subscribe_as("bob")
+      perform :restart
+
+      expect(game.board.get(1, 0)).to eq(DotsGameBoard::HLINE_OPEN)
+    end
+  end
+
   describe "#move" do
     it "sends a warning notification when it is not the owner's turn" do
       perform :select_player, number: 2

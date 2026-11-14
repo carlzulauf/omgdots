@@ -83,10 +83,13 @@ class PlayGameChannel < ApplicationCable::Channel
     end
   end
 
-  # Only the device playing a single-device game can restart it.
+  # Only a seated player can restart: in a single-device game that is the
+  # device holding both seats, so spectators of either mode can't.
   def restart
     update do |game|
-      game.restart unless game.single_device? && game.seat_for(@owner).nil?
+      next notice("Only a seated player can restart the game", level: "warning") if game.seats_of(@owner).empty?
+
+      game.restart
       nil
     end
   end
