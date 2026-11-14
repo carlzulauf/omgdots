@@ -67,15 +67,25 @@ entries:
 
   - id: 4
     title: "Game UI: player status bar with switcher + share link"
-    status: in_progress
+    status: done
     priority: 2
     requested: "2026-11-13"
-    completed: null
+    completed: "2026-11-14"
     blocked_by: [3, 1]
     request: "Then, I want the game UI improved a bit. The current player status and switcher is quite hidden. Above the scoreboard, indicate the current player or spectating, a switch to toggle between them, and a share link that just shows and copies the current URL."
-    summary: "Being done together with #7 and #10."
-    commits: []
-    media: []
+    summary: "- A new bar above the scoreboard shows who this device is (\"You are Player 1 · <name>\", \"You are Player 2 · <name>\" or \"Spectating\") in the player's color with a small 7-segment seat display.\n- A three-way switch (Player 1 / Player 2 / Spectate) replaces the hidden hover menu and uses the existing `select_player` channel action.\n- The name field and Exit button moved into the bar; names save when you stop typing, on Enter or on blur.\n- Share row: a read-only field with the page URL and a Copy button (clipboard API with an `execCommand` fallback) that briefly shows \"Copied!\".\n- Works at 375px wide without horizontal overflow; the scoreboard got a small-screen rule since it already overflowed at that width."
+    commits: [5493232]
+    media:
+      - file: "004-before.png"
+        caption: "Before: seat choice hidden in a small hover menu; success message shown in red"
+      - file: "004-after-player.png"
+        caption: "After: seat bar above the scoreboard, seated as Player 1 with a custom name"
+      - file: "004-after-spectating.png"
+        caption: "After: spectating"
+      - file: "004-after-mobile.png"
+        caption: "After: Player 2 at 375×667, no horizontal overflow"
+      - file: "004-switch-and-copy.webm"
+        caption: "Switching from Spectating to Player 1, then copying the share link"
 
   - id: 5
     title: "Board edge padding on small/scrolling viewports"
@@ -103,15 +113,17 @@ entries:
 
   - id: 7
     title: "Notification level defaults to error (success messages shown as errors)"
-    status: in_progress
+    status: done
     priority: 3
     requested: "2026-11-14"
-    completed: null
+    completed: "2026-11-14"
     blocked_by: []
     request: "Found by the Nix flake agent (#2)"
-    summary: "`Notification` defaults its level to `\"error\"`, so messages like \"Successfully became Player 1\" are shown as errors. Being done together with #4."
-    commits: []
-    media: []
+    summary: "- `Notification` now defaults to `info` and has four levels: success, info, warning, error.\n- Each call site sends the right level: taking a seat is success, spectating is info, a seat already taken is error, \"Not your turn\" is warning.\n- Each level has its own toast color and icon (green ✓, blue i, amber !, red ✕).\n- New channel spec checks the level each action sends."
+    commits: [de4c140]
+    media:
+      - file: "007-success-toast.png"
+        caption: "\"Successfully became Player 1\" as a green success toast instead of red error text"
 
   - id: 8
     title: "Large boards use the full viewport width on big screens"
@@ -139,15 +151,17 @@ entries:
 
   - id: 10
     title: "Player-change notifications must not block clicking lines"
-    status: in_progress
+    status: done
     priority: 2
     requested: "2026-11-14"
-    completed: null
+    completed: "2026-11-14"
     blocked_by: [3]
     request: "In network and single device mode, player change notifications should no longer get in the way of clicking on lines."
-    summary: "Being done together with #4 and #7."
-    commits: []
-    media: []
+    summary: "- Notifications are now toasts floating over the top of the board; the board does not move when one appears.\n- The toast layer has `pointer-events: none`, so clicks go through to the lines underneath (tested by clicking a line under a toast).\n- Toasts fade after 3.5s, and at most three show at once.\n- Messages are inserted as text, not HTML."
+    commits: [5493232]
+    media:
+      - file: "010-toast-over-board.png"
+        caption: "Toasts over the board; the line clicked through the lower toast is drawn"
 
   - id: 11
     title: "Redis lock in RedisJsonModel#with_lock doesn't protect concurrent moves"
@@ -174,5 +188,29 @@ entries:
       - Dockerfile apt packages `nodejs` and `libsqlite3-dev` are no longer needed
       - Unused assets `14seg.woff`/`.woff2` and `light.svg`
       - Dead `PlayGame#reset`, which references an undefined `ts`
+    commits: []
+    media: []
+
+  - id: 13
+    title: "Trying to take an occupied seat drops you from your current seat"
+    status: queued
+    priority: 3
+    requested: "2026-11-14"
+    completed: null
+    blocked_by: []
+    request: "Found while building the seat bar (#4)"
+    summary: "Asking for a seat another player holds first removes you from your own seat, so you end up spectating."
+    commits: []
+    media: []
+
+  - id: 14
+    title: "Any seat can be taken over a minute after it was claimed"
+    status: queued
+    priority: 2
+    requested: "2026-11-14"
+    completed: null
+    blocked_by: []
+    request: "Found while building the seat bar (#4)"
+    summary: "Seats can be taken over once the owner's `last_seen_at` is over a minute old, but that timestamp is only set when the seat is claimed, never refreshed while the player is active."
     commits: []
     media: []
