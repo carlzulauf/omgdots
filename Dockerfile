@@ -1,4 +1,4 @@
-FROM ruby:3.4
+FROM ruby:4.0
 
 RUN apt-get update -qq && apt-get install -y nodejs libsqlite3-dev rsync
 
@@ -6,7 +6,7 @@ WORKDIR /app
 
 # install gems on their own, to speedup rebuilds
 COPY Gemfile* /app/
-RUN gem install bundler:4.0.15 \
+RUN gem install bundler:4.0.24 \
  && bundle config set deployment 'true' \
  && bundle config set without 'development test' \
  && bundle install

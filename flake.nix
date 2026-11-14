@@ -9,20 +9,20 @@
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        ruby = pkgs.ruby_3_4;
+        ruby = pkgs.ruby_4_0;
 
         pkgs = import nixpkgs {
           inherit system;
           overlays = [
-            # Gemfile.lock is BUNDLED WITH 4.0.15, but nixpkgs still ships
+            # Gemfile.lock is BUNDLED WITH 4.0.x, but nixpkgs still ships
             # bundler 2.7.x, so build the matching version.
             (final: prev: {
               bundler = prev.buildRubyGem rec {
                 inherit ruby;
                 gemName = "bundler";
                 name = "${gemName}-${version}";
-                version = "4.0.15";
-                source.sha256 = "sha256-pM64gv6UoOCsY80IE5Mrv9YxoU5awLeXUYmxmk0o2ec=";
+                version = "4.0.24";
+                source.sha256 = "sha256-Fspk4ggWoM8VGpSPsUHXiGApltK01zV3t0OI/oT6mLw=";
                 dontPatchShebangs = true;
                 postFixup = ''
                   substituteInPlace $out/bin/bundle --replace-fail "activate_bin_path" "bin_path"

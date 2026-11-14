@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
-# Ruby 3.4 required - matches nixpkgs ruby_3_4
-ruby "~> 3.4"
+# Ruby 4.0 required - matches nixpkgs ruby_4_0
+ruby "~> 4.0"
 
 gem "rails", "7.2.0"
 gem "puma"
