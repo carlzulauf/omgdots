@@ -139,15 +139,21 @@ entries:
 
   - id: 9
     title: "Single-device (hot seat) game mode"
-    status: in_progress
+    status: done
     priority: 2
     requested: "2026-11-14"
-    completed: null
+    completed: "2026-11-14"
     blocked_by: [3, 4]
     request: "Add a single device mode when creating a game that assumes both players are on the same device and switches the active player after every move, so play happens continuously on one device without having to switch manually between moves."
-    summary: "An option on the game creation page. The active seat follows whose turn it is (completing a box gives the same player another turn), shown in the #4 status bar."
-    commits: []
-    media: []
+    summary: "- The new-game form has a Mode select: Network game (default, unchanged) or Single device. Stored as `DotsGame#mode`; older games read as network.\n- In single-device games the creating device holds both seats and always plays whoever's turn it is, so completing a box keeps the turn. No seat switching and no toasts per move.\n- The seat bar shows \"Single device · Player N's turn\" in that player's colour; the name box renames whoever's turn it is; the end-of-game overlay names the winner.\n- Other devices opening the link spectate live, and can't take a seat, move, rename or restart.\n- Restart keeps the mode and both seats."
+    commits: [ad56b74]
+    media:
+      - file: "009-new-game-form.png"
+        caption: "New-game form with the Mode option set to Single device"
+      - file: "009-single-device-turn.png"
+        caption: "Seat bar showing Player 2's turn after Bob completed a box"
+      - file: "009-single-device-play.webm"
+        caption: "Several moves on one device; Bob completes a box and keeps the turn, no switching, no toasts"
 
   - id: 10
     title: "Player-change notifications must not block clicking lines"
@@ -164,14 +170,14 @@ entries:
         caption: "Toasts over the board; the line clicked through the lower toast is drawn"
 
   - id: 11
-    title: "Redis lock in RedisJsonModel#with_lock doesn't protect concurrent moves"
+    title: "Concurrent moves: Redis lock not atomic and for_update drops conflicting updates"
     status: queued
     priority: 3
     requested: "2026-11-14"
     completed: null
     blocked_by: []
     request: "Found during the Rails upgrade (#3)"
-    summary: "`save` is called on the plain client inside `redis.multi` instead of on the transaction, so the SET runs outside MULTI/EXEC."
+    summary: "- `save` is called on the plain client inside `redis.multi` instead of on the transaction, so the SET runs outside MULTI/EXEC.\n- `DotsGame.for_update` doesn't retry when the watched key changes, so a concurrent update is silently dropped (found during #9)."
     commits: []
     media: []
 
@@ -224,5 +230,17 @@ entries:
     blocked_by: [9, 5]
     request: "The top game menu design is clunky and draws away from the scoreboard, the focus. It should be 4 simple and subtle equal-width buttons arranged horizontally above the board: Share, Player 1, Player 2, Spectator (with an similar indicator/selected for the last 3). Clicking Share triggers a popover dialog with the copy button and URL."
     summary: "Redesign of #4's bar. Waits for single-device mode (#9) and the layout pass (#5, #8), which touch the same area."
+    commits: []
+    media: []
+
+  - id: 16
+    title: "Toasts can be lost when one connection sends several actions at once"
+    status: queued
+    priority: 4
+    requested: "2026-11-14"
+    completed: null
+    blocked_by: []
+    request: "Found while building single-device mode (#9)"
+    summary: "`PlayGameChannel` keeps `@after_update` on the channel instance, so concurrent actions on one connection can overwrite each other's pending notification."
     commits: []
     media: []
