@@ -171,7 +171,7 @@ entries:
 
   - id: 11
     title: "Concurrent moves: Redis lock not atomic and for_update drops conflicting updates"
-    status: queued
+    status: in_progress
     priority: 3
     requested: "2026-11-14"
     completed: null
@@ -199,7 +199,7 @@ entries:
 
   - id: 13
     title: "Trying to take an occupied seat drops you from your current seat"
-    status: queued
+    status: in_progress
     priority: 3
     requested: "2026-11-14"
     completed: null
@@ -211,7 +211,7 @@ entries:
 
   - id: 14
     title: "Any seat can be taken over a minute after it was claimed"
-    status: queued
+    status: in_progress
     priority: 2
     requested: "2026-11-14"
     completed: null
@@ -235,7 +235,7 @@ entries:
 
   - id: 16
     title: "Toasts can be lost when one connection sends several actions at once"
-    status: queued
+    status: in_progress
     priority: 4
     requested: "2026-11-14"
     completed: null
