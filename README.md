@@ -36,9 +36,13 @@ Redis defaults to `localhost:6379`. Set `REDIS_URL` to use a different one.
 
 ## Deployment
 
-This is currently deployed as a docker container via dokku on a personal server.
+This is currently deployed as a docker container via dokku on a personal server,
+built from the repo's `Dockerfile`. There is no other deploy tooling.
 
-As docker containers go, this one is very simple It defaults to listening on port 3000, but this can be changed via the `PORT` environment variable.
+As docker containers go, this one is very simple. The image installs gems and
+precompiles assets at build time, then runs `rails server`. Set
+`RAILS_ENV=production` and `SECRET_KEY_BASE` in the container's environment. It
+listens on port 3000 unless `PORT` says otherwise.
 
 A redis instance is required for the application to function, and can be provided via the `REDIS_URL` environment variable.
 

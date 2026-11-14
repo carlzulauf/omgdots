@@ -42,12 +42,6 @@ export default class PlayGame {
     this.channel.perform("restart")
   }
 
-  reset() {
-    // FIXME: `ts` is undefined here, as it was in the CoffeeScript original.
-    // Nothing calls PlayGame#reset, so it has never mattered.
-    for (const component of this.components) component.reset(this.state, ts) // eslint-disable-line no-undef
-  }
-
   subscribe() {
     const options = { channel: "PlayGameChannel", id: this.id, user: this.user }
     this.channel = cable.subscriptions.create(options, {

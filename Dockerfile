@@ -1,6 +1,8 @@
 FROM ruby:4.0
 
-RUN apt-get update -qq && apt-get install -y nodejs libsqlite3-dev rsync
+# No extra system packages: there is no Node.js (importmap serves JS, and the
+# sass-embedded gem bundles its own compiler) and no database. The full
+# ruby image already has the compiler and headers native gems build against.
 
 WORKDIR /app
 
