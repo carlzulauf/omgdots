@@ -275,6 +275,27 @@ RSpec.describe PlayGameChannel, type: :channel do
       expect(last_notification).to include("level" => "success", "message" => "Player details updated")
       expect(DotsGame.find(game_id).get_player(1).name).to eq("Alice")
     end
+
+    it "strips the name and cuts it to the input's maxlength" do
+      perform :select_player, number: 1
+      perform :update_player, name: "  #{"x" * 40}  "
+
+      expect(game.player_1.name).to eq("x" * PlayGameChannel::NAME_LENGTH)
+    end
+
+    it "matches the name input's maxlength" do
+      haml = Rails.root.join("app/views/games/show.haml").read
+      expect(haml).to include("maxlength: #{PlayGameChannel::NAME_LENGTH}")
+    end
+
+    it "refuses a blank name with a warning" do
+      perform :select_player, number: 1
+      before = game.player_1.name
+      perform :update_player, name: "   "
+
+      expect(game.player_1.name).to eq(before)
+      expect(last_notification).to include("level" => "warning", "message" => /blank/)
+    end
   end
 
   describe "#move" do

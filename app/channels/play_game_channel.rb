@@ -8,6 +8,9 @@ class PlayGameChannel < ApplicationCable::Channel
     broadcast notice("The game was too busy to save that. Please try again.", level: "error")
   end
 
+  # Longest player name; matches the name input's maxlength in games/show.
+  NAME_LENGTH = 24
+
   # The owner is the connection's session uid (see ApplicationCable::Connection).
   # Any `user` param a client sends is ignored.
   def subscribed
@@ -37,9 +40,12 @@ class PlayGameChannel < ApplicationCable::Channel
   # `number` picks which of the owner's seats to rename. A single-device game
   # holds both, so it names either player; otherwise it is the owner's seat.
   def update_player(data)
+    name = data["name"].to_s.strip.first(NAME_LENGTH)
     update do |game|
       if (player = owned_player(game, data["number"]))
-        player.assign_attributes(data.slice("name"))
+        next notice("A player's name can't be blank", level: "warning") if name.empty?
+
+        player.name = name
         notice "Player details updated", level: "success"
       else
         notice "You can only rename your own seat", level: "warning"
