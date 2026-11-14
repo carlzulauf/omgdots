@@ -11,7 +11,7 @@ export default class PlayGame {
   constructor(id, user) {
     this.id = id
     this.user = user
-    this.$game = document.querySelector(`#game-${this.id}`)
+    this.$game = document.getElementById(`game-${this.id}`)
     window.addEventListener("load", () => {
       this.start()
       this.subscribe()

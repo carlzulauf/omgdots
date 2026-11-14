@@ -57,6 +57,16 @@ RSpec.describe "Games", type: :request do
     expect(popover.at_css(".share-url")["value"]).to eq("http://www.example.com/games/#{id}")
   end
 
+  it "keeps dots in a game id instead of reading them as a format" do
+    dotted = "#{id}.v1.2"
+    get "/games/#{dotted}"
+
+    expect(response).to have_http_status(:ok)
+    expect(page.at_css(".game-container")["id"]).to eq("game-#{dotted}")
+  ensure
+    DotsGame.find(dotted)&.destroy
+  end
+
   it "routes only the actions the app has" do
     expect(Rails.application.routes.recognize_path("/games/x", method: :get)).to include(action: "show")
     expect { Rails.application.routes.recognize_path("/games/x", method: :delete) }
