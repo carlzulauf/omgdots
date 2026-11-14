@@ -6,14 +6,16 @@ You can run this wherever you like, or [go here](https://omgdots.mrks.io) to pla
 
 ## Run Locally
 
-The dev environment comes from `flake.nix` (Ruby, Bundler, Redis, Node.js and
-the libraries native gems build against). Gems install into
-`~/.local/share/gems/omgdots/`, not the system Ruby.
+The dev environment comes from `flake.nix` (Ruby, Bundler, Redis and the
+libraries native gems build against). Gems install into
+`~/.local/share/gems/omgdots/`, not the system Ruby. There is no Node.js:
+JavaScript is served as ES modules through importmap-rails, and Sass is
+compiled by dartsass-rails.
 
 ```bash
 direnv allow      # or: nix develop
 bundle install
-bin/dev           # runs Procfile.dev (rails + redis) with foreman
+bin/dev           # runs Procfile.dev (rails, sass watcher, redis) with foreman
 ```
 
 Then open http://localhost:3017.
@@ -23,7 +25,8 @@ port, or `bin/dev -b 0.0.0.0` to listen on all interfaces. To run the processes
 yourself instead, start each in its own terminal:
 
 ```bash
-cd db && redis-server            # saves to db/dump.rdb
+cd db && redis-server --bind 127.0.0.1 ::1   # saves to db/dump.rdb
+bin/rails dartsass:watch                     # rebuilds app/assets/builds/application.css
 bin/rails server -p 3017
 ```
 

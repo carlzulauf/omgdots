@@ -1,3 +1,11 @@
+@use "scoreboard/score";
+@use "scoreboard/players";
+@use "scoreboard/turn_indicator";
+@use "scoreboard/logo";
+@use "scoreboard/name";
+@use "scoreboard/progress";
+@use "scoreboard/menu_overlay";
+
 @keyframes flickerLight {
   0%   { opacity: 0.95; }
   50%  { opacity: 0.95; }
@@ -20,11 +28,3 @@
                        "progress progress";
   grid-template-columns: 50% 50%;
 }
-
-@import "scoreboard/score";
-@import "scoreboard/players";
-@import "scoreboard/turn_indicator";
-@import "scoreboard/logo";
-@import "scoreboard/name";
-@import "scoreboard/progress";
-@import "scoreboard/menu_overlay";

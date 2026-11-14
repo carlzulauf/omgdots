@@ -26,3 +26,6 @@
 !/.envrc
 .ruby-version
 .direnv/
+
+/app/assets/builds/*
+!/app/assets/builds/.keep

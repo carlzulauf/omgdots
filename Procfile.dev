@@ -1,2 +1,3 @@
 web: bin/rails server -p ${PORT:-3017} ${BINDING:+-b "$BINDING"}
+css: bin/rails dartsass:watch
 redis: cd db && redis-server

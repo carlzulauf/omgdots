@@ -1,7 +1,7 @@
+@use "new_dots_game";
+@use "play";
+
 body {
   font-family: 'Ubuntu', sans-serif;
   background-color: #ccc;
 }
-
-@import "new_dots_game";
-@import "play";

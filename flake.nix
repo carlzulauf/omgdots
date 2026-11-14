@@ -49,7 +49,6 @@
             pkgs.git
             pkgs.pkg-config
             pkgs.redis
-            pkgs.nodejs # JS runtime for execjs (uglifier, coffee-rails)
           ];
 
           # Headers for the gems bundle install compiles
