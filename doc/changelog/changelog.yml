@@ -181,14 +181,14 @@ entries:
 
   - id: 11
     title: "Concurrent moves: Redis lock not atomic and for_update drops conflicting updates"
-    status: in_progress
+    status: done
     priority: 3
     requested: "2026-11-14"
-    completed: null
+    completed: "2026-11-14"
     blocked_by: []
     request: "Found during the Rails upgrade (#3)"
-    summary: "- `save` is called on the plain client inside `redis.multi` instead of on the transaction, so the SET runs outside MULTI/EXEC.\n- `DotsGame.for_update` doesn't retry when the watched key changes, so a concurrent update is silently dropped (found during #9)."
-    commits: []
+    summary: "- `with_lock` WATCHes the key, reloads, applies the change and queues the SET on the MULTI transaction, so EXEC aborts if another client wrote the game in between.\n- Aborted updates retry from a fresh read up to 5 times, then show a \"too busy, try again\" error toast instead of being silently dropped.\n- Specs (with and without `Redis::Namespace`) prove two concurrent moves on separate connections both land."
+    commits: [5ffad9c]
     media: []
 
   - id: 12
@@ -209,26 +209,28 @@ entries:
 
   - id: 13
     title: "Trying to take an occupied seat drops you from your current seat"
-    status: in_progress
+    status: done
     priority: 3
     requested: "2026-11-14"
-    completed: null
+    completed: "2026-11-14"
     blocked_by: []
     request: "Found while building the seat bar (#4)"
-    summary: "Asking for a seat another player holds first removes you from your own seat, so you end up spectating."
-    commits: []
-    media: []
+    summary: "- `select_player` checks the requested seat first; your seat is only released when the new one is free or you choose Spectate.\n- A refused request keeps your seat and shows \"Player N is already owned by someone else\" as an error toast."
+    commits: [cf531bc]
+    media:
+      - file: "013-refused-seat.png"
+        caption: "Player 2 asks for seat 1 and is refused: they keep seat 2 and get an error toast (Player 1 on the left)"
 
   - id: 14
     title: "Any seat can be taken over a minute after it was claimed"
-    status: in_progress
+    status: done
     priority: 2
     requested: "2026-11-14"
-    completed: null
+    completed: "2026-11-14"
     blocked_by: []
     request: "Found while building the seat bar (#4)"
-    summary: "Seats can be taken over once the owner's `last_seen_at` is over a minute old, but that timestamp is only set when the seat is claimed, never refreshed while the player is active."
-    commits: []
+    summary: "- `last_seen_at` is refreshed on subscribe, on every action, and by a 20s server-side heartbeat (ActionCable `periodically`), with no client changes.\n- On disconnect the seat is marked away; it frees after 2 minutes unless the owner returns. A connected player never loses their seat.\n- Single-device games keep both seats together."
+    commits: [cf531bc]
     media: []
 
   - id: 15
@@ -255,12 +257,12 @@ entries:
 
   - id: 16
     title: "Toasts can be lost when one connection sends several actions at once"
-    status: in_progress
+    status: done
     priority: 4
     requested: "2026-11-14"
-    completed: null
+    completed: "2026-11-14"
     blocked_by: []
     request: "Found while building single-device mode (#9)"
-    summary: "`PlayGameChannel` keeps `@after_update` on the channel instance, so concurrent actions on one connection can overwrite each other's pending notification."
-    commits: []
+    summary: "- The pending toast is now returned per action instead of stored on the channel instance, so simultaneous actions on one connection each get their own toast (spec fails on the old code)."
+    commits: [cf531bc]
     media: []
