@@ -1,6 +1,14 @@
 module RedisJsonModel
   class RecordMissing < StandardError; end
 
+  # Raised when an optimistic update keeps losing the race: every attempt saw
+  # the record change between reading it and writing it back.
+  class ConflictError < StandardError; end
+
+  # How many times #with_lock re-reads and re-applies its block when a
+  # concurrent write invalidates the WATCH before giving up.
+  LOCK_ATTEMPTS = 5
+
   extend ActiveSupport::Concern
   include JsonObject
 
@@ -26,19 +34,36 @@ module RedisJsonModel
   end
 
   def save
-    ts = Time.now
-    self.id = generate_id unless id.present?
-    self.created_at ||= ts
-    self.updated_at   = ts
+    stamp_for_save
     redis.set(key, to_json)
   end
 
-  def with_lock
-    redis.watch key
-    reload
-    redis.multi do
-      save if yield(self)
+  # Optimistic read-modify-write. Each attempt WATCHes the key, reloads the
+  # record, yields it, and, if the block returns truthy, writes it back in a
+  # MULTI/EXEC. EXEC aborts when another client wrote the key after the WATCH;
+  # then the attempt starts over from a fresh read, so the block must be safe
+  # to run more than once. Returns true when saved, false when the block
+  # declined. Raises ConflictError after `attempts` aborted transactions.
+  #
+  # The WATCH block holds the client's lock, so other threads sharing this
+  # connection wait their turn instead of interleaving commands with ours.
+  def with_lock(attempts: LOCK_ATTEMPTS)
+    attempts.times do
+      outcome = redis.watch(key) do
+        reload
+        if yield(self)
+          stamp_for_save
+          json = to_json
+          # nil when EXEC aborted because the watched key changed.
+          redis.multi { |tx| tx.set(key, json) } ? :saved : :conflict
+        else
+          redis.unwatch
+          :declined
+        end
+      end
+      return outcome == :saved unless outcome == :conflict
     end
+    raise ConflictError, "#{key} kept changing; gave up after #{attempts} attempts"
   end
 
   def reload
@@ -58,6 +83,15 @@ module RedisJsonModel
     end
   end
 
+  private
+
+  def stamp_for_save
+    ts = Time.now
+    self.id = generate_id unless id.present?
+    self.created_at ||= ts
+    self.updated_at   = ts
+  end
+
   class_methods do
     def key_for(id)
       "#{model_name.singular}:#{id}"
@@ -67,13 +101,16 @@ module RedisJsonModel
       redis.exists? key_for(id)
     end
 
+    # Loads the record, yields it for changes, and saves it atomically,
+    # retrying from a fresh read if another write lands in between (see
+    # #with_lock). The block always saves; it may run more than once.
     def for_update(id)
-      obj = new(id: id)
-      success = obj.with_lock do
-        yield obj
-        true
+      new(id: id).tap do |obj|
+        obj.with_lock do
+          yield obj
+          true
+        end
       end
-      success ? obj : obj.reload
     end
 
     def all
