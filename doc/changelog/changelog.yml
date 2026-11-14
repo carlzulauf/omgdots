@@ -274,3 +274,15 @@ entries:
     summary: "Fixes from the final review (#6): channel identity from the session cookie (any subscriber could act as any player), server-side name limits, game ids with `.` breaking the page, restart and delete authorization, Redis key TTL, Dockerfile `RAILS_ENV`, `BASE_URL` default, dead routes, `.dockerignore`, stale docs."
     commits: []
     media: []
+
+  - id: 18
+    title: "Move the button row above the scoreboard and add a way back"
+    status: queued
+    priority: 1
+    requested: "2026-11-14"
+    completed: null
+    blocked_by: [17]
+    request: "Also, I notice the buttons are under the scoreboard when I asked for them to be above, and there is no exit button. There needs to be a way to navigate back."
+    summary: "Fix to #15: the Share / Player 1 / Player 2 / Spectator row goes at the top of the page, above the scoreboard, with a compact back/home button at its left end."
+    commits: []
+    media: []
