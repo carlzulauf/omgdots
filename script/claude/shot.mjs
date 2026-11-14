@@ -10,6 +10,9 @@
 //   {"clickAt": [x, y]}                   real mouse click at viewport x,y
 //   {"fill": "css selector", "text": ""}  set an input/select value (fires input+change)
 //   {"eval": "js", "as": "name"}          run JS (awaited); "as" stores the result as ${name}
+//   {"key": "Escape"}                     press a key (Escape, Enter, Tab, Backspace, or one character)
+//   {"type": "text"}                      type text into the focused element
+//   {"grant": ["clipboardReadWrite"]}     grant permissions to the current context
 //   {"wait": 500}                         sleep ms
 //   {"waitFor": "css selector"}           wait until it exists (timeout 10s)
 //   {"scroll": [x, y]}                    window.scrollTo(x, y)
@@ -54,6 +57,8 @@ function parseArgs(argv) {
       case "--fill": { const [sel, ...v] = next().split("="); steps.push({ fill: sel, text: v.join("=") }); break }
       case "--eval": steps.push({ eval: next() }); break
       case "--wait": steps.push({ wait: Number(next()) }); break
+      case "--key": steps.push({ key: next() }); break
+      case "--type": steps.push({ type: next() }); break
       case "--wait-for": steps.push({ waitFor: next() }); break
       case "--scroll": steps.push({ scroll: xy(next()) }); break
       case "--shot": steps.push({ shot: next() }); break
@@ -82,7 +87,7 @@ function usage() {
        bin/claude-shot --script flow.json [--var name=value]
 
 steps (run in order, after URL loads):
-  --click SEL  --click-at X,Y  --fill SEL=TEXT  --eval JS  --wait MS  --wait-for SEL
+  --click SEL  --click-at X,Y  --fill SEL=TEXT  --key KEY  --type TEXT  --eval JS  --wait MS  --wait-for SEL
   --scroll X,Y  --size WxH  --color-scheme dark|light  --ctx NAME  --goto URL  --shot FILE  --record FILE.webm|gif  --stop-record
 options: --base URL (default http://localhost:3017)  --settle MS (pause after load, default 300)
 See doc/changelog/README.md for the JSON format and examples.`)
@@ -138,6 +143,9 @@ class CDP {
     })
   }
 }
+
+// key: [code, keyCode, text]
+const KEYS = { Escape: ["Escape", 27], Enter: ["Enter", 13, "\r"], Tab: ["Tab", 9], Backspace: ["Backspace", 8] }
 
 // One isolated browser context (own cookies/storage) with a single page.
 class Context {
@@ -196,6 +204,12 @@ class Context {
       return { x: b.x + b.width / 2, y: b.y + b.height / 2 } })()`)
     if (!r) throw new Error(`click: no element matches ${selector}`)
     await this.mouseClick(r.x, r.y)
+  }
+  async key(key) {
+    const [code, keyCode, text] = KEYS[key] || [`Key${key.toUpperCase()}`, key.toUpperCase().charCodeAt(0), key]
+    const base = { key, code, windowsVirtualKeyCode: keyCode, nativeVirtualKeyCode: keyCode }
+    await this.send("Input.dispatchKeyEvent", { type: text ? "keyDown" : "rawKeyDown", ...base, ...(text ? { text } : {}) })
+    await this.send("Input.dispatchKeyEvent", { type: "keyUp", ...base })
   }
   async waitFor(selector, timeout = 10000) {
     const start = Date.now()
@@ -309,6 +323,13 @@ async function main() {
           el.focus(); el.value = ${JSON.stringify(interp(step.text ?? ""))};
           el.dispatchEvent(new Event("input", { bubbles: true })); el.dispatchEvent(new Event("change", { bubbles: true })) })()`)
       else if (step.eval) { const v = await c.eval(interp(step.eval)); if (step.as) vars[step.as] = v; if (v !== undefined) log(`${c.name}: ${JSON.stringify(v)}`) }
+      else if (step.key) await c.key(interp(step.key))
+      else if (step.type) await c.send("Input.insertText", { text: interp(step.type) })
+      else if (step.grant) {
+        const origin = new URL(await c.eval("location.href")).origin
+        const { browserContextId } = (await c.send("Target.getTargetInfo")).targetInfo
+        await cdp.send("Browser.grantPermissions", { permissions: [].concat(step.grant), origin, browserContextId })
+      }
       else if (step.wait) await sleep(step.wait)
       else if (step.waitFor) await c.waitFor(interp(step.waitFor), step.timeout)
       else if (step.scroll) { const [x, y] = Array.isArray(step.scroll) ? step.scroll : step.scroll.split(",").map(Number); await c.eval(`window.scrollTo(${x}, ${y})`); await sleep(150) }

@@ -69,7 +69,9 @@ bin/claude-shot /changelog tmp/end.png --size 375x667 \
   --record tmp/scroll.webm --scroll 0,800 --wait 500 --scroll 0,1600 --wait 500 --stop-record
 ```
 
-Flags: `--click SEL`, `--click-at X,Y`, `--fill SEL=TEXT`, `--eval JS`,
+Flags: `--click SEL`, `--click-at X,Y`, `--fill SEL=TEXT`, `--key KEY` (Escape,
+Enter, Tab, Backspace or one character), `--type TEXT` (into the focused
+element), `--eval JS`,
 `--wait MS`, `--wait-for SEL`, `--scroll X,Y`, `--size WxH`,
 `--color-scheme dark|light`, `--goto URL`, `--ctx NAME`, `--shot FILE`,
 `--record FILE`, `--stop-record`, `--full`, `--settle MS` (pause after each
@@ -108,7 +110,8 @@ bin/claude-shot --script tmp/flow.json --var game=demo$RANDOM --var out=tmp
 ```
 
 JSON step keys: `goto`, `click`, `clickAt: [x, y]`, `fill` + `text`, `eval`
-(+ `as`), `wait`, `waitFor` (+ `timeout`), `scroll: [x, y]`, `size`,
+(+ `as`), `key`, `type`, `grant` (permissions for the current context, e.g.
+`["clipboardReadWrite"]`), `wait`, `waitFor` (+ `timeout`), `scroll: [x, y]`, `size`,
 `colorScheme`, `shot` (+ `full`), `record` (+ `fps`, default 15),
 `stopRecord`, `ctx`. Top-level keys: `base`, `size`, `full`, `settle`, `vars`.
 Recordings come from `Page.startScreencast` frames, encoded with `ffmpeg`
