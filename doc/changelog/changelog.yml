@@ -1,0 +1,178 @@
+# Change log for the development-only /changelog page.
+# Schema and conventions: doc/changelog/README.md
+entries:
+  - id: 1
+    title: "Dev-only /changelog page and screenshot tooling"
+    status: done
+    priority: 1
+    requested: "2026-11-13"
+    completed: "2026-11-14"
+    blocked_by: [3]
+    request: "Keep an up to date list of changes made with summaries and screenshots/recordings on a page visible in development mode for this app on the `/changelog` route."
+    summary: |
+      - `/changelog` lists the queue (in progress, queued, blocked), finished work with summaries, commits and media, and dropped requests
+      - Data lives in `doc/changelog/changelog.yml`, media in `doc/changelog/media/`
+      - Routes are only drawn in development, and the controller returns 404 outside development as a backstop
+      - `bin/claude-shot` drives headless Chromium for screenshots, two-browser (two-player) flows and webm/gif recordings
+      - `doc/changelog/README.md` documents the dev env, the tool and the YAML schema
+    commits: []
+    media:
+      - file: "001-changelog-desktop.png"
+        caption: "The changelog page (1280px)"
+      - file: "001-changelog-phone.png"
+        caption: "At phone width (375px)"
+
+  - id: 2
+    title: "Nix flake dev environment"
+    status: done
+    priority: 1
+    requested: "2026-11-13"
+    completed: "2026-11-14"
+    blocked_by: []
+    request: "we're going to need to nix flake-ify this repo, similar to what's been done for other apps in ~/projects like exalog, underbee, overbee, portal, and more."
+    summary: |
+      origin/main already had a flake. It was aligned with the sibling projects:
+
+      - Ruby bound once in the flake
+      - Gems under `~/.local/share/gems/omgdots/ruby-X`
+      - Bundler overlay kept, since nixpkgs ships 2.7.2
+      - Broken `packages.default` removed
+      - `.envrc` added, along with the `.gitignore` fix that had been hiding it
+      - `Procfile.dev` plus `bin/dev` (foreman) on port 3017
+      - README "Run Locally" rewritten
+    commits: [9a7d651]
+    media: []
+
+  - id: 3
+    title: "Upgrade to Rails 8.1, Ruby 4.0 and all gems"
+    status: done
+    priority: 1
+    requested: "2026-11-13"
+    completed: "2026-11-14"
+    blocked_by: [2]
+    request: "I want the latest version of rails, and all other gems updated as far as they can."
+    summary: |
+      - Ruby 4.0.9, Rails 8.1.4.1 with `load_defaults 8.1`, bundler 4.0.24
+      - propshaft + importmap + dartsass-rails replace sprockets, Ruby Sass, CoffeeScript and uglifier; the CoffeeScript was hand-converted to ES modules
+      - redis gem 6 and rack 3
+      - A cookie rotator keeps existing player sessions working across the deploy
+      - Dockerfile on ruby:4.0; production precompile and a Docker smoke test pass
+      - Remaining outdated gems are held back by dependencies: diff-lcs by rspec, marcel by activestorage, redis-client by redis
+    commits: [18c652b, ab4d382, 4d420ea, 3ebed68, 6a142c4, d3c6bf3]
+    media:
+      - file: "003-before-game.png"
+        caption: "Rails 7.2 (before)"
+      - file: "003-after-game.png"
+        caption: "Rails 8.1 (after)"
+
+  - id: 4
+    title: "Game UI: player status bar with switcher + share link"
+    status: in_progress
+    priority: 2
+    requested: "2026-11-13"
+    completed: null
+    blocked_by: [3, 1]
+    request: "Then, I want the game UI improved a bit. The current player status and switcher is quite hidden. Above the scoreboard, indicate the current player or spectating, a switch to toggle between them, and a share link that just shows and copies the current URL."
+    summary: "Being done together with #7 and #10."
+    commits: []
+    media: []
+
+  - id: 5
+    title: "Board edge padding on small/scrolling viewports"
+    status: queued
+    priority: 2
+    requested: "2026-11-13"
+    completed: null
+    blocked_by: [3]
+    request: "At smaller screen sizes where scrolling is necessary, ensure there is sufficient padding around the game board so none of the play area is too close to the edge of the viewport when panning/scrolling to an edge."
+    summary: "Will be done together with #8 (one responsive board-layout pass), after #4."
+    commits: []
+    media: []
+
+  - id: 6
+    title: "Final review, fixes, merge to main, push to GitHub + production"
+    status: queued
+    priority: 9
+    requested: "2026-11-13"
+    completed: null
+    blocked_by: [1, 2, 3, 4, 5]
+    request: "Once all of the work is complete, review the work and address any issues you find. Make sure all work is merged back into main and push it to github and production."
+    summary: "Runs last: review the whole branch, fix findings, re-run specs and a smoke test, merge into main, push to GitHub and production, then confirm `/changelog` is not routed on the live site."
+    commits: []
+    media: []
+
+  - id: 7
+    title: "Notification level defaults to error (success messages shown as errors)"
+    status: in_progress
+    priority: 3
+    requested: "2026-11-14"
+    completed: null
+    blocked_by: []
+    request: "Found by the Nix flake agent (#2)"
+    summary: "`Notification` defaults its level to `\"error\"`, so messages like \"Successfully became Player 1\" are shown as errors. Being done together with #4."
+    commits: []
+    media: []
+
+  - id: 8
+    title: "Large boards use the full viewport width on big screens"
+    status: queued
+    priority: 2
+    requested: "2026-11-14"
+    completed: null
+    blocked_by: [3, 4]
+    request: "bigger boards on bigger screens should use the full viewport width to draw the board"
+    summary: "Today the scoreboard and board sit in a fixed-width centered column, and the board scrolls inside its own box while the browser has empty space on both sides. Will be done together with #5."
+    commits: []
+    media: []
+
+  - id: 9
+    title: "Single-device (hot seat) game mode"
+    status: queued
+    priority: 2
+    requested: "2026-11-14"
+    completed: null
+    blocked_by: [3, 4]
+    request: "Add a single device mode when creating a game that assumes both players are on the same device and switches the active player after every move, so play happens continuously on one device without having to switch manually between moves."
+    summary: "An option on the game creation page. The active seat follows whose turn it is (completing a box gives the same player another turn), shown in the #4 status bar."
+    commits: []
+    media: []
+
+  - id: 10
+    title: "Player-change notifications must not block clicking lines"
+    status: in_progress
+    priority: 2
+    requested: "2026-11-14"
+    completed: null
+    blocked_by: [3]
+    request: "In network and single device mode, player change notifications should no longer get in the way of clicking on lines."
+    summary: "Being done together with #4 and #7."
+    commits: []
+    media: []
+
+  - id: 11
+    title: "Redis lock in RedisJsonModel#with_lock doesn't protect concurrent moves"
+    status: queued
+    priority: 3
+    requested: "2026-11-14"
+    completed: null
+    blocked_by: []
+    request: "Found during the Rails upgrade (#3)"
+    summary: "`save` is called on the plain client inside `redis.multi` instead of on the transaction, so the SET runs outside MULTI/EXEC."
+    commits: []
+    media: []
+
+  - id: 12
+    title: "Cleanup leftovers"
+    status: queued
+    priority: 4
+    requested: "2026-11-14"
+    completed: null
+    blocked_by: []
+    request: "Found during the Rails upgrade (#3)"
+    summary: |
+      - Capistrano files (`Capfile`, `config/deploy*`, `lib/capistrano`, `bin/cap`); capistrano isn't in the Gemfile
+      - Dockerfile apt packages `nodejs` and `libsqlite3-dev` are no longer needed
+      - Unused assets `14seg.woff`/`.woff2` and `light.svg`
+      - Dead `PlayGame#reset`, which references an undefined `ts`
+    commits: []
+    media: []

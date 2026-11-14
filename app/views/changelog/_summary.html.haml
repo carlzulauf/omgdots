@@ -1,0 +1,7 @@
+- entry.summary_blocks.each do |kind, content|
+  - if kind == :ul
+    %ul
+      - content.each do |item|
+        %li= changelog_text(item)
+  - else
+    %p= changelog_text(content)

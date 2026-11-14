@@ -1,0 +1,17 @@
+%li{ id: "entry-#{entry.id}" }
+  .num ##{entry.id}
+  .body
+    %h3.entry-title= entry.title
+    .meta
+      %span.badge{ class: entry.status }= entry.status_label
+      %span.prio{ class: "p#{entry.priority}", title: "Priority #{entry.priority} (1 is highest)" } P#{entry.priority}
+      - if entry.requested
+        %span requested #{entry.requested}
+      - if entry.blocked_by.any?
+        %span
+          blocked by
+          = safe_join(entry.blocked_by.map { |id| link_to("##{id}", "#entry-#{id}") }, ", ")
+    - if entry.request.present?
+      %p.request= changelog_text(entry.request)
+    - if entry.summary.present?
+      .note= render "summary", entry: entry

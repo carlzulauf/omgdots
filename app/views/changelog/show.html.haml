@@ -1,0 +1,85 @@
+- queue, done, dropped = @changelog.queue, @changelog.done, @changelog.dropped
+%header.top
+  .eyebrow
+    %span.dots
+      - 6.times do
+        %i
+    omgdots &middot; development only
+  %h1 Changelog
+  %ul.counts
+    - in_progress = queue.count { |e| e.status == "in_progress" }
+    %li
+      %strong= in_progress
+      in progress
+    %li
+      %strong= queue.size - in_progress
+      queued
+    %li
+      %strong= done.size
+      done
+    - if dropped.any?
+      %li
+        %strong= dropped.size
+        dropped
+
+%section
+  %h2 Queue
+  - if queue.empty?
+    %p.empty Nothing queued.
+  - else
+    %ol.queue
+      - queue.each do |entry|
+        = render "queue_item", entry: entry
+
+%section
+  %h2 Done
+  - if done.empty?
+    %p.empty Nothing done yet.
+  .done-list
+    - done.each do |entry|
+      %article.entry{ id: "entry-#{entry.id}" }
+        %header
+          %span.num ##{entry.id}
+          %h3= entry.title
+          - if entry.completed
+            %time{ datetime: entry.completed }= entry.completed
+        - if entry.request.present?
+          %blockquote.ask
+            %span.label Request
+            = changelog_text(entry.request)
+        - if entry.summary.present?
+          .summary= render "summary", entry: entry
+        - if entry.commits.any?
+          %span.label Commits
+          .commits
+            - entry.commits.each do |sha|
+              %code= sha
+        - if entry.media.any?
+          .media
+            - entry.media.each do |m|
+              - url = changelog_media_src(m.file)
+              %figure
+                - if !File.file?(Changelog::MEDIA_DIR.join(File.basename(m.file.to_s)))
+                  .missing Missing media: #{m.file}
+                - elsif m.video?
+                  %video{ src: url, controls: true, muted: true, loop: true, playsinline: true, preload: "metadata" }
+                - else
+                  %a.shot{ href: url, target: "_blank", rel: "noopener" }
+                    %img{ src: url, alt: m.caption.presence || m.file, loading: "lazy" }
+                - if m.caption.present?
+                  %figcaption= m.caption
+
+- if dropped.any?
+  %section
+    %h2 Dropped
+    %details.dropped
+      %summary #{dropped.size} dropped #{"entry".pluralize(dropped.size)}
+      %ol.queue
+        - dropped.each do |entry|
+          = render "queue_item", entry: entry
+
+%footer
+  Source:
+  %code doc/changelog/changelog.yml
+  &middot; how-to in
+  %code doc/changelog/README.md

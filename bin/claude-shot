@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+# Screenshots and recordings of the dev app with headless Chromium.
+# Usage and examples: doc/changelog/README.md (or bin/claude-shot --help).
+# Node is deliberately not part of the app's flake; use the host's node if
+# there is one, otherwise borrow one from nixpkgs.
+script="$(dirname "$0")/../script/claude/shot.mjs"
+if command -v node >/dev/null 2>&1 && node -e 'process.exit(typeof WebSocket === "function" ? 0 : 1)' 2>/dev/null; then
+  exec node "$script" "$@"
+else
+  exec nix shell nixpkgs#nodejs -c node "$script" "$@"
+fi
