@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 # Ruby 4.0 required - matches nixpkgs ruby_4_0
 ruby "~> 4.0"
 
-gem "rails", "7.2.0"
+gem "rails", "~> 8.0.0"
 gem "puma"
 gem "sass-rails", "~> 5.0.7"
 gem "haml"
