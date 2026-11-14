@@ -7,16 +7,10 @@ class GameHtmlPresenter < HtmlPresenter
     end
   end
 
+  # The grid is sized in units of --u (see play.scss), which the stylesheet
+  # scales so the board fits the viewport width when it can.
   def board_div_style
-    <<~HERECSS
-      grid-template-columns: repeat(#{width}, 20px 64px) 20px;
-      grid-template-rows: repeat(#{height}, 20px 64px) 20px;
-      max-width: #{max_width}px;
-    HERECSS
-  end
-
-  def max_width
-    [(84 * width) + 20, 900].min
+    "--board-w: #{width}; --board-h: #{height};"
   end
 
   def board_cell_divs

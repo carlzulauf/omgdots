@@ -15,76 +15,111 @@ $board-color: #000;
 $bg-color: #222;
 $tile-color: #000;
 
+// Space between the viewport edge and the board panel, and between the
+// panel's edge and the outermost dots.
+$page-gutter: 8px;
+$board-pad: 24px;
+$ui-width: 906px; // the scoreboard's and seat bar's outer width
+
 body.play {
-  background-color: $bg-color
+  margin: 0;
+  background-color: $bg-color;
+  // Lets the board size itself against the viewport width (cqw), which,
+  // unlike vw, leaves out a vertical scrollbar.
+  container-type: inline-size;
 }
 
+// Containment on the body stops its background reaching the whole canvas,
+// so paint the root too (it shows past the body when the page scrolls across).
+html:has(> body.play) {
+  background-color: $bg-color;
+}
+
+// The page scrolls, not a box inside it. The container grows to the board's
+// width when the board is wider than the viewport.
 .game-container {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  // display: grid;
-  // grid-template-rows: auto 1fr;
   display: flex;
   flex-direction: column;
-  // height: 100%;
+  width: max-content;
+  min-width: 100%;
+
+  // Seat bar and scoreboard stay a comfortable width, centered in the
+  // viewport, and follow horizontal scrolling across a wide board.
+  .game-ui {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    box-sizing: border-box;
+    width: 100cqw;
+    padding: 0 $page-gutter;
+  }
 
   // Holds the board plus the toasts that float over its top edge.
   .board-area {
-    position: relative;
-    flex-grow: 1;
     display: flex;
     flex-direction: column;
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
+    align-items: center;
+    padding: $page-gutter;
   }
 
+  // A black panel at least as wide as the scoreboard, or as wide as the board.
   .board-container {
+    box-sizing: border-box;
+    width: max-content;
+    min-width: min(#{$ui-width}, 100%);
+    padding: $board-pad;
     background-color: $board-color;
-    max-width: 900px;
-    width: 100%;
-    margin: 0 auto 0 auto;
-    // border-radius: 5px;
-    overflow: auto;
-    flex-grow: 1;
   }
 
+  // Grid lengths are multiples of --u: 1px at full size, scaled down so the
+  // board fits the viewport width, but never below 0.5px (42px between dots).
+  // Past that the page scrolls instead.
   .board {
+    --u: clamp(0.5px,
+               (100cqw - #{2 * ($page-gutter + $board-pad)}) / (84 * var(--board-w) + 20),
+               1px);
     display: grid;
-    // width: 100%;
+    grid-template-columns: repeat(var(--board-w), calc(20 * var(--u)) calc(64 * var(--u))) calc(20 * var(--u));
+    grid-template-rows: repeat(var(--board-h), calc(20 * var(--u)) calc(64 * var(--u))) calc(20 * var(--u));
+    width: max-content;
     margin: 0 auto;
-    padding: 40px 0 40px 0;
 
     .dot {
-      width: 20px;
-      height: 20px;
-      margin: -4px;
+      width: calc(20 * var(--u));
+      height: calc(20 * var(--u));
+      margin: calc(-4 * var(--u));
       z-index: 2;
-      border: 4px solid $dot-color;
-      border-radius: 14px;
+      border: calc(4 * var(--u)) solid $dot-color;
+      border-radius: 50%;
       background-color: $dot-lowlight;
     }
 
     .vline, .hline {
+      position: relative;
+      z-index: 1;
       background-color: $line-color;
     }
 
-    .vline {
-      width: 16px;
-      height: 100%;
-      border-left: 2px solid $line-highlight;
-      border-right: 2px solid $line-lowlight;
+    // Invisible extra thickness, so a scaled-down line is still easy to tap.
+    .vline::after, .hline::after {
+      content: '';
+      position: absolute;
+    }
+    .vline::after { inset: 0 -7px; }
+    .hline::after { inset: -7px 0; }
 
+    .vline {
+      width: calc(16 * var(--u));
+      height: 100%;
+      border-left: calc(2 * var(--u)) solid $line-highlight;
+      border-right: calc(2 * var(--u)) solid $line-lowlight;
     }
 
     .hline {
-      height: 16px;
+      height: calc(16 * var(--u));
       width: 100%;
-      border-top: 2px solid $line-highlight;
-      border-bottom: 2px solid $line-lowlight;
+      border-top: calc(2 * var(--u)) solid $line-highlight;
+      border-bottom: calc(2 * var(--u)) solid $line-lowlight;
     }
 
     .hline:hover, .vline:hover {
@@ -111,7 +146,7 @@ body.play {
         color: white;
         text-shadow: -2px -2px 1px rgba(0,0,0,0.7), 2px  2px 1px rgba(0,0,0,0.7),
                      -2px  2px 1px rgba(0,0,0,0.7), 2px -2px 1px rgba(0,0,0,0.7);
-        font-size: 335%;
+        font-size: calc(54 * var(--u));
         display: flex;
         justify-content: center;
       }
@@ -123,13 +158,18 @@ body.play {
   }
 
   // Toasts float over the top of the board without moving it, and let
-  // clicks fall through to the lines underneath.
+  // clicks fall through to the lines underneath. Sticky, so they stay in
+  // view while the page is scrolled down or across a big board.
   .notifications {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    right: 8px;
+    position: sticky;
+    top: 0;
+    left: $page-gutter;
     z-index: 4;
+    align-self: flex-start;
+    box-sizing: border-box;
+    width: calc(100cqw - #{2 * $page-gutter});
+    height: 0;
+    padding: 0 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -138,6 +178,7 @@ body.play {
 
     .notification {
       --toast-color: #{$info-color};
+      flex: none;
       display: flex;
       align-items: center;
       gap: 9px;
@@ -156,6 +197,7 @@ body.play {
       transform: translateY(-6px);
       transition: opacity 0.3s ease, transform 0.3s ease;
       &.in { opacity: 1; transform: none; }
+      &:first-child { margin-top: 8px; }
 
       &.success { --toast-color: #{$success-color}; }
       &.info    { --toast-color: #{$info-color}; }
@@ -181,12 +223,12 @@ body.play {
 
 .page-overlay {
   background: rgba(255,255,255,0.4);
-  position: absolute;
+  position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 2;
+  z-index: 5;
   display: none;
   &.in { display: flex; }
 
