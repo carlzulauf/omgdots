@@ -46,10 +46,12 @@ RSpec.describe "Games", type: :request do
     expect(page.css(".name.editable")).to be_empty
   end
 
-  it "shows the share button, seat buttons and share popover on a network game" do
+  it "shows the back, share and seat buttons above the scoreboard on a network game" do
     get "/games/#{id}"
     expect(page.css(".game-menu .menu-button").map { |b| b["aria-label"] || b.text.strip })
-      .to eq(["Share", "Player 1", "Player 2", "Spectator"])
+      .to eq(["Back to home", "Share", "Player 1", "Player 2", "Spectator"])
+    expect(page.at_css(".game-menu .back-button")["href"]).to eq("/")
+    expect(page.css(".game-ui > *").map { |e| e["class"] }.first(2)).to eq(["game-menu", "scoreboard"])
     expect(seat_buttons.values).to all(include(disabled: "false"))
     expect(seat_buttons[0][:pressed]).to eq("true")
     popover = page.at_css(".share-popover[popover]")

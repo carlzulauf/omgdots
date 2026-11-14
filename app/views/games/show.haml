@@ -4,25 +4,10 @@
 
 .game-container{ id: "game-#{@game.id}"}
   .game-ui
-    .scoreboard
-      - @game.players.each do |player|
-        %div{class: player.div_class}
-          .turn-indicator{class: player.indicator_class(@game)}= render "indicator"
-          .logo= player.number
-          - editable = uid.present? && player.owner == uid
-          .name{ class: ("editable" if editable) }
-            %span.name-text{ editable ? { tabindex: 0, role: "button", title: "Click to rename" } : {} }= player.name
-            %input.name-input{ type: "text", maxlength: 24, hidden: true,
-              "aria-label": "Player #{player.number}'s name" }
-          .score-led
-            .score= @game.score(player.number)
-      .progress
-        .light-track
-          - @game.light_track_on.times do
-            .scoreboard-light.on.flicker= render "light"
-          - @game.light_track_off.times do
-            .scoreboard-light= render "light"
     .game-menu
+      = link_to root_path, class: "menu-button back-button", "aria-label": "Back to home", title: "Back to home" do
+        %svg.menu-icon{ viewBox: "0 0 16 16", "aria-hidden": "true" }
+          %path{ d: "M13.5 8H2.5M6.5 4 2.5 8l4 4" }
       %button.menu-button.share-button{ type: "button", popovertarget: share_id, "aria-haspopup": "dialog" }
         %svg.menu-icon{ viewBox: "0 0 16 16", "aria-hidden": "true" }
           %path{ d: "M8 10.5V2M5 4.8 8 1.8l3 3M4.5 7H3.5v7h9V7h-1" }
@@ -45,6 +30,24 @@
           %input.share-url{ type: "text", readonly: true, value: request.original_url,
             "aria-label": "Link to this game" }
           %button.share-copy{ type: "button" } Copy
+    .scoreboard
+      - @game.players.each do |player|
+        %div{class: player.div_class}
+          .turn-indicator{class: player.indicator_class(@game)}= render "indicator"
+          .logo= player.number
+          - editable = uid.present? && player.owner == uid
+          .name{ class: ("editable" if editable) }
+            %span.name-text{ editable ? { tabindex: 0, role: "button", title: "Click to rename" } : {} }= player.name
+            %input.name-input{ type: "text", maxlength: 24, hidden: true,
+              "aria-label": "Player #{player.number}'s name" }
+          .score-led
+            .score= @game.score(player.number)
+      .progress
+        .light-track
+          - @game.light_track_on.times do
+            .scoreboard-light.on.flicker= render "light"
+          - @game.light_track_off.times do
+            .scoreboard-light= render "light"
   .board-area
     .notifications{ "aria-live": "polite" }
     = @game.board_div

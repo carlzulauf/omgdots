@@ -1,17 +1,19 @@
 @use "palette" as *;
 
-// The quiet row of buttons between the scoreboard and the board: Share, then
-// the seat buttons. Four equal columns, as wide as the scoreboard.
+$menu-height: 28px;
+
+// The quiet row of buttons above the scoreboard, as wide as it: a square
+// back button, then Share and the seat buttons in four equal columns.
 .game-menu {
   box-sizing: border-box;
   max-width: $ui-width;
   margin: 8px auto 0 auto;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: $menu-height repeat(4, minmax(0, 1fr));
   gap: 6px;
 
   .seat-buttons {
-    grid-column: 2 / -1;
+    grid-column: 3 / -1;
     display: grid;
     grid-template-columns: subgrid;
   }
@@ -20,8 +22,9 @@
 .menu-button {
   --accent: #{$spectator-accent};
 
+  box-sizing: border-box;
   min-width: 0;
-  height: 28px;
+  height: $menu-height;
   padding: 0 8px;
   display: flex;
   align-items: center;
@@ -50,6 +53,13 @@
     stroke-linecap: round;
     stroke-linejoin: round;
   }
+}
+
+// A link styled as a button: the arrow back to the home page.
+.back-button {
+  padding: 0;
+  text-decoration: none;
+  .menu-icon { width: 15px; height: 15px; }
 }
 
 .seat-button {

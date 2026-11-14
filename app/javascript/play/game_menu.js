@@ -1,6 +1,6 @@
 const EDGE = 8 // closest the share popover gets to the viewport edge
 
-// The row of buttons between the scoreboard and the board: Share, which
+// The row of buttons above the scoreboard: a link back home, Share, which
 // opens a popover with the game's link, and the three seat buttons.
 export default class GameMenu {
   constructor(game) {
