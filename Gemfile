@@ -11,7 +11,6 @@ gem "dartsass-rails"
 gem "haml"
 gem "redis"
 gem "redis-namespace"
-gem "benchmark"
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
@@ -27,5 +26,4 @@ end
 
 group :development do
   gem 'web-console'
-  gem 'listen', '~> 3.5'
 end
