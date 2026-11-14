@@ -114,6 +114,25 @@ RSpec.describe RedisJsonModel do
         end
       end
 
+      describe "expiry" do
+        let(:ttl) { RedisJsonModel::TTL.to_i }
+
+        it "sets the TTL on save" do
+          new_connection.persist(key)
+          game.save
+
+          expect(new_connection.ttl(key)).to be_within(5).of(ttl)
+        end
+
+        it "refreshes the TTL on every update inside the transaction" do
+          new_connection.expire(key, 60)
+          DotsGame.for_update(game_id) { |g| g.move(x: 1, y: 0) }
+
+          expect(new_connection.ttl(key)).to be_within(5).of(ttl)
+          expect(closed?(1, 0)).to be true
+        end
+      end
+
       describe "#with_lock" do
         it "writes nothing when the block returns false" do
           before = game.updated_at

@@ -9,6 +9,10 @@ module RedisJsonModel
   # concurrent write invalidates the WATCH before giving up.
   LOCK_ATTEMPTS = 5
 
+  # Records expire this long after their last save. Visiting any URL under
+  # /games creates a game, so abandoned ones must not pile up forever.
+  TTL = 30.days
+
   extend ActiveSupport::Concern
   include JsonObject
 
@@ -35,7 +39,7 @@ module RedisJsonModel
 
   def save
     stamp_for_save
-    redis.set(key, to_json)
+    redis.set(key, to_json, ex: TTL.to_i)
   end
 
   # Optimistic read-modify-write. Each attempt WATCHes the key, reloads the
@@ -55,7 +59,7 @@ module RedisJsonModel
           stamp_for_save
           json = to_json
           # nil when EXEC aborted because the watched key changed.
-          redis.multi { |tx| tx.set(key, json) } ? :saved : :conflict
+          redis.multi { |tx| tx.set(key, json, ex: TTL.to_i) } ? :saved : :conflict
         else
           redis.unwatch
           :declined
