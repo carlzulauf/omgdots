@@ -200,10 +200,6 @@ entries:
     blocked_by: []
     request: "Found during the Rails upgrade (#3)"
     summary: "- Removed Capistrano (Capfile, config/deploy*, lib/capistrano, bin/cap) and the old VM deploy docs (install log, nginx.conf, puma.service).\n- Dockerfile no longer apt-installs nodejs, libsqlite3-dev or rsync; the image builds, precompiles and serves `/up` and `/` without Node.\n- Removed unused assets (14seg fonts, light.svg), the dead `PlayGame#reset`, mailer layouts, comment-only initializers and the empty Sprockets vendor dir.\n- README Deployment section updated: the Dockerfile is the only deploy path; `RAILS_ENV` and `SECRET_KEY_BASE` must be set in the container environment."
-      - Capistrano files (`Capfile`, `config/deploy*`, `lib/capistrano`, `bin/cap`); capistrano isn't in the Gemfile
-      - Dockerfile apt packages `nodejs` and `libsqlite3-dev` are no longer needed
-      - Unused assets `14seg.woff`/`.woff2` and `light.svg`
-      - Dead `PlayGame#reset`, which references an undefined `ts`
     commits: [145466d]
     media: []
 
