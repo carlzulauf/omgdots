@@ -61,8 +61,8 @@ describe DotsGamePlayer do
 
     context "when owned but timeout expired" do
       before do
-        # Set a fixed past time that's definitely beyond 1-minute timeout
-        @test_time = Time.now - 2.minutes
+        # Set a fixed past time that's definitely beyond the timeout
+        @test_time = Time.now - DotsGamePlayer::TIMEOUT - 1.second
       end
 
       let(:player) do
@@ -79,7 +79,7 @@ describe DotsGamePlayer do
     context "when owned within timeout" do
       let(:player) do
         p = DotsGamePlayer.new(number: 1, owner: "original_owner")
-        # Set last_seen to recent time (within 1-minute timeout)
+        # Set last_seen to recent time (within the timeout)
         p.last_seen_at = Time.now - 30.seconds
         p
       end
@@ -142,11 +142,11 @@ describe DotsGamePlayer do
 
   context "timeout behavior" do
     before do
-      @test_time = Time.now - 2.minutes # Past timeout
+      @test_time = Time.now - DotsGamePlayer::TIMEOUT - 1.second # Past timeout
     end
 
     let(:player) do
-      # Create player with owner that expired 2 minutes ago
+      # Create player with owner whose timeout has expired
       p = DotsGamePlayer.new(number: 1, owner: "original", last_seen_at: @test_time)
       p
     end
@@ -167,6 +167,67 @@ describe DotsGamePlayer do
       
       # just verify it was updated to a recent time
       expect(player.last_seen_at).to be >= before_time
+    end
+  end
+
+  describe "presence" do
+    let(:player) { DotsGamePlayer.new(number: 1, owner: "alice", last_seen_at: 1.hour.ago) }
+
+    it "is not away by default" do
+      expect(DotsGamePlayer.build(1).away).to be false
+    end
+
+    it "#seen! refreshes last_seen_at so the seat stays reserved" do
+      player.seen!
+
+      expect(player.last_seen_at).to be_within(1.second).of(Time.now)
+      expect(player.can_be_owned_by?("bob")).to be false
+    end
+
+    it "#left! keeps the owner, marks them away and starts the takeover window" do
+      player.left!
+
+      expect(player.owner).to eq("alice")
+      expect(player.away).to be true
+      expect(player.can_be_owned_by?("bob")).to be false
+    end
+
+    it "frees the seat once the owner has been quiet for longer than TIMEOUT" do
+      player.last_seen_at = (DotsGamePlayer::TIMEOUT + 1.second).ago
+      expect(player.can_be_owned_by?("bob")).to be true
+
+      player.last_seen_at = (DotsGamePlayer::TIMEOUT - 5.seconds).ago
+      expect(player.can_be_owned_by?("bob")).to be false
+    end
+
+    it "#seen! clears away" do
+      player.left!
+      player.seen!
+
+      expect(player.away).to be false
+    end
+
+    it "heartbeats several times within the takeover window" do
+      expect(DotsGamePlayer::TIMEOUT / DotsGamePlayer::HEARTBEAT).to be >= 3
+    end
+
+    it "treats an owned seat with no last_seen_at as free" do
+      player.last_seen_at = nil
+
+      expect(player.can_be_owned_by?("bob")).to be true
+    end
+
+    it "#release clears the owner" do
+      player.left!
+      player.release
+
+      expect(player.owner).to be_nil
+      expect(player.away).to be false
+    end
+
+    it "#owned_by? ignores blank owners" do
+      expect(DotsGamePlayer.build(1).owned_by?(nil)).to be false
+      expect(player.owned_by?("alice")).to be true
     end
   end
 end

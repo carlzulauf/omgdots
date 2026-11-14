@@ -18,6 +18,34 @@ RSpec.describe PlayGameChannel, type: :channel do
     notifications_to(notification_key).last
   end
 
+  def game
+    DotsGame.find(game_id)
+  end
+
+  def game_broadcasts
+    broadcasts(PlayGameChannel.broadcasting_for("game:#{game_id}"))
+      .map { |raw| JSON.parse(raw) }
+      .select { |message| message["type"] == "game" }
+  end
+
+  def give_seat(number, owner, last_seen_at: Time.now)
+    DotsGame.for_update(game_id) do |g|
+      g.get_player(number).own(owner)
+      g.get_player(number).last_seen_at = last_seen_at
+    end
+  end
+
+  def long_ago
+    (DotsGamePlayer::TIMEOUT * 5).ago
+  end
+
+  # A second app server: its own Redis connection.
+  def other_connection
+    client = Redis.new(url: ENV["REDIS_URL"])
+    ns = ENV["REDIS_NAMESPACE"]
+    ns.present? ? Redis::Namespace.new(ns, redis: client) : client
+  end
+
   it "streams the game and the owner's notifications" do
     expect(subscription).to be_confirmed
     expect(subscription).to have_stream_from(PlayGameChannel.broadcasting_for("game:#{game_id}"))
@@ -43,6 +71,161 @@ RSpec.describe PlayGameChannel, type: :channel do
       perform :select_player, number: 2
 
       expect(last_notification).to include("level" => "error", "message" => "Player 2 is already owned by someone else")
+    end
+
+    it "keeps the current seat when the requested one is taken" do
+      perform :select_player, number: 1
+      give_seat(2, "bob")
+
+      perform :select_player, number: 2
+
+      expect(game.player_1.owner).to eq("alice")
+      expect(game.player_2.owner).to eq("bob")
+      expect(last_notification).to include("level" => "error", "message" => "Player 2 is already owned by someone else")
+    end
+
+    it "moves to a free seat, giving up the old one" do
+      perform :select_player, number: 1
+      perform :select_player, number: 2
+
+      expect(game.players.map(&:owner)).to eq([nil, "alice"])
+    end
+
+    it "gives up the seat when becoming a spectator" do
+      perform :select_player, number: 1
+      perform :select_player, number: 0
+
+      expect(game.players.map(&:owner)).to eq([nil, nil])
+    end
+
+    it "takes over a seat whose owner has been quiet for longer than the timeout" do
+      give_seat(2, "bob", last_seen_at: (DotsGamePlayer::TIMEOUT + 1.second).ago)
+
+      perform :select_player, number: 2
+
+      expect(game.player_2.owner).to eq("alice")
+      expect(last_notification).to include("level" => "success")
+    end
+
+    it "sends only the outcome of the attempt that saved when the update retries" do
+      first = true
+      allow(DotsGame).to receive(:for_update).and_wrap_original do |original, id, &block|
+        original.call(id) do |g|
+          if first
+            # Another server takes seat 2 after this attempt read the game.
+            first = false
+            other = DotsGame.find(id)
+            other.get_player(2).own("bob")
+            other_connection.set(other.key, other.to_json)
+          end
+          block.call(g)
+        end
+      end
+
+      perform :select_player, number: 2
+
+      expect(game.player_2.owner).to eq("bob")
+      expect(notifications_to(notification_key).map { |n| n["level"] }).to eq(%w[error])
+    end
+  end
+
+  describe "seat presence" do
+    it "runs the heartbeat on a periodic timer, well inside the takeover window" do
+      callback, options = described_class.periodic_timers.sole
+      expect(options[:every]).to eq(DotsGamePlayer::HEARTBEAT)
+      expect(DotsGamePlayer::HEARTBEAT * 3).to be <= DotsGamePlayer::TIMEOUT
+
+      give_seat(1, "alice", last_seen_at: long_ago)
+      subscription.instance_exec(&callback)
+
+      expect(game.player_1.last_seen_at).to be_within(2.seconds).of(Time.now)
+    end
+
+    it "refreshes the owner's seat on subscribe and clears away" do
+      DotsGame.for_update(game_id) do |g|
+        g.get_player(1).own("alice")
+        g.get_player(1).left!
+        g.get_player(1).last_seen_at = long_ago
+      end
+
+      subscribe(id: game_id, user: "alice")
+
+      expect(game.player_1.last_seen_at).to be_within(2.seconds).of(Time.now)
+      expect(game.player_1.away).to be false
+    end
+
+    it "refreshes the owner's seat on every action" do
+      give_seat(2, "alice", last_seen_at: long_ago)
+
+      perform :move, x: 1, y: 0 # refused: not alice's turn, but she is here
+
+      expect(game.player_2.last_seen_at).to be_within(2.seconds).of(Time.now)
+    end
+
+    it "refreshes on heartbeat without broadcasting the game" do
+      give_seat(1, "alice", last_seen_at: long_ago)
+
+      expect { perform :heartbeat }.not_to change { game_broadcasts.size }
+      expect(game.player_1.last_seen_at).to be_within(2.seconds).of(Time.now)
+    end
+
+    it "writes nothing on heartbeat for a spectator" do
+      expect { perform :heartbeat }.not_to change { game.updated_at }
+    end
+
+    it "keeps a seat claimed long ago while its owner stays connected" do
+      give_seat(2, "bob", last_seen_at: long_ago)
+      subscribe(id: game_id, user: "bob")
+      perform :heartbeat
+
+      subscribe(id: game_id, user: "alice")
+      perform :select_player, number: 2
+
+      expect(game.player_2.owner).to eq("bob")
+      expect(last_notification).to include("level" => "error")
+    end
+
+    it "marks the seat away on unsubscribe but keeps it reserved" do
+      perform :select_player, number: 1
+
+      expect { unsubscribe }.to change { game_broadcasts.size }.by(1)
+      expect(game.player_1.owner).to eq("alice")
+      expect(game.player_1.away).to be true
+
+      subscribe(id: game_id, user: "bob")
+      perform :select_player, number: 1
+      expect(game.player_1.owner).to eq("alice")
+    end
+  end
+
+  describe "notifications" do
+    # Two actions on one connection, interleaved so that both finish their
+    # game update before either sends its toast.
+    it "delivers each concurrent action's own toast" do
+      give_seat(1, "bob")
+      give_seat(2, "alice")
+      barrier = Concurrent::CyclicBarrier.new(2)
+      allow(subscription).to receive(:broadcast).and_wrap_original do |original, obj|
+        barrier.wait(5) if obj.is_a?(DotsGame)
+        original.call(obj)
+      end
+
+      threads = [
+        Thread.new { perform :move, x: 1, y: 0 },         # bob's turn: warning
+        Thread.new { perform :select_player, number: 1 }  # bob's seat: error
+      ]
+      threads.each { |t| expect(t.join(10)).to be_truthy }
+
+      levels = notifications_to(notification_key).map { |n| n["level"] }
+      expect(levels).to contain_exactly("warning", "error")
+    end
+
+    it "sends an error toast when the update keeps conflicting" do
+      allow(DotsGame).to receive(:for_update).and_raise(RedisJsonModel::ConflictError)
+
+      perform :move, x: 1, y: 0
+
+      expect(last_notification).to include("level" => "error", "message" => /too busy/)
     end
   end
 
@@ -72,10 +255,6 @@ RSpec.describe PlayGameChannel, type: :channel do
         game.player = 1
         game.claim_device("alice")
       end
-    end
-
-    def game
-      DotsGame.find(game_id)
     end
 
     it "moves for whichever player's turn it is, keeping the turn after a box" do
@@ -116,6 +295,21 @@ RSpec.describe PlayGameChannel, type: :channel do
       expect(game).to be_single_device
       expect(game.players.map(&:owner)).to eq(%w[alice alice])
       expect(game.board.get(1, 0)).to eq(DotsGameBoard::HLINE_OPEN)
+    end
+
+    it "keeps both seats fresh on heartbeat" do
+      DotsGame.for_update(game_id) { |g| g.players.each { |p| p.last_seen_at = long_ago } }
+
+      perform :heartbeat
+
+      expect(game.players.map(&:last_seen_at)).to all(be_within(2.seconds).of(Time.now))
+    end
+
+    it "keeps both seats when the device disconnects" do
+      unsubscribe
+
+      expect(game.players.map(&:owner)).to eq(%w[alice alice])
+      expect(game.players.map(&:away)).to eq([true, true])
     end
 
     context "watched from another session" do

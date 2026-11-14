@@ -42,8 +42,13 @@ class DotsGame
     DotsGamePlayer.build(num)
   end
 
+  # The seats `owner` holds: none, one, or both in a single-device game.
+  def seats_of(owner)
+    players.select { |p| p.owned_by?(owner) }
+  end
+
   def find_player(owner)
-    [player_1, player_2].detect { |p| p.owner == owner }
+    seats_of(owner).first
   end
 
   # The seat `owner` plays from right now. A device holding both seats (a
