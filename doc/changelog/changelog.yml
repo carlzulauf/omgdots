@@ -107,15 +107,17 @@ entries:
 
   - id: 6
     title: "Final review, fixes, merge to main, push to GitHub + production"
-    status: in_progress
+    status: done
     priority: 9
     requested: "2026-11-13"
-    completed: null
+    completed: "2026-11-14"
     blocked_by: [1, 2, 3, 4, 5]
     request: "Once all of the work is complete, review the work and address any issues you find. Make sure all work is merged back into main and push it to github and production."
-    summary: "Runs last: review the whole branch, fix findings, re-run specs and a smoke test, merge into main, push to GitHub and production, then confirm `/changelog` is not routed on the live site."
-    commits: []
-    media: []
+    summary: "- A full review of origin/main..claude/changes found no gameplay regressions; its findings were fixed in #17, and #18 followed user feedback.\n- Checked production first: dokku sets `RAILS_ENV=production` globally, Redis is 7.2.16, and the live cable accepts the site's own origin.\n- Fast-forwarded `main` to a0bb41c (44 commits) and pushed to GitHub and to dokku. Production now runs Rails 8.1.4.1 on Ruby 4.0.9.\n- Live checks: `/up`, `/` and the assets return 200; `/changelog` and `/tests` return 404; a game id with a dot loads; two browsers took seats and saw each other's lines."
+    commits: [a0bb41c]
+    media:
+      - file: "006-production-two-players.png"
+        caption: "Production after the deploy: two browsers seated as Player 1 and Player 2, each seeing the other's lines"
 
   - id: 7
     title: "Notification level defaults to error (success messages shown as errors)"
@@ -292,3 +294,15 @@ entries:
         caption: "On a phone the back arrow, Share, P1, P2 and Watch fit on one row"
       - file: "018-share.png"
         caption: "The Share popover opens below the Share button, over the scoreboard"
+
+  - id: 19
+    title: "Player names still truncate at mid-size widths"
+    status: queued
+    priority: 3
+    requested: "2026-11-14"
+    completed: null
+    blocked_by: []
+    request: "Found in the production check (#6)"
+    summary: "At a 640px-wide window both scoreboard names show as \"Play…\" (the pencil icon and score columns squeeze them). #15 fixed this at 375px but not in between."
+    commits: []
+    media: []
