@@ -277,12 +277,18 @@ entries:
 
   - id: 18
     title: "Move the button row above the scoreboard and add a way back"
-    status: in_progress
+    status: done
     priority: 1
     requested: "2026-11-14"
-    completed: null
+    completed: "2026-11-14"
     blocked_by: [17]
     request: "Also, I notice the buttons are under the scoreboard when I asked for them to be above, and there is no exit button. There needs to be a way to navigate back."
-    summary: "Fix to #15: the Share / Player 1 / Player 2 / Spectator row goes at the top of the page, above the scoreboard, with a compact back/home button at its left end."
-    commits: []
-    media: []
+    summary: "- The Share / Player 1 / Player 2 / Spectator row now sits at the top of the page, above the scoreboard, in the same quiet style; it stays in view when scrolling sideways across a wide board.\n- A square ← back button at the left end of the row links home. On phones everything fits one row (←, Share, P1, P2, Watch).\n- The Share popover opens below the Share button, over the scoreboard, and stays on screen.\n- Verified that players' old Rails 7.2 session cookies still connect to the live game channel with the same identity (regression spec added)."
+    commits: [77e36b2, bd000c8]
+    media:
+      - file: "018-after.png"
+        caption: "The button row above the scoreboard, seated as Player 1, with the back arrow"
+      - file: "018-mobile.png"
+        caption: "On a phone the back arrow, Share, P1, P2 and Watch fit on one row"
+      - file: "018-share.png"
+        caption: "The Share popover opens below the Share button, over the scoreboard"
