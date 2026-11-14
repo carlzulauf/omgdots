@@ -1,36 +1,19 @@
 - set_body_class "play"
-- seat = @game.seat_number_for(session[:uid])
-- seat_player = @game.get_player(seat)
+- uid = session[:uid]
+- share_id = "share-#{@game.id}"
 
 .game-container{ id: "game-#{@game.id}"}
   .game-ui
-    .seat-bar{ class: ["seat-#{seat}", ("single-device" if @game.single_device?)] }
-      .seat-status
-        .seat-led{ "aria-hidden": "true" }
-          .seat-digit= seat.zero? ? "--" : seat
-        .seat-text
-          %span.seat-label= @game.seat_label_for(session[:uid])
-          %span.seat-sep{ "aria-hidden": "true" } ·
-          %input.name-input{ type: "text", maxlength: 24, placeholder: "Your name",
-            "aria-label": "Your player name", value: seat_player&.name, hidden: seat.zero? }
-          %span.seat-hint= @game.seat_hint
-      .seat-controls
-        .seat-switch{ role: "group", "aria-label": "Choose your seat" }
-          - [[1, "Player 1"], [2, "Player 2"], [0, "Spectate"]].each do |number, label|
-            %button.seat-option{ type: "button", class: "seat-option-#{number}",
-              data: { number: number }, "aria-pressed": (number == seat).to_s }= label
-        = link_to "Exit", root_path, class: "exit-link"
-      .share
-        %label.share-label{ for: "share-url-#{@game.id}" } Share
-        %input.share-url{ id: "share-url-#{@game.id}", type: "text", readonly: true,
-          value: request.original_url, "aria-label": "Link to this game" }
-        %button.share-copy{ type: "button" } Copy
     .scoreboard
       - @game.players.each do |player|
         %div{class: player.div_class}
           .turn-indicator{class: player.indicator_class(@game)}= render "indicator"
           .logo= player.number
-          .name= player.name
+          - editable = uid.present? && player.owner == uid
+          .name{ class: ("editable" if editable) }
+            %span.name-text{ editable ? { tabindex: 0, role: "button", title: "Click to rename" } : {} }= player.name
+            %input.name-input{ type: "text", maxlength: 24, hidden: true,
+              "aria-label": "Player #{player.number}'s name" }
           .score-led
             .score= @game.score(player.number)
       .progress
@@ -39,6 +22,29 @@
             .scoreboard-light.on.flicker= render "light"
           - @game.light_track_off.times do
             .scoreboard-light= render "light"
+    .game-menu
+      %button.menu-button.share-button{ type: "button", popovertarget: share_id, "aria-haspopup": "dialog" }
+        %svg.menu-icon{ viewBox: "0 0 16 16", "aria-hidden": "true" }
+          %path{ d: "M8 10.5V2M5 4.8 8 1.8l3 3M4.5 7H3.5v7h9V7h-1" }
+        %span Share
+      .seat-buttons{ role: "group", "aria-label": "Choose your seat" }
+        - GameHtmlPresenter::SEAT_BUTTONS.each do |number, label, short|
+          - state = @game.seat_button_state(number, uid)
+          %button.menu-button.seat-button{ type: "button", class: "seat-button-#{number}",
+            data: { number: number }, "aria-label": label, title: state[:title],
+            "aria-pressed": state[:pressed].to_s, "aria-disabled": state[:disabled].to_s }
+            %span.lamp{ "aria-hidden": "true" }
+            %span.label-long{ "aria-hidden": "true" }= label
+            %span.label-short{ "aria-hidden": "true" }= short
+      .share-popover{ id: share_id, popover: "auto", role: "dialog", "aria-labelledby": "#{share_id}-title" }
+        .share-head
+          %span.share-title{ id: "#{share_id}-title" } Share this game
+          %button.share-close{ type: "button", popovertarget: share_id, popovertargetaction: "hide",
+            "aria-label": "Close" } ×
+        .share-row
+          %input.share-url{ type: "text", readonly: true, value: request.original_url,
+            "aria-label": "Link to this game" }
+          %button.share-copy{ type: "button" } Copy
   .board-area
     .notifications{ "aria-live": "polite" }
     = @game.board_div

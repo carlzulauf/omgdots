@@ -1,14 +1,23 @@
 // Shrink the scoreboard so it fits a phone-width screen without overflowing.
 @media (max-width: 560px) {
   .scoreboard {
-    .player1 { grid-template-columns: 22px 1fr 1fr; }
-    .player2 { grid-template-columns: 1fr 1fr 22px; }
+    // The name spans the logo and score columns, so it has room to show.
+    .player1 {
+      grid-template-areas: "turn-indicator pname pname"
+                           "turn-indicator logo  score";
+      grid-template-columns: 22px 1fr 1fr;
+    }
+    .player2 {
+      grid-template-areas: "pname pname turn-indicator"
+                           "score logo  turn-indicator";
+      grid-template-columns: 1fr 1fr 22px;
+    }
     .turn-indicator svg { height: 34px; }
     .logo { font-size: 240%; }
     .name { font-size: 110%; }
 
     .score-led {
-      margin: 12px 4px 0;
+      margin: 4px 4px 0;
       font-size: 40px;
     }
 

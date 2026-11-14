@@ -1,0 +1,184 @@
+@use "palette" as *;
+
+// The quiet row of buttons between the scoreboard and the board: Share, then
+// the seat buttons. Four equal columns, as wide as the scoreboard.
+.game-menu {
+  box-sizing: border-box;
+  max-width: $ui-width;
+  margin: 8px auto 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+
+  .seat-buttons {
+    grid-column: 2 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+  }
+}
+
+.menu-button {
+  --accent: #{$spectator-accent};
+
+  min-width: 0;
+  height: 28px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-family: inherit;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: #8c8c8c;
+  background-color: transparent;
+  border: 1px solid #343434;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover { color: #d0d0d0; background-color: #292929; border-color: #484848; }
+  &:focus-visible { outline: 1px solid #9a9a9a; outline-offset: 1px; }
+
+  .menu-icon {
+    flex: none;
+    width: 13px;
+    height: 13px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
+.seat-button {
+  &.seat-button-1 { --accent: #{$player1-accent}; }
+  &.seat-button-2 { --accent: #{$player2-accent}; }
+
+  // A small lamp, lit in the seat's color when selected.
+  .lamp {
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: #3c3c3c;
+  }
+
+  .label-short { display: none; }
+
+  &[aria-pressed="true"] {
+    color: #e2e2e2;
+    background-color: color-mix(in srgb, var(--accent) 7%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 40%, #2a2a2a);
+    cursor: default;
+    .lamp {
+      background-color: var(--accent);
+      box-shadow: 0 0 5px 1px color-mix(in srgb, var(--accent) 60%, transparent);
+    }
+  }
+
+  // Single-device games: the seats can't be picked, but the lamp still shows
+  // which one is playing.
+  &[aria-disabled="true"] {
+    cursor: default;
+    &:not([aria-pressed="true"]) {
+      color: #5e5e5e;
+      border-color: #2c2c2c;
+      background-color: transparent;
+    }
+    &[aria-pressed="true"]:hover {
+      background-color: color-mix(in srgb, var(--accent) 7%, transparent);
+    }
+  }
+}
+
+// Anchored under the Share button by GameMenu#placePopover.
+.share-popover {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  box-sizing: border-box;
+  width: min(400px, calc(100vw - 16px));
+  padding: 10px 12px 12px;
+  color: #ddd;
+  font-size: 14px;
+  background-color: #111;
+  border: 1px solid #444;
+  border-radius: 6px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
+
+  .share-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .share-title {
+    color: #999;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .share-close {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    font-size: 18px;
+    line-height: 1;
+    color: #888;
+    background: none;
+    border: 0;
+    border-radius: 4px;
+    cursor: pointer;
+    &:hover { color: #eee; background-color: #2a2a2a; }
+    &:focus-visible { outline: 1px solid #9a9a9a; }
+  }
+
+  .share-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .share-url {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 5px 8px;
+    font-family: "Ubuntu Mono", ui-monospace, monospace;
+    font-size: 14px;
+    color: #9fd8b4;
+    background-color: #000;
+    border: 1px solid #333;
+    border-radius: 4px;
+    &:focus { outline: 1px solid $scoreboard-green; outline-offset: 1px; }
+  }
+
+  .share-copy {
+    flex: none;
+    min-width: 5.5em;
+    padding: 5px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    color: white;
+    background-color: $scoreboard-green;
+    border: 1px solid #1d9a5e;
+    border-radius: 4px;
+    cursor: pointer;
+    &:hover { background-color: #008a49; }
+    &:focus-visible { outline: 1px solid white; outline-offset: 1px; }
+    &.copied { background-color: #0a9a55; }
+  }
+}
+
+@media (max-width: 420px) {
+  .game-menu { gap: 4px; }
+  .menu-button { padding: 0 4px; gap: 5px; font-size: 12px; }
+  .seat-button {
+    .label-long { display: none; }
+    .label-short { display: inline; }
+  }
+  // 16px keeps iOS from zooming in when the field takes focus.
+  .share-popover .share-url { font-size: 16px; }
+}

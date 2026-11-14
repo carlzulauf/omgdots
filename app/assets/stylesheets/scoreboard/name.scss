@@ -1,13 +1,64 @@
 .scoreboard {
   .name {
     grid-area: pname;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 0.25em;
     color: white;
     font-size: 160%;
-    text-align: center;
     margin: 5px 5px 0px 5px;
     text-shadow: 0px 0px 2px rgba(0,0,0,0.6);
+  }
+
+  .name-text {
+    min-width: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  // A name this device may change: a faint dotted underline, and a pencil
+  // on hover or focus (always shown faintly on touch screens).
+  .name.editable {
+    .name-text {
+      cursor: text;
+      text-decoration: underline dotted rgba(255, 255, 255, 0.4);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.2em;
+      border-radius: 3px;
+      &:focus-visible { outline: 1px solid rgba(255, 255, 255, 0.7); outline-offset: 2px; }
+    }
+
+    // ::before is an invisible twin of the pencil that keeps the name centered.
+    &::before, &::after {
+      content: '✎';
+      flex: none;
+      font-size: 0.65em;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+    &::before { visibility: hidden; }
+    &:hover::after, &:focus-within::after { opacity: 0.7; }
+    @media (hover: none) { &::after { opacity: 0.45; } }
+
+    &.editing::before, &.editing::after { display: none; }
+  }
+
+  .name-input {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    padding: 0 4px;
+    font: inherit;
+    color: white;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+    margin-bottom: -1px; // keep the scoreboard from growing by the border
+    border-radius: 3px 3px 0 0;
+    &:focus { outline: none; background-color: rgba(0, 0, 0, 0.4); }
   }
 }

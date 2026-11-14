@@ -1,6 +1,6 @@
 @use "palette" as *;
 @use "scoreboard";
-@use "seat_bar";
+@use "game_menu";
 
 $dot-color: #f00;
 $dot-lowlight: #400;
@@ -19,7 +19,6 @@ $tile-color: #000;
 // panel's edge and the outermost dots.
 $page-gutter: 8px;
 $board-pad: 24px;
-$ui-width: 906px; // the scoreboard's and seat bar's outer width
 
 body.play {
   margin: 0;
@@ -43,7 +42,7 @@ html:has(> body.play) {
   width: max-content;
   min-width: 100%;
 
-  // Seat bar and scoreboard stay a comfortable width, centered in the
+  // Scoreboard and game menu stay a comfortable width, centered in the
   // viewport, and follow horizontal scrolling across a wide board.
   .game-ui {
     position: sticky;
